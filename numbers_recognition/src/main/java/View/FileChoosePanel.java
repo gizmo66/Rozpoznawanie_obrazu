@@ -1,5 +1,9 @@
 package View;
 
+import Core.ContextEnum;
+import Core.ImageRecognizer;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,11 +12,15 @@ import java.io.File;
 
 public class FileChoosePanel extends JPanel implements ActionListener {
 
-    private static String newline = "\n";
     private JTextArea log;
     JFileChooser fileChooser;
+    private ContextEnum context;
+    private Window window;
 
-    public FileChoosePanel() {
+    public FileChoosePanel(ContextEnum context, Window window) {
+        this.context = context;
+        this.window = window;
+
         log = new JTextArea(5,20);
         log.setMargin(new Insets(5,5,5,5));
         log.setEditable(false);
@@ -34,13 +42,22 @@ public class FileChoosePanel extends JPanel implements ActionListener {
         int returnVal = fileChooser.showDialog(this, "Choose");
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            log.append("Attaching file: " + file.getName() + "." + newline);
+            log.append("Attaching file: " + file.getName() + "." + StringUtils.LF);
         } else {
-            log.append("Attachment cancelled by user." + newline);
+            log.append("Attachment cancelled by user." + StringUtils.LF);
         }
         log.setCaretPosition(log.getDocument().getLength());
 
+        handleFileAdding(context, fileChooser.getSelectedFile());
         fileChooser.setSelectedFile(null);
+    }
+
+    private void handleFileAdding(ContextEnum context, File selectedFile) {
+        if(context.equals(ContextEnum.TRAINING)) {
+            ImageRecognizer.loadTrainingData(selectedFile, this, window);
+        } else if (context.equals(ContextEnum.RECOGNITION)) {
+            ImageRecognizer.initImageRecognition(selectedFile, this, window);
+        }
     }
 
     protected void initFileChooser() {

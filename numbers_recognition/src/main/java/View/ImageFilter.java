@@ -1,5 +1,6 @@
 package View;
 
+import Core.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.filechooser.FileFilter;
@@ -7,7 +8,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ImageFilter extends FileFilter {
 
