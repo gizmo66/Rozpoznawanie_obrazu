@@ -4,6 +4,9 @@ import View.FileChoosePanel;
 import View.ImageFileChoosePanel;
 import View.Window;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Application {
 
     public static void main(String args[]) {
@@ -20,6 +23,18 @@ public class Application {
             window = new Window("Choose training data");
             window.add(new FileChoosePanel(ContextEnum.TRAINING, window));
         }
+        Map<String,Boolean> tempMap = new HashMap<>();
+        tempMap.put("1",false);
+        tempMap.put("2",false);
+        tempMap.put("3",false);
+        tempMap.put("4",false);
+        tempMap.put("5",true);
+        tempMap.put("6",true);
+        tempMap.put("7",true);
+        tempMap.put("8",false);
+        tempMap.put("9",false);
+
+        window = WindowTestRecognizer.getTestWindows(tempMap);
         window.pack();
         window.setVisible(true);
     }
