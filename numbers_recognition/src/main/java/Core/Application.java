@@ -3,6 +3,7 @@ package Core;
 import View.FileChoosePanel;
 import View.ImageFileChoosePanel;
 import View.Window;
+import View.WindowTestRecognizer;
 
 import java.util.HashMap;
 import java.util.Map;
