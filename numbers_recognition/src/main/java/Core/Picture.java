@@ -14,4 +14,13 @@ public class Picture {
         this.image = image;
         this.type = type;
     }
+
+    public Image getImage()
+    {
+        return image;
+    }
+
+    public String getType() {
+        return type;
+    }
 }
