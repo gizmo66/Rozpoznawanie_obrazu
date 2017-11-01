@@ -47,6 +47,30 @@ public class WindowTestRecognizer {
         return window;
     }
 
+    public static Window getDebugWindows(Map<String,Float> debugData, String featuresName)
+    {
+        Window window = new Window("DEBUG DATA");
+        String data[][] = new String[debugData.keySet().size()][debugData.keySet().size()];
+        int testID = 0;
+        for(String key:debugData.keySet())
+        {
+            data[testID][0] = key;
+            data[testID][1] = debugData.get(key).toString();
+
+            testID++;
+        }
+        String column[]={"Number",featuresName};
+        JTable jt=new JTable(data,column);
+        jt.setBounds(30,40,200,300);
+        JScrollPane sp=new JScrollPane(jt);
+
+        window.add(sp);
+        window.setSize(300,400);
+        window.setVisible(true);
+
+        return window;
+    }
+
     private static float passToFailTest(Map<String,Boolean> testResults)
     {
         int pass = 0;
@@ -57,6 +81,5 @@ public class WindowTestRecognizer {
         }
 
         return (float)(100*pass/testResults.values().size());
-
     }
 }
