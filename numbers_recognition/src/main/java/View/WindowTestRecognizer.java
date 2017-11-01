@@ -47,27 +47,66 @@ public class WindowTestRecognizer {
         return window;
     }
 
-    public static Window getDebugWindows(Map<String,Float> debugData, String featuresName)
+    public static Window getDebugWindows(Map<String,Float> debugData,Map<String,Boolean> debugData1,
+                                         Map<String,Integer> debugData2,String featuresName)
     {
         Window window = new Window("DEBUG DATA");
-        String data[][] = new String[debugData.keySet().size()][debugData.keySet().size()];
-        int testID = 0;
-        for(String key:debugData.keySet())
+        if(debugData != null)
         {
-            data[testID][0] = key;
-            data[testID][1] = debugData.get(key).toString();
+            String data[][] = new String[debugData.keySet().size()][debugData.keySet().size()];
+            int testID = 0;
+            for(String key:debugData.keySet())
+            {
+                data[testID][0] = key;
+                data[testID][1] = debugData.get(key).toString();
 
-            testID++;
+                testID++;
+            }
+            String column[]={"Number",featuresName};
+            JTable jt=new JTable(data,column);
+            jt.setBounds(30,40,200,300);
+            JScrollPane sp=new JScrollPane(jt);
+
+            window.add(sp);
         }
-        String column[]={"Number",featuresName};
-        JTable jt=new JTable(data,column);
-        jt.setBounds(30,40,200,300);
-        JScrollPane sp=new JScrollPane(jt);
+        else if(debugData1 != null)
+        {
+            String data[][] = new String[debugData1.keySet().size()][debugData1.keySet().size()];
+            int testID = 0;
+            for(String key:debugData1.keySet())
+            {
+                data[testID][0] = key;
+                data[testID][1] = debugData1.get(key).toString();
 
-        window.add(sp);
+                testID++;
+            }
+            String column[]={"Number",featuresName};
+            JTable jt=new JTable(data,column);
+            jt.setBounds(30,40,200,300);
+            JScrollPane sp=new JScrollPane(jt);
+
+            window.add(sp);
+        }
+        else if(debugData2 != null)
+        {
+            String data[][] = new String[debugData2.keySet().size()][debugData2.keySet().size()];
+            int testID = 0;
+            for(String key:debugData2.keySet())
+            {
+                data[testID][0] = key;
+                data[testID][1] = debugData2.get(key).toString();
+
+                testID++;
+            }
+            String column[]={"Number",featuresName};
+            JTable jt=new JTable(data,column);
+            jt.setBounds(30,40,200,300);
+            JScrollPane sp=new JScrollPane(jt);
+
+            window.add(sp);
+        }
         window.setSize(300,400);
         window.setVisible(true);
-
         return window;
     }
 
