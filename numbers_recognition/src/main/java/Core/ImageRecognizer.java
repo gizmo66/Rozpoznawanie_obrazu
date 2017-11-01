@@ -47,7 +47,8 @@ public class ImageRecognizer {
             if(pictures.size() > 0)
                 tempMap.put(String.valueOf(pictures.size()),true);*/
 
-            window1 = WindowTestRecognizer.getDebugWindows(FeaturesExtractor.getMidSurfaceOfNumber(pictures),"SURFACE");
+            window1 = WindowTestRecognizer.getDebugWindows(null,
+                    null,FeaturesExtractor.getNumberOfEnded(pictures),"Number of ended");
             window1.pack();
             window1.setVisible(true);
 
