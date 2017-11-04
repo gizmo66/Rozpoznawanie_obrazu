@@ -35,8 +35,14 @@ public class FeaturesExtractor {
         return calculateNumberSurface(pictures);
     }
 
-    //2 i 3 cecha
-    public static Map<String,Boolean> getVHLine(List<Picture> pictures)
+    //2 cecha
+    public static Map<String,Boolean> getVLine(List<Picture> pictures)
+    {
+        return determinatedLine(pictures, LINE_TYP.vertical);
+    }
+
+    //3 cecha
+    public static Map<String,Boolean> getHLine(List<Picture> pictures)
     {
         return determinatedLine(pictures, LINE_TYP.horizontal);
     }
@@ -63,7 +69,7 @@ public class FeaturesExtractor {
                     {
                         if(lineType.equals(LINE_TYP.vertical))
                         {
-                            if(hasVerticalLine(i,j,tempPicture,2))
+                            if(hasVerticalLine(i,j,tempPicture,5))
                             {
                                 tempPictureHas = true;
                                 if(returnMap.keySet().contains(picture.getType()))
@@ -82,7 +88,7 @@ public class FeaturesExtractor {
                         }
                         if(lineType.equals(LINE_TYP.horizontal))
                         {
-                            if(hasHorizontalLine(i,j,tempPicture,2))
+                            if(hasHorizontalLine(i,j,tempPicture,5))
                             {
                                 tempPictureHas = true;
                                 if(returnMap.keySet().contains(picture.getType()))
@@ -148,13 +154,15 @@ public class FeaturesExtractor {
         {
             BufferedImage tempImage = ImageUtils.toBufferedImage(picture.getImage());
             int numberOfEnded = 0;
-            for(int i = 0; i < tempImage.getWidth(); i++)
+            for( int i = 1; i < tempImage.getWidth(); i+=3)
             {
-                for(int j = 0; j < tempImage.getHeight(); j++)
+                for(int j = 1; j < tempImage.getHeight(); j+=3)
                 {
-                    if(tempImage.getRGB(i,j) == Color.WHITE.getRGB())
-                        if(lineWithEnd(i,j,tempImage))
+                    if(tempImage.getRGB(i,j) == Color.BLACK.getRGB())
+                    {
+                        if(lineWithEnd(i,j,tempImage) <= 2)
                             numberOfEnded++;
+                    }
                 }
             }
             if(!returnMap.keySet().contains(picture.getType()))
@@ -164,34 +172,30 @@ public class FeaturesExtractor {
         }
 
         //mid number of ended
-        int numberOccurrencesEnded = pictures.size() / 10;
+        int numberOccurrencesEnded = pictures.size() / 100;
         for(String key:returnMap.keySet())
         {
-            returnMap.put(key,returnMap.get(key)/numberOccurrencesEnded);
+            returnMap.put(key,returnMap.get(key)/100);
         }
         return  returnMap;
     }
 
-    private static boolean lineWithEnd (int w, int h, BufferedImage image)
+    private static int lineWithEnd (int w, int h, BufferedImage image)
     {
         int numberOfCount = 0;
         for(int i = -1; i < 2;i++)
         {
-            if(w + i >= 0 && w + i < image.getWidth())
+            for(int j = -1; j < 2;j++)
             {
-                for(int j = -1; j < 2;j++)
+                if(image.getHeight() > h + j && 0 <= h + j && w + i >= 0 && w + i < image.getWidth())
                 {
-                    if(image.getHeight() > h + j && 0 <= h + j)
-                    {
-                        if(image.getRGB(w + i,h + j) == Color.WHITE.getRGB())
-                            numberOfCount++;
-                        if(numberOfCount > 1)
-                            return false;
-                    }
+                    if(image.getRGB(w + i,h + j) == Color.BLACK.getRGB())
+                        numberOfCount++;
                 }
             }
         }
-        return true;
+
+        return numberOfCount;
     }
 
     private static boolean hasVerticalLine(int w, int h, BufferedImage image, int minimumLeght)
@@ -201,7 +205,7 @@ public class FeaturesExtractor {
         {
             if(h+i >= 0 && h+i < image.getHeight())
             {
-                if(image.getRGB(w,h+i) == Color.WHITE.getRGB())
+                if(image.getRGB(w,h+i) == Color.BLACK.getRGB())
                 {
                     lineLenght++;
                 }
@@ -229,7 +233,7 @@ public class FeaturesExtractor {
         {
             if(w+i >= 0 && w+i < image.getWidth())
             {
-                if(image.getRGB(w+i,h) == Color.WHITE.getRGB())
+                if(image.getRGB(w+i,h) == Color.BLACK.getRGB())
                 {
                     lineLenght++;
                 }
@@ -280,7 +284,7 @@ public class FeaturesExtractor {
             for (int j = 0 ; j < image.getWidth(); j++)
             {
                 //bufferedImage.getRaster().getDataBuffer()).getData()
-                if(image.getRGB(i,j) == Color.WHITE.getRGB())
+                if(image.getRGB(i,j) == Color.BLACK.getRGB())
                     returnValue ++;
             }
         }

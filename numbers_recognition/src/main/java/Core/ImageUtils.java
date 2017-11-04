@@ -2,9 +2,9 @@ package Core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
-
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -17,6 +17,28 @@ public class ImageUtils {
 
     private static final String WELCOME_MESSAGE = "Welcome to OpenCV ver. {} ";
     private static final String LIB_NAME = "opencv_java320";
+
+    public static BufferedImage binarizeImage(BufferedImage bfImage){
+        final int THRESHOLD = 160;
+        int height = bfImage.getHeight();
+        int width = bfImage.getWidth();
+        BufferedImage returnImage = bfImage;
+
+        for(int i=0; i<width; i++){
+            for(int j=0; j<height; j++){
+                Color c = new Color(returnImage.getRGB(i,j));
+                int red = c.getRed();
+                int green = c.getGreen();
+                int blue = c.getBlue();
+                if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
+                    returnImage.setRGB(i,j,Color.WHITE.getRGB());
+                }else{
+                    returnImage.setRGB(i,j,Color.BLACK.getRGB());
+                }
+            }
+        }
+        return returnImage;
+    }
 
     static Image bytesToImage(byte[] source) {
         int type = BufferedImage.TYPE_BYTE_GRAY;
@@ -48,6 +70,23 @@ public class ImageUtils {
         final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         System.arraycopy(b, 0, targetPixels, 0, b.length);
         return image;
+    }
+
+    public static BufferedImage toBufferImageFrom2DArray(int[][] array)
+    {
+        BufferedImage bimage = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB);
+        for(int i =0 ; i < 28;i ++)
+        {
+            for(int j = 0; j < 28; j++)
+            {
+                if(array[i][j] == 1)
+                    bimage.setRGB(j,i,Color.BLACK.getRGB());
+                else
+                    bimage.setRGB(j,i,Color.WHITE.getRGB());
+            }
+        }
+
+        return bimage;
     }
 
     public static BufferedImage toBufferedImage(Image img)
