@@ -1,9 +1,6 @@
 package Core;
 
-import View.FileChoosePanel;
-import View.ImageFileChoosePanel;
-import View.Window;
-import View.WindowTestRecognizer;
+import View.*;
 
 import java.io.File;
 import java.util.HashMap;
@@ -12,10 +9,15 @@ import java.util.Map;
 
 public class Application {
 
+    public static Window window;
+
     public static void main(String args[]) {
 
-        Window window;
-        FeaturesVectorLoader featuresVectorLoader = new FeaturesVectorLoader();
+        //window = new Window("Choose program");
+        StartWindowPanel st = new StartWindowPanel();
+        //window = st.initStartWindowPanel();
+        //window = st.initWindowPanel(window);
+        /*FeaturesVectorLoader featuresVectorLoader = new FeaturesVectorLoader();
         if (featuresVectorLoader.loadFeaturesVector()) {
             window = new Window("Choose image to recognize");
             window.add(new ImageFileChoosePanel(ContextEnum.RECOGNITION, window));
@@ -26,9 +28,6 @@ public class Application {
             window = new Window("Choose training data");
             window.add(new FileChoosePanel(ContextEnum.TRAINING, window));
 
-        }
-
-        window.pack();
-        window.setVisible(true);
+        }*/
     }
 }

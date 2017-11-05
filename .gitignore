@@ -148,3 +148,5 @@ $RECYCLE.BIN/
 *.png
 *.properties
 *.lst
+*.fv
+*.txt
