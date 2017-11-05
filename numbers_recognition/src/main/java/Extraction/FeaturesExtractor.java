@@ -26,7 +26,7 @@ public class FeaturesExtractor {
 
     public static FeaturesVector extractFeaturesVector(List<Picture> pictures) {
         //TODO: wyciagnąć cechy z zestawu zdjęć treningowych do wektora cech
-        return new FeaturesVector();
+        return new FeaturesVector(getMidSurfaceOfNumber(pictures),getVLine(pictures),getHLine(pictures),getNumberOfEnded(pictures));
     }
 
     //1 cecha
