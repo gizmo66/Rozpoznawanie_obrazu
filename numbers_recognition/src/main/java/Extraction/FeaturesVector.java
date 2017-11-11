@@ -8,13 +8,13 @@ import java.util.Map;
 
 public class FeaturesVector {
 
-    private Map<String,Float> surfaceFeatures;
-    private Map<String,Boolean> verticalFeatures,horizontalFeatures;
-    private Map<String,Integer> numberOfEndedFeatures;
+    public static Map<String,Float> surfaceFeatures;
+    public static Map<String,Boolean> verticalFeatures,horizontalFeatures;
+    public static Map<String,Integer> numberOfEndedFeatures;
 
-    private final String FEATURE_TAG_START = "FEATURE: ";
-    private final String FEATURE_TAG_END = "END OF: ";
-    private final String DIGITS_VALUE_SEPARATOR = ":";
+    public static final String FEATURE_TAG_START = "FEATURE: ";
+    public static final String FEATURE_TAG_END = "END OF: ";
+    public static final String DIGITS_VALUE_SEPARATOR = ":";
 
     public FeaturesVector(Map<String,Float> sF,Map<String,Boolean> vF,Map<String,Boolean> hF,Map<String,Integer> eF)
     {
