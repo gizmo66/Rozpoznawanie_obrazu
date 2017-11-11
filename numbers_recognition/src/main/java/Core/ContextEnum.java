@@ -4,5 +4,6 @@ public enum ContextEnum {
 
     TRAINING,
     RECOGNITION,
-    TEST
+    TEST,
+    LOAD_VECTOR
 }

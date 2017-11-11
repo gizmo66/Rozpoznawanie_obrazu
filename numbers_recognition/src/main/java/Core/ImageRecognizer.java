@@ -75,7 +75,9 @@ public class ImageRecognizer {
             if (CollectionUtils.isNotEmpty(pictures)) {
                 window.add(new TrainingDataLoadingPanel(pictures, window, isMnist));
                 FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(pictures);
-                featuresVector.saveToFile();
+                //featuresVector.saveToFile();
+                FeaturesVectorLoader t = new FeaturesVectorLoader();
+                t.loadFeaturesVector();
             }
         }
     }
