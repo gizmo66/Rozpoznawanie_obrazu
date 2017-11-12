@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-class MnistFilesLoader implements FileLoader {
+public class MnistFilesLoader implements FileLoader {
 
     private static final int OFFSET_SIZE = 4;
     private static final int NUMBER_ITEMS_OFFSET = 4;
@@ -14,7 +14,7 @@ class MnistFilesLoader implements FileLoader {
     private static final int IMAGE_OFFSET = 16;
     private static final int IMAGE_SIZE = ROWS * COLUMNS;
 
-    List<Picture> loadTrainingDataSet(File file) throws IOException {
+    public List<Picture> loadTrainingDataSet(File file) throws IOException {
         List<Picture> pictures = new ArrayList<>();
 
         String imagesFileName = file.getName();

@@ -1,8 +1,10 @@
 package Core;
 
+import Extraction.FeaturesExtractor;
 import Extraction.FeaturesVector;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ public class FeaturesVectorLoader {
 
         //TODO: wczytać wektor cech z zapisanego pliku
         readFile();
+        fillUpTrainigSets();
         return featuresVectorLoaded;
     }
 
@@ -33,16 +36,39 @@ public class FeaturesVectorLoader {
 
             if(featureWasFound && !strLine.contains(FeaturesVector.FEATURE_TAG_START)) {
                 String key = strLine.substring(0,strLine.indexOf(FeaturesVector.DIGITS_VALUE_SEPARATOR));
-                String value = strLine.substring(strLine.indexOf(FeaturesVector.DIGITS_VALUE_SEPARATOR), strLine.length());
+                String value = strLine.substring(strLine.indexOf(FeaturesVector.DIGITS_VALUE_SEPARATOR) + 1, strLine.length());
                 returnValues.put(key,(T)value);
             }
         }
 
         //DEBUG println
-        for(String key : returnValues.keySet())
-            System.out.println(key + " " + returnValues.get(key).toString());
+        /*for(String key : returnValues.keySet())
+            System.out.println(key + " " + returnValues.get(key).toString());*/
 
         return returnValues;
+    }
+
+    public void fillUpTrainigSets()
+    {
+        List<Picture> temptreningSets = new ArrayList<>();
+        for(String key: FeaturesVector.surfaceFeatures.keySet())
+        {
+            /*int vertical = 0;
+            if(String.valueOf(FeaturesVector.verticalFeatures.get(key)).equals("true"))
+                vertical = 1;
+            int horizontal = 0;
+            if(String.valueOf(FeaturesVector.horizontalFeatures.get(key)).equals("true"))
+                horizontal = 1;*/
+
+            Picture tempPicture = new Picture(key,Integer.parseInt(key),
+                    Float.valueOf(String.valueOf(FeaturesVector.surfaceFeatures.get(key))),
+                    Float.valueOf(String.valueOf(FeaturesVector.verticalLenghtFeatures.get(key))),
+                    Float.valueOf(String.valueOf(FeaturesVector.horizontalLenghtFeatures.get(key))),
+                    Integer.valueOf(String.valueOf(FeaturesVector.numberOfEndedFeatures.get(key))));
+            temptreningSets.add(tempPicture);
+        }
+
+        KNN.baseTrainingFile = temptreningSets;
     }
 
     public void readFile() {
@@ -53,8 +79,10 @@ public class FeaturesVectorLoader {
 
             //read features
             FeaturesVector.surfaceFeatures = readFeature(br,"SURFACE");
-            FeaturesVector.verticalFeatures = readFeature(br,"VERTICAL_LINE");
-            FeaturesVector.horizontalFeatures = readFeature(br,"HORIZONTAL_LINE");
+            //FeaturesVector.verticalFeatures = readFeature(br,"VERTICAL_LINE");
+            //FeaturesVector.horizontalFeatures = readFeature(br,"HORIZONTAL_LINE");
+            FeaturesVector.verticalLenghtFeatures = readFeature(br,"VERTICAL_LINE");
+            FeaturesVector.horizontalLenghtFeatures = readFeature(br,"HORIZONTAL_LINE");
             FeaturesVector.numberOfEndedFeatures = readFeature(br,"ENDED_NUMBER");
 
             //Close the input stream
