@@ -43,41 +43,36 @@ public class ImageRecognizer {
             loadPictures = pictures;
             for(int i = 0; i < pictures.size();i++)
             {
-                //if(pictures.get(i).getType().equals("1"))
-                //{
                 loadPictures.set(i,new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i).getImage())),
                         loadPictures.get(i).getType()));
-                //loadPictures.set(i,new Picture(ImageUtils.skeletonize(loadPictures.get(i).getImage()),loadPictures.get(i).getType()));
-                //loadPictures.set(0,ThinnerImage.thinImage(loadPictures.get(0)));
-                //}
-                //loadPictures.set(i,new Picture(ImageUtils.skeletonize(loadPictures.get(i).getImage()),loadPictures.get(i).getType()))
                 loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType()));
             }
-            //loadPictures.set(1,new Picture(ThinnerImage.Start(loadPictures.get(1)),loadPictures.get(1).getType()));
 
             Window window1;
-            /*Map<String,Boolean> tempMap = new HashMap<>();
-            tempMap.put("1",false);
-            tempMap.put("3",false);
-            tempMap.put("2",false);
-            if(pictures.size() > 0)
-                tempMap.put(String.valueOf(pictures.size()),true);*/
-            //FeaturesExtractor.getNumberOfEnded(loadPictures)
-            //FeaturesExtractor.getNumberOfEnded(loadPictures)
-            window1 = WindowTestRecognizer.getDebugWindows(FeaturesExtractor.getMidSurfaceOfNumber(loadPictures),
-                    FeaturesExtractor.getVLine(loadPictures),FeaturesExtractor.getHLine(loadPictures),FeaturesExtractor.getNumberOfEnded(loadPictures),
-                    "Surface","Vertical line","Horizontal line", "Number of ended");
+            window1 = WindowTestRecognizer.getDebugWindows_v1(FeaturesExtractor.getMidSurfaceOfNumber(loadPictures,true),
+                    FeaturesExtractor.getLenghtOfVLine(loadPictures),FeaturesExtractor.getLenghtOfHLine(loadPictures),FeaturesExtractor.getNumberOfEnded(loadPictures),
+                    "Surface","Vertical line lenght","Horizontal line lenght", "Number of ended");
 
             pictures = loadPictures;
             window1.pack();
             window1.setVisible(true);
 
             if (CollectionUtils.isNotEmpty(pictures)) {
-                window.add(new TrainingDataLoadingPanel(pictures, window, isMnist));
                 FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(pictures);
-                //featuresVector.saveToFile();
-                FeaturesVectorLoader t = new FeaturesVectorLoader();
-                t.loadFeaturesVector();
+                featuresVector.saveToFile();
+
+                List<Picture> tempTest = new ArrayList<>();
+                for(int i = 0 ; i < 200 ; i ++)
+                {
+                    tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(pictures.get(i)));
+                }
+                List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,1);
+                window = WindowTestRecognizer.getTestWindows(result);
+                window.add(new TrainingDataLoadingPanel(pictures, window, isMnist));
+                /*for(Picture p :KNN.baseTrainingFile)
+                {
+                    System.out.println(p.distance + " "+ p.label + " " +p.getCharasteristic().toString());
+                }*/
             }
         }
     }

@@ -1,15 +1,16 @@
 package View;
 
-import Core.Application;
-import Core.ContextEnum;
-import Core.FeaturesVectorLoader;
+import Core.*;
+import Extraction.FeaturesExtractor;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 public class StartWindowPanel extends JPanel implements ActionListener {
 
@@ -78,12 +79,31 @@ public class StartWindowPanel extends JPanel implements ActionListener {
             window = new Window("Choose training data");
             window.add(new FileChoosePanel(ContextEnum.TRAINING, window));
         }else if (context.equals(ContextEnum.TEST)) {
-            window = new Window("TEST PROGRAM");
-            Map<String,Boolean> tempMap = new HashMap<>();
-            tempMap.put("1",true);
-            tempMap.put("3",false);
-            tempMap.put("2",true);
-            window = WindowTestRecognizer.getTestWindows(tempMap);
+            MnistFilesLoader mnistFilesLoader = new MnistFilesLoader();
+            List<Picture> loadPictures = new ArrayList<>();
+            try{
+
+                loadPictures = mnistFilesLoader.loadTrainingDataSet(new File( "data/MNIST_database/t10k-images.idx3-ubyte"));
+            }
+            catch (IOException e)
+            {
+                System.out.println(e);
+            }
+            for(int i = 0; i < loadPictures.size();i++)
+            {
+                loadPictures.set(i,new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage( loadPictures.get(i).getImage())),
+                        loadPictures.get(i).getType()));
+                loadPictures.set(i,new Picture(ThinnerImage.Start( loadPictures.get(i)), loadPictures.get(i).getType()));
+            }
+            java.util.List<Picture> tempTest = new ArrayList<>();
+            Random r  = new Random();
+            for(int i = 0 ; i < loadPictures.size() ; i ++)
+            {
+                //int index = r.nextInt((loadPictures.size() - 0) + 1) + 0;
+                tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(loadPictures.get(i)));
+            }
+            List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,8);
+            window = WindowTestRecognizer.getTestWindows(result);
         }else if(context.equals(ContextEnum.LOAD_VECTOR)){
             FeaturesVectorLoader t = new FeaturesVectorLoader();
             t.loadFeaturesVector();
