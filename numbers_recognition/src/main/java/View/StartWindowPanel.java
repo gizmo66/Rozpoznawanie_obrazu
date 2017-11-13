@@ -89,7 +89,7 @@ public class StartWindowPanel extends JPanel implements ActionListener {
             {
                 System.out.println(e);
             }
-            for(int i = 0; i < loadPictures.size();i++)
+            for(int i = 400 ; i < 405;i++)
             {
                 loadPictures.set(i,new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage( loadPictures.get(i).getImage())),
                         loadPictures.get(i).getType()));
@@ -97,7 +97,7 @@ public class StartWindowPanel extends JPanel implements ActionListener {
             }
             java.util.List<Picture> tempTest = new ArrayList<>();
             Random r  = new Random();
-            for(int i = 0 ; i < loadPictures.size() ; i ++)
+            for(int i = 400 ; i < 405 ; i ++)
             {
                 //int index = r.nextInt((loadPictures.size() - 0) + 1) + 0;
                 tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(loadPictures.get(i)));

@@ -2,6 +2,7 @@ package View;
 
 
 import Core.ResultData;
+import Extraction.FeaturesVector;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -79,8 +80,9 @@ public class WindowTestRecognizer {
         return window;
     }
 
-    public static Window getDebugWindows_v1(Map<String,Float> surface,Map<String,Float> vertical,Map<String,Float> horizontal,
-                                         Map<String,Integer> endeed,String featuresName1,String featuresName2,String featuresName3,String featuresName4)
+    public static Window getDebugWindows_v1(Map<String,List<Number>> surface,Map<String,List<Number>> vertical,Map<String,
+            List<Number>> horizontal,
+                                         Map<String,List<Number>> endeed,String featuresName1,String featuresName2,String featuresName3,String featuresName4)
     {
         Window window = new Window("DEBUG DATA");
         String data[][] = new String[surface.keySet().size()][surface.keySet().size()];

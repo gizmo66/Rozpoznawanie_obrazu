@@ -1,94 +1,91 @@
 package Core;
 
-import Extraction.FeaturesExtractor;
 import Extraction.FeaturesVector;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FeaturesVectorLoader {
 
     public boolean loadFeaturesVector() {
-        boolean featuresVectorLoaded = false;
-
-        //TODO: wczytać wektor cech z zapisanego pliku
-        readFile();
+        boolean featuresVectorLoaded = readFile();
         fillUpTrainigSets();
         return featuresVectorLoaded;
     }
 
-    private <T> Map<String,T> readFeature(BufferedReader br, String featureName) throws IOException {
+    private void readFeaturesVector(BufferedReader br) throws IOException {
 
-        Map<String,T> returnValues = new HashMap<>();
-        boolean featureWasFound = false;
         //Read File Line By Line
         for(String strLine; (strLine = br.readLine()) != null; ) {
+            if (strLine.contains(FeaturesVector.CLASS_TAG_START)) {
+                String imageClass = strLine.split("\"")[1];
+                Map<String, List<Number>> featureNameToValuesMap = new HashMap<>();
+                while (true){
+                    strLine = br.readLine();
+                    if(strLine.contains(FeaturesVector.CLASS_TAG_END)) {
+                        FeaturesVector.imageClassToFeaturesValuesMap.put(imageClass,
+                                featureNameToValuesMap);
+                        break;
+                    }
+                    String featureName = strLine.split("\"")[1];
+                    String valuesLine = br.readLine();
+                    valuesLine = valuesLine.replaceAll("\\[", "");
+                    valuesLine = valuesLine.replaceAll("]", "");
+                    valuesLine = valuesLine.replaceAll("\t", "");
 
-            if(!featureWasFound && strLine.contains(FeaturesVector.FEATURE_TAG_START) && strLine.contains(featureName)) {
-                featureWasFound = true;
-            }
-
-            if(strLine.contains(FeaturesVector.FEATURE_TAG_END) && strLine.contains(featureName))
-                break;
-
-            if(featureWasFound && !strLine.contains(FeaturesVector.FEATURE_TAG_START)) {
-                String key = strLine.substring(0,strLine.indexOf(FeaturesVector.DIGITS_VALUE_SEPARATOR));
-                String value = strLine.substring(strLine.indexOf(FeaturesVector.DIGITS_VALUE_SEPARATOR) + 1, strLine.length());
-                returnValues.put(key,(T)value);
+                    String[] valuesArray = StringUtils.split(valuesLine, ",");
+                    List<Number> values = new ArrayList<>();
+                    for (String strValue : Arrays.asList(valuesArray)) {
+                        Float value = Float.valueOf(strValue);
+                        values.add(value);
+                    }
+                    featureNameToValuesMap.put(featureName, values);
+                    String featureEndTag = br.readLine();
+                }
             }
         }
 
         //DEBUG println
         /*for(String key : returnValues.keySet())
             System.out.println(key + " " + returnValues.get(key).toString());*/
-
-        return returnValues;
     }
 
     public void fillUpTrainigSets()
     {
         List<Picture> temptreningSets = new ArrayList<>();
-        for(String key: FeaturesVector.surfaceFeatures.keySet())
-        {
-            /*int vertical = 0;
-            if(String.valueOf(FeaturesVector.verticalFeatures.get(key)).equals("true"))
-                vertical = 1;
-            int horizontal = 0;
-            if(String.valueOf(FeaturesVector.horizontalFeatures.get(key)).equals("true"))
-                horizontal = 1;*/
 
-            Picture tempPicture = new Picture(key,Integer.parseInt(key),
-                    Float.valueOf(String.valueOf(FeaturesVector.surfaceFeatures.get(key))),
-                    Float.valueOf(String.valueOf(FeaturesVector.verticalLenghtFeatures.get(key))),
-                    Float.valueOf(String.valueOf(FeaturesVector.horizontalLenghtFeatures.get(key))),
-                    Integer.valueOf(String.valueOf(FeaturesVector.numberOfEndedFeatures.get(key))));
-            temptreningSets.add(tempPicture);
+        for (String imageClass : FeaturesVector.imageClassToFeaturesValuesMap.keySet()) {
+            Map<String, List<Number>> featureNameToValuesMap = FeaturesVector.imageClassToFeaturesValuesMap.get
+                    (imageClass);
+            for(int i = 0; i < featureNameToValuesMap.entrySet().iterator().next().getValue().size(); i++) {
+                List<Number> features = new ArrayList<>();
+                for(String feature : featureNameToValuesMap.keySet()) {
+                    features.add(featureNameToValuesMap.get(feature).get(i));
+                }
+                Picture tempPicture = new Picture(imageClass, Integer.parseInt(imageClass), features);
+                temptreningSets.add(tempPicture);
+            }
         }
 
         KNN.baseTrainingFile = temptreningSets;
     }
 
-    public void readFile() {
+    public boolean readFile() {
         try{
             //read file
-            FileInputStream fstream = new FileInputStream("FeaturesVector.txt");
+            FileInputStream fstream = new FileInputStream("FeaturesVector.fv");
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 
             //read features
-            FeaturesVector.surfaceFeatures = readFeature(br,"SURFACE");
-            //FeaturesVector.verticalFeatures = readFeature(br,"VERTICAL_LINE");
-            //FeaturesVector.horizontalFeatures = readFeature(br,"HORIZONTAL_LINE");
-            FeaturesVector.verticalLenghtFeatures = readFeature(br,"VERTICAL_LINE");
-            FeaturesVector.horizontalLenghtFeatures = readFeature(br,"HORIZONTAL_LINE");
-            FeaturesVector.numberOfEndedFeatures = readFeature(br,"ENDED_NUMBER");
+            readFeaturesVector(br);
 
             //Close the input stream
             br.close();
+            return true;
         }catch (Exception e){//Catch exception if any
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error: " + e);
+            return false;
         }
     }
 }

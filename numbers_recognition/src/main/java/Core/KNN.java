@@ -29,12 +29,12 @@ public class KNN {
             return null;
         }
 
-        int numOfTestingRecord = trainingFile.size();
-        for(int i = 0; i < numOfTestingRecord; i ++){
+        //int numOfTestingRecord = trainingFile.size();
+        //for(int i = 0; i < numOfTestingRecord; i ++){
             List<Picture> neighbors = findKNearestNeighbors(trainingFile, testFile, K);
             int classLabel = classify(neighbors);
             testFile.label = classLabel;
-        }
+        //}
 
         List<String> result = new ArrayList<>();
         result.add(testFile.getType());
@@ -103,14 +103,13 @@ public class KNN {
         return returnLabel;
     }
 
-    public static double getEuclideanDistance(List<Float> f0, List<Float> f1) {
+    public static double getEuclideanDistance(List<Number> f0, List<Number> f1) {
         assert f1.size() != f0.size() : "Features1 and Features2 are different size!";
         int numOfAttributes = f0.size();
         double sum2 = 0;
 
         for(int i = 0; i < numOfAttributes; i ++){
-
-            sum2 += Math.pow(f0.get(i) - f1.get(i), 2);
+            sum2 += Math.pow(f0.get(i).floatValue() - f1.get(i).floatValue(), 2);
         }
 
         return Math.sqrt(sum2);
