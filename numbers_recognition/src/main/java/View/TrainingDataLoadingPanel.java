@@ -7,11 +7,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
-import java.util.List;
+import java.util.LinkedList;
 
 public class TrainingDataLoadingPanel extends JPanel {
 
-    public TrainingDataLoadingPanel(List<Picture> pictures, Window window, boolean isMnist) {
+    public TrainingDataLoadingPanel(LinkedList<Picture> pictures, Window window, boolean isMnist) {
         window.setTitle("Training data");
 
         //TODO: przy 2-gim zadaniu (dla innej bazy) - wyświetlać inaczej

@@ -3,7 +3,7 @@ package Core;
 import lombok.Getter;
 
 import java.awt.*;
-import java.util.List;
+import java.util.LinkedList;
 
 @Getter
 public class Picture {
@@ -11,7 +11,7 @@ public class Picture {
     private final Image image;
     private final String type;
 
-    private List<Number> features;
+    private LinkedList<Number> features;
 
     public int label;
     public double distance;
@@ -23,7 +23,7 @@ public class Picture {
         distance = 0;
     }
 
-    public Picture(String type, int lable, List<Number> features) {
+    public Picture(String type, int lable, LinkedList<Number> features) {
         this.features = features;
         this.type = type;
         this.label = lable;
@@ -31,14 +31,14 @@ public class Picture {
         distance = 0;
     }
 
-    public Picture(Image image, String type, List<Number> features) {
+    public Picture(Image image, String type, LinkedList<Number> features) {
         this.features = features;
         this.image = image;
         this.type = type;
         distance = 0;
     }
 
-    public List<Number> getCharasteristic() {
+    public LinkedList<Number> getCharasteristic() {
         return features;
     }
 

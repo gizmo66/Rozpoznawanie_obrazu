@@ -3,30 +3,30 @@ package Extraction;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class FeaturesVector {
 
-    public static Map<String, Map<String, List<Number>>> imageClassToFeaturesValuesMap = new HashMap<>();
+    public static Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
 
     public static final String FEATURE_TAG_START = "<FEATURE name=\"";
     public static final String CLASS_TAG_START = "<CLASS name=\"";
     public static final String CLASS_TAG_END = "</CLASS>";
     public static final String FEATURE_TAG_END = "</FEATURE>";
 
-    public FeaturesVector(Map<String, Map<String, List<Number>>> imageClassToFeaturesValuesMap) {
+    public FeaturesVector(Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap) {
         FeaturesVector.imageClassToFeaturesValuesMap = imageClassToFeaturesValuesMap;
     }
 
-    private <T> void save(Map<String, Map<String, List<Number>>> imageClassToFeaturesValuesMap, BufferedWriter bf)
+    private <T> void save(Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap, BufferedWriter bf)
             throws IOException {
-        for (Map.Entry<String, Map<String, List<Number>>> imageClassToFeaturesValues : imageClassToFeaturesValuesMap.entrySet()) {
+        for (Map.Entry<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValues : imageClassToFeaturesValuesMap.entrySet()) {
             bf.newLine();
             bf.write(CLASS_TAG_START + imageClassToFeaturesValues.getKey() + "\">");
             bf.newLine();
-            for (Map.Entry<String, List<Number>> featureNameToValues : imageClassToFeaturesValues.getValue().entrySet
+            for (Map.Entry<String, LinkedList<Number>> featureNameToValues : imageClassToFeaturesValues.getValue().entrySet
                     ()) {
                 bf.write("\t");
                 bf.write(FEATURE_TAG_START + featureNameToValues.getKey() + "\">");

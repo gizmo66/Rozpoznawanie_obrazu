@@ -7,23 +7,21 @@ import View.Window;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class ImageRecognizer {
 
-    public static List<Picture> loadPictures = new ArrayList<>();
+    public static LinkedList<Picture> loadPictures = new LinkedList<>();
 
     public static void loadTrainingData(File file, FileChoosePanel fileChoosePanel, Window window) {
         if (file != null) {
             window.remove(fileChoosePanel);
             String extension = FilenameUtils.getExtension(file.getName());
-            List<Picture> pictures = new ArrayList<>();
+            LinkedList<Picture> pictures = new LinkedList<>();
             boolean isMnist = false;
 
             //FIXME akolodziejek: move magic string to field
@@ -70,7 +68,7 @@ public class ImageRecognizer {
                 {
                     tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(pictures.get(i)));
                 }
-                List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,10000);
+                List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,8);
                 window = WindowTestRecognizer.getTestWindows(result);
                 window.add(new TrainingDataLoadingPanel(pictures, window, isMnist));
                 /*for(Picture p :KNN.baseTrainingFile)

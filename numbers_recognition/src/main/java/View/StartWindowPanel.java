@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.LinkedList;
 import java.util.List;
 
 public class StartWindowPanel extends JPanel implements ActionListener {
@@ -80,7 +81,7 @@ public class StartWindowPanel extends JPanel implements ActionListener {
             window.add(new FileChoosePanel(ContextEnum.TRAINING, window));
         }else if (context.equals(ContextEnum.TEST)) {
             MnistFilesLoader mnistFilesLoader = new MnistFilesLoader();
-            List<Picture> loadPictures = new ArrayList<>();
+            LinkedList<Picture> loadPictures = new LinkedList<>();
             try{
 
                 loadPictures = mnistFilesLoader.loadTrainingDataSet(new File( "data/MNIST_database/t10k-images.idx3-ubyte"));
@@ -89,15 +90,15 @@ public class StartWindowPanel extends JPanel implements ActionListener {
             {
                 System.out.println(e);
             }
-            for(int i = 400 ; i < 405;i++)
+            for(int i = 0; i < 100;i++)
             {
                 loadPictures.set(i,new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage( loadPictures.get(i).getImage())),
                         loadPictures.get(i).getType()));
                 loadPictures.set(i,new Picture(ThinnerImage.Start( loadPictures.get(i)), loadPictures.get(i).getType()));
             }
-            java.util.List<Picture> tempTest = new ArrayList<>();
+            java.util.LinkedList<Picture> tempTest = new LinkedList<>();
             Random r  = new Random();
-            for(int i = 400 ; i < 405 ; i ++)
+            for(int i = 0; i < 100;i++)
             {
                 //int index = r.nextInt((loadPictures.size() - 0) + 1) + 0;
                 tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(loadPictures.get(i)));
