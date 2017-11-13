@@ -14,8 +14,8 @@ public class MnistFilesLoader implements FileLoader {
     private static final int IMAGE_OFFSET = 16;
     private static final int IMAGE_SIZE = ROWS * COLUMNS;
 
-    public List<Picture> loadTrainingDataSet(File file) throws IOException {
-        List<Picture> pictures = new ArrayList<>();
+    public LinkedList<Picture> loadTrainingDataSet(File file) throws IOException {
+        LinkedList<Picture> pictures = new LinkedList<>();
 
         String imagesFileName = file.getName();
         String imagesFileNamePrefix = imagesFileName.substring(0, imagesFileName.indexOf("-"));

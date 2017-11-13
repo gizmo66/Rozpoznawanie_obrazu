@@ -20,7 +20,7 @@ public class FeaturesVectorLoader {
         for(String strLine; (strLine = br.readLine()) != null; ) {
             if (strLine.contains(FeaturesVector.CLASS_TAG_START)) {
                 String imageClass = strLine.split("\"")[1];
-                Map<String, List<Number>> featureNameToValuesMap = new HashMap<>();
+                Map<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
                 while (true){
                     strLine = br.readLine();
                     if(strLine.contains(FeaturesVector.CLASS_TAG_END)) {
@@ -35,7 +35,7 @@ public class FeaturesVectorLoader {
                     valuesLine = valuesLine.replaceAll("\t", "");
 
                     String[] valuesArray = StringUtils.split(valuesLine, ",");
-                    List<Number> values = new ArrayList<>();
+                    LinkedList<Number> values = new LinkedList<>();
                     for (String strValue : Arrays.asList(valuesArray)) {
                         Float value = Float.valueOf(strValue);
                         values.add(value);
@@ -53,13 +53,13 @@ public class FeaturesVectorLoader {
 
     public void fillUpTrainigSets()
     {
-        List<Picture> temptreningSets = new ArrayList<>();
+        LinkedList<Picture> temptreningSets = new LinkedList<>();
 
         for (String imageClass : FeaturesVector.imageClassToFeaturesValuesMap.keySet()) {
-            Map<String, List<Number>> featureNameToValuesMap = FeaturesVector.imageClassToFeaturesValuesMap.get
+            Map<String, LinkedList<Number>> featureNameToValuesMap = FeaturesVector.imageClassToFeaturesValuesMap.get
                     (imageClass);
             for(int i = 0; i < featureNameToValuesMap.entrySet().iterator().next().getValue().size(); i++) {
-                List<Number> features = new ArrayList<>();
+                LinkedList<Number> features = new LinkedList<>();
                 for(String feature : featureNameToValuesMap.keySet()) {
                     features.add(featureNameToValuesMap.get(feature).get(i));
                 }

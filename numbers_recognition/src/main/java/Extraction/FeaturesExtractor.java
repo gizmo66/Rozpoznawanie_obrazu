@@ -5,9 +5,8 @@ import Core.Picture;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 enum LINE_TYP
@@ -18,9 +17,9 @@ enum LINE_TYP
 
 public class FeaturesExtractor {
 
-    public static FeaturesVector extractFeaturesVector(List<Picture> pictures) {
+    public static FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures) {
 
-        Map<String, Map<String, List<Number>>> imageClassToFeaturesValuesMap = new HashMap<>();
+        Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
 
         for(Picture picture : pictures) {
             Float surfaceSize = getSurfaceSize(picture);
@@ -38,31 +37,31 @@ public class FeaturesExtractor {
                 /*imageClassToFeaturesValuesMap.get(picture.getType()).get("VERTICAL_LINE").add(hasHLine ? 1 : 0);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("HORIZONTAL_LINE").add(hasVLine ? 1 : 0);*/
             } else {
-                Map<String, List<Number>> featureNameToValuesMap = new HashMap<>();
+                Map<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
 
-                List<Number> surfaceSizeList = new ArrayList<>();
-                surfaceSizeList.add(surfaceSize);
-                featureNameToValuesMap.put("SURFACE", surfaceSizeList);
+                LinkedList<Number> surfaceSizeLinkedList = new LinkedList<>();
+                surfaceSizeLinkedList.add(surfaceSize);
+                featureNameToValuesMap.put("SURFACE", surfaceSizeLinkedList);
 
-                List<Number> lengthOfHLineList = new ArrayList<>();
-                lengthOfHLineList.add(lengthOfHLine);
-                featureNameToValuesMap.put("VERTICAL_LINES", lengthOfHLineList);
+                LinkedList<Number> lengthOfHLineLinkedList = new LinkedList<>();
+                lengthOfHLineLinkedList.add(lengthOfHLine);
+                featureNameToValuesMap.put("VERTICAL_LINES", lengthOfHLineLinkedList);
 
-                List<Number> lengthOfVLineList = new ArrayList<>();
-                lengthOfVLineList.add(lengthOfVLine);
-                featureNameToValuesMap.put("HORIZONTAL_LINES", lengthOfVLineList);
+                LinkedList<Number> lengthOfVLineLinkedList = new LinkedList<>();
+                lengthOfVLineLinkedList.add(lengthOfVLine);
+                featureNameToValuesMap.put("HORIZONTAL_LINES", lengthOfVLineLinkedList);
 
-                List<Number> numbersOfEndedList = new ArrayList<>();
-                numbersOfEndedList.add(numbersOfEnded);
-                featureNameToValuesMap.put("ENDED_NUMBER", numbersOfEndedList);
+                LinkedList<Number> numbersOfEndedLinkedList = new LinkedList<>();
+                numbersOfEndedLinkedList.add(numbersOfEnded);
+                featureNameToValuesMap.put("ENDED_NUMBER", numbersOfEndedLinkedList);
 
-                /*List<Number> hasHLineList = new ArrayList<>();
-                hasHLineList.add(hasHLine ? 1 : 0);
-                featureNameToValuesMap.put("VERTICAL_LINE", hasHLineList);
+                /*LinkedList<Number> hasHLineLinkedList = new LinkedList<>();
+                hasHLineLinkedList.add(hasHLine ? 1 : 0);
+                featureNameToValuesMap.put("VERTICAL_LINE", hasHLineLinkedList);
 
-                List<Number> hasVLineList = new ArrayList<>();
-                hasVLineList.add(hasVLine ? 1 : 0);
-                featureNameToValuesMap.put("HORIZONTAL_LINE", hasVLineList);*/
+                LinkedList<Number> hasVLineLinkedList = new LinkedList<>();
+                hasVLineLinkedList.add(hasVLine ? 1 : 0);
+                featureNameToValuesMap.put("HORIZONTAL_LINE", hasVLineLinkedList);*/
 
                 imageClassToFeaturesValuesMap.put(picture.getType(), featureNameToValuesMap);
             }
@@ -76,7 +75,7 @@ public class FeaturesExtractor {
         float vLenght = getLenghtOfVLine(picture);
         int numberOfEnded = getNumberOfEnded(picture);
 
-        List<Number> features = new ArrayList<>();
+        LinkedList<Number> features = new LinkedList<>();
         features.add(surfaceSize);
         features.add(hLenght);
         features.add(vLenght);
@@ -299,7 +298,7 @@ public class FeaturesExtractor {
     }
 
     private static float calculateNumberSurface(Picture picture) {
-        return (float) getNumberWhitePixels(ImageUtils.toBufferedImage(picture.getImage()));
+        return (float) getNumberWhitePixels(ImageUtils.toBufferedImage(picture.getImage())) / 10;
     }
 
     private static int getNumberWhitePixels(BufferedImage image)
