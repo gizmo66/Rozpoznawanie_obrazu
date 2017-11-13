@@ -48,17 +48,21 @@ public class ImageRecognizer {
                 loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType()));
             }
 
-            Window window1;
-            window1 = WindowTestRecognizer.getDebugWindows_v1(FeaturesExtractor.getMidSurfaceOfNumber(loadPictures,true),
-                    FeaturesExtractor.getLenghtOfVLine(loadPictures),FeaturesExtractor.getLenghtOfHLine(loadPictures),FeaturesExtractor.getNumberOfEnded(loadPictures),
-                    "Surface","Vertical line lenght","Horizontal line lenght", "Number of ended");
+            FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(pictures);
+            /*Window window1;
+            window1 = WindowTestRecognizer.getDebugWindows_v1(FeaturesVector.imageClassToFeaturesValuesMap.get
+                            ("SURFACE"), FeaturesVector.imageClassToFeaturesValuesMap.get
+                            ("VERTICAL_LINES"), FeaturesVector.imageClassToFeaturesValuesMap.get
+                            ("HORIZONTAL_LINES"), FeaturesVector.imageClassToFeaturesValuesMap.get
+                            ("ENDED_NUMBER"),
+                    "Surface","Vertical line lenght","Horizontal line lenght",
+                    "Number of ended");
 
             pictures = loadPictures;
             window1.pack();
-            window1.setVisible(true);
+            window1.setVisible(true);*/
 
             if (CollectionUtils.isNotEmpty(pictures)) {
-                FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(pictures);
                 featuresVector.saveToFile();
 
                 List<Picture> tempTest = new ArrayList<>();
@@ -66,7 +70,7 @@ public class ImageRecognizer {
                 {
                     tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(pictures.get(i)));
                 }
-                List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,1);
+                List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,10000);
                 window = WindowTestRecognizer.getTestWindows(result);
                 window.add(new TrainingDataLoadingPanel(pictures, window, isMnist));
                 /*for(Picture p :KNN.baseTrainingFile)

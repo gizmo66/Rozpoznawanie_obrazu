@@ -2,10 +2,13 @@ package Extraction;
 
 import Core.ImageUtils;
 import Core.Picture;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 enum LINE_TYP
 {
@@ -15,299 +18,181 @@ enum LINE_TYP
 
 public class FeaturesExtractor {
 
-
     public static FeaturesVector extractFeaturesVector(List<Picture> pictures) {
-        return new FeaturesVector(getMidSurfaceOfNumber(pictures, true),getVLine(pictures),getHLine(pictures),getNumberOfEnded(pictures),
-                getLenghtOfHLine(pictures),getLenghtOfVLine(pictures));
+
+        Map<String, Map<String, List<Number>>> imageClassToFeaturesValuesMap = new HashMap<>();
+
+        for(Picture picture : pictures) {
+            Float surfaceSize = getSurfaceSize(picture);
+            Float lengthOfHLine = getLenghtOfHLine(picture);
+            Float lengthOfVLine = getLenghtOfVLine(picture);
+            Integer numbersOfEnded = getNumberOfEnded(picture);
+            /*Boolean hasHLine = getHLine(picture);
+            Boolean hasVLine = getVLine(picture);*/
+
+            if(imageClassToFeaturesValuesMap.get(picture.getType()) != null) {
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("SURFACE").add(surfaceSize);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("VERTICAL_LINES").add(lengthOfHLine);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("HORIZONTAL_LINES").add(lengthOfVLine);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("ENDED_NUMBER").add(numbersOfEnded);
+                /*imageClassToFeaturesValuesMap.get(picture.getType()).get("VERTICAL_LINE").add(hasHLine ? 1 : 0);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("HORIZONTAL_LINE").add(hasVLine ? 1 : 0);*/
+            } else {
+                Map<String, List<Number>> featureNameToValuesMap = new HashMap<>();
+
+                List<Number> surfaceSizeList = new ArrayList<>();
+                surfaceSizeList.add(surfaceSize);
+                featureNameToValuesMap.put("SURFACE", surfaceSizeList);
+
+                List<Number> lengthOfHLineList = new ArrayList<>();
+                lengthOfHLineList.add(lengthOfHLine);
+                featureNameToValuesMap.put("VERTICAL_LINES", lengthOfHLineList);
+
+                List<Number> lengthOfVLineList = new ArrayList<>();
+                lengthOfVLineList.add(lengthOfVLine);
+                featureNameToValuesMap.put("HORIZONTAL_LINES", lengthOfVLineList);
+
+                List<Number> numbersOfEndedList = new ArrayList<>();
+                numbersOfEndedList.add(numbersOfEnded);
+                featureNameToValuesMap.put("ENDED_NUMBER", numbersOfEndedList);
+
+                /*List<Number> hasHLineList = new ArrayList<>();
+                hasHLineList.add(hasHLine ? 1 : 0);
+                featureNameToValuesMap.put("VERTICAL_LINE", hasHLineList);
+
+                List<Number> hasVLineList = new ArrayList<>();
+                hasVLineList.add(hasVLine ? 1 : 0);
+                featureNameToValuesMap.put("HORIZONTAL_LINE", hasVLineList);*/
+
+                imageClassToFeaturesValuesMap.put(picture.getType(), featureNameToValuesMap);
+            }
+        }
+        return new FeaturesVector(imageClassToFeaturesValuesMap);
     }
 
-    public static Picture calculateFeatureInOnePicture( Picture picture)
-    {
-        List<Picture> tempPicture = new ArrayList<>();
-        tempPicture.add(picture);
-        Map<String,Float> tempSurface = getMidSurfaceOfNumber(tempPicture,false);
-        Map<String,Float> tempHLenght = getLenghtOfHLine(tempPicture);
-        Map<String,Float> tempVLenght = getLenghtOfHLine(tempPicture);
-        Map<String,Integer> tempNumberOfEded = getNumberOfEnded(tempPicture);
-        return new Picture(picture.getImage(),picture.getType(),tempSurface.get(picture.getType()),
-                tempVLenght.get(picture.getType()),tempHLenght.get(picture.getType()),tempNumberOfEded.get(picture.getType()));
+    public static Picture calculateFeatureInOnePicture(Picture picture) {
+        float surfaceSize = getSurfaceSize(picture);
+        float hLenght = getLenghtOfHLine(picture);
+        float vLenght = getLenghtOfVLine(picture);
+        int numberOfEnded = getNumberOfEnded(picture);
+
+        List<Number> features = new ArrayList<>();
+        features.add(surfaceSize);
+        features.add(hLenght);
+        features.add(vLenght);
+        features.add(numberOfEnded);
+
+        return new Picture(picture.getImage(), picture.getType(), features);
     }
 
     //cecha 2 dlugosc lini pionowych
-    public static Map<String,Float> getLenghtOfVLine(List<Picture> pictures)
-    {
-        return determinatedLineLenght(pictures, LINE_TYP.vertical);
+    public static float getLenghtOfVLine(Picture picture) {
+        return determinatedLineLenght(picture, LINE_TYP.vertical);
     }
 
     //cecha 3 dlugosc lini pionowych
-    public static Map<String,Float> getLenghtOfHLine(List<Picture> pictures)
-    {
-        return determinatedLineLenght(pictures, LINE_TYP.horizontal);
+    public static float getLenghtOfHLine(Picture picture) {
+        return determinatedLineLenght(picture, LINE_TYP.horizontal);
     }
 
     //1 cecha
-    public static Map<String,Float> getMidSurfaceOfNumber(List<Picture> pictures,boolean midValue)
-    {
-        return calculateNumberSurface(pictures, midValue);
+    public static float getSurfaceSize(Picture picture) {
+        return calculateNumberSurface(picture);
     }
 
     //2 cecha
-    public static Map<String,Boolean> getVLine(List<Picture> pictures)
-    {
-        return determinatedLine(pictures, LINE_TYP.vertical);
+    public static boolean getVLine(Picture picture) {
+        return determinatedLine(picture, LINE_TYP.vertical);
     }
 
     //3 cecha
-    public static Map<String,Boolean> getHLine(List<Picture> pictures)
-    {
-        return determinatedLine(pictures, LINE_TYP.horizontal);
+    public static boolean getHLine(Picture picture) {
+        return determinatedLine(picture, LINE_TYP.horizontal);
     }
 
     //4 cecha
-    public static Map<String,Integer> getNumberOfEnded(List<Picture> pictures)
-    {
-        return countNumberOfEnded(pictures);
+    public static int getNumberOfEnded(Picture picture) {
+        return getNumberOfEndedLines(picture);
     }
 
-    private static Map<String,Float> determinatedLineLenght(List<Picture> pictures, LINE_TYP lineType)
-    {
-        Map<String,Float> returnMap = new HashMap<>();
-        Map<String, List<Float>> allValueMap = new HashMap<>();
-        for(Picture picture:pictures)
+    private static float determinatedLineLenght(Picture picture, LINE_TYP lineType) {
+        BufferedImage tempPicture = ImageUtils.toBufferedImage(picture.getImage());
+        for(int i = 0; i < tempPicture.getWidth(); i++)
         {
-            boolean tempPictureHas =false;
-            BufferedImage tempPicture = ImageUtils.toBufferedImage(picture.getImage());
-            for(int i = 0; i < tempPicture.getWidth(); i++)
+            for(int j = 0; j < tempPicture.getWidth(); j++)
             {
-                for(int j = 0; j < tempPicture.getWidth(); j++)
+                if(tempPicture.getRGB(i,j) == Color.BLACK.getRGB())
                 {
-                    if(tempPicture.getRGB(i,j) == Color.BLACK.getRGB())
+                    if(lineType.equals(LINE_TYP.vertical))
                     {
-                        if(lineType.equals(LINE_TYP.vertical))
+                        return countVerticalLine(i,j,tempPicture,4);
+                    }
+                    if(lineType.equals(LINE_TYP.horizontal))
+                    {
+                        return countHorizontalLines(i,j,tempPicture,4);
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    private static boolean determinatedLine(Picture picture, LINE_TYP lineType)
+    {
+        BufferedImage tempPicture = ImageUtils.toBufferedImage(picture.getImage());
+        for(int i = 0; i < tempPicture.getWidth(); i++)
+        {
+            for(int j = 0; j < tempPicture.getWidth(); j++)
+            {
+                if(tempPicture.getRGB(i,j) == Color.BLACK.getRGB())
+                {
+                    if(lineType.equals(LINE_TYP.vertical))
+                    {
+                        if(hasVerticalLine(i,j,tempPicture,5))
                         {
-                            tempPictureHas = true;
-                            float lenghtVertical = countVerticalLine(i,j,tempPicture,4);
-                            if(allValueMap.get(picture.getType()) != null)
-                            {
-                                List<Float> temp =  allValueMap.get(picture.getType());
-                                temp.add(lenghtVertical);
-                                allValueMap.put(picture.getType(),temp);
-                            }
-                            else
-                            {
-                                List<Float> tempList = new ArrayList<>();
-                                tempList.add(lenghtVertical);
-                                allValueMap.put(picture.getType(),tempList );
-                            }
+                            return true;
                         }
-                        if(lineType.equals(LINE_TYP.horizontal))
+                    }
+                    if(lineType.equals(LINE_TYP.horizontal))
+                    {
+                        if(hasHorizontalLine(i,j,tempPicture,5))
                         {
-                            tempPictureHas = true;
-                            float lenghtHorizontal = countHorizontalLine(i,j,tempPicture,4);
-                            if(allValueMap.get(picture.getType()) != null)
-                            {
-                                List<Float> temp =  allValueMap.get(picture.getType());
-                                temp.add(lenghtHorizontal);
-                                allValueMap.put(picture.getType(),temp);
-                            }
-                            else
-                            {
-                                List<Float> tempList = new ArrayList<>();
-                                tempList.add(lenghtHorizontal);
-                                allValueMap.put(picture.getType(),tempList );
-                            }
+                            return true;
                         }
                     }
                 }
             }
-            if(!tempPictureHas)
-            {
-                if(allValueMap.get(picture.getType()) != null)
-                {
-                    List<Float> temp =  allValueMap.get(picture.getType());
-                    temp.add(new Float(0));
-                    allValueMap.put(picture.getType(),temp);
-                }
-                else
-                {
-                    List<Float> tempList = new ArrayList<>();
-                    tempList.add(new Float(0));
-                    allValueMap.put(picture.getType(),tempList );
-                }
-            }
         }
-
-        for(String key :allValueMap.keySet())
-        {
-            returnMap.put(key,midFloatValue(allValueMap.get(key)));
-        }
-        return returnMap;
+        return false;
     }
 
-
-    private static Map<String,Boolean> determinatedLine(List<Picture> pictures, LINE_TYP lineType)
-    {
-        Map<String,Boolean> returnMap = new HashMap<>();
-        Map<String, List<Boolean>> allValueMap = new HashMap<>();
-        for(Picture picture:pictures)
-        {
-            boolean tempPictureHas =false;
-            BufferedImage tempPicture = ImageUtils.toBufferedImage(picture.getImage());
-            for(int i = 0; i < tempPicture.getWidth(); i++)
-            {
-                for(int j = 0; j < tempPicture.getWidth(); j++)
-                {
-                    if(tempPicture.getRGB(i,j) == Color.BLACK.getRGB())
-                    {
-                        if(lineType.equals(LINE_TYP.vertical))
-                        {
-                            if(hasVerticalLine(i,j,tempPicture,5))
-                            {
-                                tempPictureHas = true;
-                                if(allValueMap.get(picture.getType()) != null)
-                                {
-                                    List<Boolean> tempList = allValueMap.get(picture.getType());
-                                    tempList.add(true);
-                                    allValueMap.put(picture.getType(),tempList);
-                                }
-                                else
-                                {
-                                    List<Boolean> tempList = new ArrayList<>();
-                                    tempList.add(true);
-                                    allValueMap.put(picture.getType(),tempList );
-                                }
-                                i = tempPicture.getWidth();
-                                break;
-                            }
-                        }
-                        if(lineType.equals(LINE_TYP.horizontal))
-                        {
-                            if(hasHorizontalLine(i,j,tempPicture,5))
-                            {
-                                tempPictureHas = true;
-                                if(allValueMap.get(picture.getType()) != null)
-                                {
-                                    List<Boolean> tempList = allValueMap.get(picture.getType());
-                                    tempList.add(true);
-                                    allValueMap.put(picture.getType(),tempList);
-                                }
-                                else
-                                {
-                                    List<Boolean> tempList = new ArrayList<>();
-                                    tempList.add(true);
-                                    allValueMap.put(picture.getType(),tempList );
-                                }
-                                i = tempPicture.getWidth();
-                                break;
-                            }
-                        }
+    private static Integer getNumberOfEndedLines(Picture picture) {
+        BufferedImage tempImage = ImageUtils.toBufferedImage(picture.getImage());
+        int numberOfEndedLines = 0;
+        for (int i = 1; i < tempImage.getWidth(); i += 3) {
+            for (int j = 1; j < tempImage.getHeight(); j += 3) {
+                if (tempImage.getRGB(i, j) == Color.BLACK.getRGB()) {
+                    if (getLineEndsQuantity(i, j, tempImage) <= 2) {
+                        numberOfEndedLines++;
                     }
                 }
             }
-            if(!tempPictureHas)
-            {
-                if(allValueMap.get(picture.getType()) != null)
-                {
-                    List<Boolean> tempList = allValueMap.get(picture.getType());
-                    tempList.add(false);
-                    allValueMap.put(picture.getType(),tempList);
-                }
-                else
-                {
-                    List<Boolean> tempList = new ArrayList<>();
-                    tempList.add(false);
-                    allValueMap.put(picture.getType(),tempList );
-                }
-            }
         }
-
-        for(String key :allValueMap.keySet())
-        {
-            returnMap.put(key,midBooleanValue(allValueMap.get(key)));
-        }
-        return returnMap;
+        return numberOfEndedLines;
     }
 
-    private static boolean midBooleanValue(List<Boolean> value)
-    {
-        int positiveValue = 0;
-        for(int i = 0 ; i < value.size(); i ++)
-        {
-            if( value.get(i).equals(true))
-            {
-                positiveValue++;
-            }
-        }
-
-        if(positiveValue > value.size()/2)
-            return true;
-        else
-            return false;
-    }
-
-    private static float midFloatValue(List<Float> value)
-    {
-        float sum = 0;
-        for(int i = 0 ; i < value.size(); i ++)
-        {
-            sum += value.get(i);
-        }
-
-        if(sum!=0)
-            return sum/value.size();
-        else
-            return 0;
-    }
-
-    private static Map<String, Integer> countNumberOfEnded(List<Picture> pictures)
-    {
-        Map<String,Integer> returnMap = new HashMap<>();
-        for(Picture picture:pictures)
-        {
-            BufferedImage tempImage = ImageUtils.toBufferedImage(picture.getImage());
-            int numberOfEnded = 0;
-            for( int i = 1; i < tempImage.getWidth(); i+=3)
-            {
-                for(int j = 1; j < tempImage.getHeight(); j+=3)
-                {
-                    if(tempImage.getRGB(i,j) == Color.BLACK.getRGB())
-                    {
-                        if(lineWithEnd(i,j,tempImage) <= 2)
-                            numberOfEnded++;
+    private static int getLineEndsQuantity(int w, int h, BufferedImage image) {
+        int lineEndsQuantity = 0;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                if (image.getHeight() > h + j && 0 <= h + j && w + i >= 0 && w + i < image.getWidth()) {
+                    if (image.getRGB(w + i, h + j) == Color.BLACK.getRGB()) {
+                        lineEndsQuantity++;
                     }
                 }
             }
-            if(!returnMap.keySet().contains(picture.getType()))
-                returnMap.put(picture.getType(),numberOfEnded);
-            else
-                returnMap.put(picture.getType(),returnMap.get(picture.getType()) + numberOfEnded);
         }
-
-        //mid number of ended
-        int numberOccurrencesEnded = pictures.size() / 100;
-        for(String key:returnMap.keySet())
-        {
-            returnMap.put(key,returnMap.get(key)/100);
-        }
-        return  returnMap;
-    }
-
-    private static int lineWithEnd (int w, int h, BufferedImage image)
-    {
-        int numberOfCount = 0;
-        for(int i = -1; i < 2;i++)
-        {
-            for(int j = -1; j < 2;j++)
-            {
-                if(image.getHeight() > h + j && 0 <= h + j && w + i >= 0 && w + i < image.getWidth())
-                {
-                    if(image.getRGB(w + i,h + j) == Color.BLACK.getRGB())
-                        numberOfCount++;
-                }
-            }
-        }
-
-        return numberOfCount;
+        return lineEndsQuantity;
     }
 
     private static float countVerticalLine(int w, int h, BufferedImage image, int rateLenght)
@@ -362,7 +247,7 @@ public class FeaturesExtractor {
             return false;
     }
 
-    private static float countHorizontalLine(int w, int h, BufferedImage image, int rateLenght)
+    private static float countHorizontalLines(int w, int h, BufferedImage image, int rateLenght)
     {
         int lineLenght = 0;
         for(int i = w; i < image.getWidth();i++)
@@ -413,29 +298,8 @@ public class FeaturesExtractor {
             return false;
     }
 
-    private static Map<String,Float> calculateNumberSurface(List<Picture> pictures, boolean midValue)
-    {
-        Map<String,Float> tempMap = new HashMap<>();
-        for(Picture picture:pictures)
-        {
-            if(tempMap.get(picture.getType()) != null)
-            {
-                float tempValue = (float)getNumberWhitePixels(ImageUtils.toBufferedImage(picture.getImage())) + tempMap.get(picture.getType());
-                tempMap.put(picture.getType(), tempValue);
-            }
-            else
-                tempMap.put(picture.getType(), (float)getNumberWhitePixels(ImageUtils.toBufferedImage(picture.getImage())));
-        }
-        if(midValue)
-        {
-            //mid surface calculate
-            float numberOccurrencesDigit = pictures.size() / 10;
-            for(String key:tempMap.keySet())
-            {
-                tempMap.put(key,tempMap.get(key)/numberOccurrencesDigit);
-            }
-        }
-        return tempMap;
+    private static float calculateNumberSurface(Picture picture) {
+        return (float) getNumberWhitePixels(ImageUtils.toBufferedImage(picture.getImage()));
     }
 
     private static int getNumberWhitePixels(BufferedImage image)

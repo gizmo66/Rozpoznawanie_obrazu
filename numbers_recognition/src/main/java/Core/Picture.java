@@ -3,9 +3,7 @@ package Core;
 import lombok.Getter;
 
 import java.awt.*;
-import java.lang.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 @Getter
 public class Picture {
@@ -13,10 +11,7 @@ public class Picture {
     private final Image image;
     private final String type;
 
-    private float surface;
-    private float verticalLine;
-    private float horizontalLine;
-    private float endedNumber;
+    private List<Number> features;
 
     public int label;
     public double distance;
@@ -28,35 +23,26 @@ public class Picture {
         distance = 0;
     }
 
-    public Picture(String type, int lable, float s, float v, float h, float e) {
-        this.surface = s;
-        this.verticalLine = v;
-        this.horizontalLine = h;
-        this.endedNumber = e;
+    public Picture(String type, int lable, List<Number> features) {
+        this.features = features;
         this.type = type;
         this.label = lable;
         image = null;
         distance = 0;
     }
 
-    public Picture(Image image, String type, float s, float v, float h, float e) {
-        this.surface = s;
-        this.verticalLine = v;
-        this.horizontalLine = h;
-        this.endedNumber = e;
+    public Picture(Image image, String type, List<Number> features) {
+        this.features = features;
         this.image = image;
         this.type = type;
         distance = 0;
     }
 
-    public ArrayList<Float> getCharasteristic()
-    {
-        return new ArrayList<Float>(
-                Arrays.asList(surface,verticalLine,horizontalLine,endedNumber));
+    public List<Number> getCharasteristic() {
+        return features;
     }
 
-    public Image getImage()
-    {
+    public Image getImage() {
         return image;
     }
 
