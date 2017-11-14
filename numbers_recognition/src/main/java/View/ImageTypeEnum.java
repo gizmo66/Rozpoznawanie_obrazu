@@ -14,7 +14,9 @@ public enum ImageTypeEnum {
     JPEG("jpeg", "JPEG Image", FileUtils.createImageIcon("../images/jpgIcon.gif"), Arrays.asList("jpg", "jpeg")),
     GIF("gif", "GIF Image", FileUtils.createImageIcon("../images/gifIcon.gif"), Collections.singletonList("gif")),
     TIFF("tiff", "TIFF Image", FileUtils.createImageIcon("../images/tiffIcon.gif"), Arrays.asList("tiff", "tif")),
-    PNG("png", "PNG Image", FileUtils.createImageIcon("../images/pngIcon.png"), Collections.singletonList("png")),;
+    PNG("png", "PNG Image", FileUtils.createImageIcon("../images/pngIcon.png"), Collections.singletonList("png")),
+    idx3_ubyte("idx3-ubyte", "idx3_ubyte", FileUtils.createImageIcon("../images/jpgIcon.gif"), Collections.singletonList
+            ("idx3-ubyte"));
 
     private final String type;
     private final String description;

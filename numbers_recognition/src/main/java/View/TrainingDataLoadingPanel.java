@@ -1,43 +1,39 @@
 package View;
 
+import Core.ContextEnum;
 import Core.Picture;
 import Core.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.LinkedList;
 
-public class TrainingDataLoadingPanel extends JPanel {
+public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
+
+    private JButton recognitionProgramBtn;
+    private Window window;
 
     public TrainingDataLoadingPanel(LinkedList<Picture> pictures, Window window, boolean isMnist) {
+        this.window = window;
         window.setTitle("Training data");
 
-        //TODO: przy 2-gim zadaniu (dla innej bazy) - wyświetlać inaczej
         if (isMnist) {
             window.setLocation(20, 20);
-            window.setSize(1250, 700);
-            pictures.sort(Comparator.comparing(Picture::getType));
-            String currentType = "";
-            int j = 0;
-            int t = 0;
-            for(int i = 0; t < 11 && i < pictures.size(); i++) {
+            window.setSize(700, 700);
+            for(int i = 0; i < 100; i++) {
                 Picture picture = pictures.get(i);
-                String type = picture.getType();
-                if(type.equals(currentType)) {
-                    j++;
-                } else {
-                    currentType = type;
-                    j = 0;
-                    t++;
-                }
-                if(j < 20) {
-                    addImage(picture.getImage());
-                }
+                addImage(picture.getImage());
             }
         }
-        SwingUtilities.updateComponentTreeUI(window);
+
+        recognitionProgramBtn = new JButton("Go To RECOGNITION");
+        recognitionProgramBtn.addActionListener(this);
+        recognitionProgramBtn.setSize(200, 25);
+        window.add(recognitionProgramBtn, BorderLayout.CENTER);
     }
 
     private void addImage(Image image) {
@@ -45,5 +41,13 @@ public class TrainingDataLoadingPanel extends JPanel {
         ImageIcon icon = new ImageIcon(image);
         JLabel label = new JLabel(icon);
         this.add(label);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        window.remove(this);
+        window = new Window("Choose image to recognize");
+        window.add(new ImageFileChoosePanel(ContextEnum.RECOGNITION, window));
+        window.pack();
+        window.setVisible(true);
     }
 }

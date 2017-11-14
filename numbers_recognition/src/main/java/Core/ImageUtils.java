@@ -107,7 +107,7 @@ public class ImageUtils {
     public static BufferedImage upscaleImage(BufferedImage img, double scale) {
         int w = img.getWidth(null);
         int h = img.getHeight(null);
-        BufferedImage upscaledImg = new BufferedImage((int) (w * scale), (int) (h * scale), BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage upscaledImg = new BufferedImage((int) (w * scale), (int) (h * scale), BufferedImage.TYPE_INT_ARGB);
         AffineTransform at = new AffineTransform();
         at.scale(scale, scale);
         AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
