@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 public class FileChoosePanel extends JPanel implements ActionListener {
 
@@ -40,23 +39,20 @@ public class FileChoosePanel extends JPanel implements ActionListener {
         }
 
         int returnVal = fileChooser.showDialog(this, "Choose");
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            log.append("Attaching file: " + file.getName() + "." + StringUtils.LF);
-        } else {
+        if (returnVal != JFileChooser.APPROVE_OPTION) {
             log.append("Attachment cancelled by user." + StringUtils.LF);
         }
         log.setCaretPosition(log.getDocument().getLength());
 
-        handleFileAdding(context, fileChooser.getSelectedFile());
+        handleFileAdding(context, fileChooser);
         fileChooser.setSelectedFile(null);
     }
 
-    private void handleFileAdding(ContextEnum context, File selectedFile) {
+    private void handleFileAdding(ContextEnum context, JFileChooser fileChooser) {
         if(context.equals(ContextEnum.TRAINING)) {
-            ImageRecognizer.loadTrainingData(selectedFile, this, window);
+            ImageRecognizer.loadTrainingData(fileChooser.getSelectedFile(), this, window);
         } else if (context.equals(ContextEnum.RECOGNITION)) {
-            ImageRecognizer.initImageRecognition(selectedFile, this, window);
+            ImageRecognizer.initImageRecognition(fileChooser.getSelectedFiles(), this, window);
         }
     }
 

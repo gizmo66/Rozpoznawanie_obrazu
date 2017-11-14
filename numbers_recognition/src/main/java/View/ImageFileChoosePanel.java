@@ -15,5 +15,6 @@ public class ImageFileChoosePanel extends FileChoosePanel {
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileView(new ImageFileView());
         fileChooser.setAccessory(new ImagePreview(fileChooser));
+        fileChooser.setMultiSelectionEnabled(true);
     }
 }
