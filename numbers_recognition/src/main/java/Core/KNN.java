@@ -50,12 +50,14 @@ public class KNN {
 
         int index;
         for(index = 0; index < K; index++){
-            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(), testRecord.getCharasteristic());
+            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(),
+                    testRecord.getCharasteristic());
             neighbors.add(trainingSet.get(index));
         }
 
         for(index = K; index < NumOfTrainingSet; index ++){
-            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(), testRecord.getCharasteristic());
+            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(),
+                    testRecord.getCharasteristic());
 
             //get the index of the neighbor with the largest distance to testRecord
             int maxIndex = 0;

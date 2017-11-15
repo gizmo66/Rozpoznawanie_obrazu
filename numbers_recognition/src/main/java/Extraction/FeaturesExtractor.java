@@ -5,8 +5,8 @@ import Core.Picture;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.LinkedList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 enum LINE_TYP
@@ -23,25 +23,45 @@ public class FeaturesExtractor {
 
         for(Picture picture : pictures) {
             Float surfaceSize = getSurfaceSize(picture);
+            Float quarterSize1 = getQuarterSize(picture, 1);
+            Float quarterSize2 = getQuarterSize(picture, 2);
+            Float quarterSize3 = getQuarterSize(picture, 3);
+            Float quarterSize4 = getQuarterSize(picture, 4);
             Float lengthOfHLine = getLenghtOfHLine(picture);
             Float lengthOfVLine = getLenghtOfVLine(picture);
             Integer numbersOfEnded = getNumberOfEnded(picture);
-            /*Boolean hasHLine = getHLine(picture);
-            Boolean hasVLine = getVLine(picture);*/
 
             if(imageClassToFeaturesValuesMap.get(picture.getType()) != null) {
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("SURFACE").add(surfaceSize);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("VERTICAL_LINES").add(lengthOfHLine);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("HORIZONTAL_LINES").add(lengthOfVLine);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("ENDED_NUMBER").add(numbersOfEnded);
-                /*imageClassToFeaturesValuesMap.get(picture.getType()).get("VERTICAL_LINE").add(hasHLine ? 1 : 0);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("HORIZONTAL_LINE").add(hasVLine ? 1 : 0);*/
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_1").add(quarterSize1);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_2").add(quarterSize2);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_3").add(quarterSize3);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_4").add(quarterSize4);
             } else {
                 Map<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
 
                 LinkedList<Number> surfaceSizeLinkedList = new LinkedList<>();
                 surfaceSizeLinkedList.add(surfaceSize);
                 featureNameToValuesMap.put("SURFACE", surfaceSizeLinkedList);
+
+                LinkedList<Number> quarterSize1LinkedList = new LinkedList<>();
+                quarterSize1LinkedList.add(quarterSize1);
+                featureNameToValuesMap.put("QUARTER_SIZE_1", quarterSize1LinkedList);
+
+                LinkedList<Number> quarterSize2LinkedList = new LinkedList<>();
+                quarterSize2LinkedList.add(quarterSize1);
+                featureNameToValuesMap.put("QUARTER_SIZE_2", quarterSize2LinkedList);
+
+                LinkedList<Number> quarterSize3LinkedList = new LinkedList<>();
+                quarterSize3LinkedList.add(quarterSize1);
+                featureNameToValuesMap.put("QUARTER_SIZE_3", quarterSize3LinkedList);
+
+                LinkedList<Number> quarterSize4LinkedList = new LinkedList<>();
+                quarterSize4LinkedList.add(quarterSize1);
+                featureNameToValuesMap.put("QUARTER_SIZE_4", quarterSize4LinkedList);
 
                 LinkedList<Number> lengthOfHLineLinkedList = new LinkedList<>();
                 lengthOfHLineLinkedList.add(lengthOfHLine);
@@ -55,28 +75,77 @@ public class FeaturesExtractor {
                 numbersOfEndedLinkedList.add(numbersOfEnded);
                 featureNameToValuesMap.put("ENDED_NUMBER", numbersOfEndedLinkedList);
 
-                /*LinkedList<Number> hasHLineLinkedList = new LinkedList<>();
-                hasHLineLinkedList.add(hasHLine ? 1 : 0);
-                featureNameToValuesMap.put("VERTICAL_LINE", hasHLineLinkedList);
-
-                LinkedList<Number> hasVLineLinkedList = new LinkedList<>();
-                hasVLineLinkedList.add(hasVLine ? 1 : 0);
-                featureNameToValuesMap.put("HORIZONTAL_LINE", hasVLineLinkedList);*/
-
                 imageClassToFeaturesValuesMap.put(picture.getType(), featureNameToValuesMap);
             }
         }
         return new FeaturesVector(imageClassToFeaturesValuesMap);
     }
 
+    // cecha 5,6,7,8
+    private static Float getQuarterSize(Picture picture, int quarterNumber) {
+        if (quarterNumber == 1) {
+            int numberOfBlackPixels = 0;
+            BufferedImage image = ImageUtils.toBufferedImage(picture.getImage());
+            for (int i = 0; i < image.getHeight() / 2; i++) {
+                for (int j = 0; j < image.getWidth() / 2; j++) {
+                    if (image.getRGB(i, j) == Color.BLACK.getRGB()) {
+                        numberOfBlackPixels++;
+                    }
+                }
+            }
+            return (float) numberOfBlackPixels;
+        } else if (quarterNumber == 2) {
+            int numberOfBlackPixels = 0;
+            BufferedImage image = ImageUtils.toBufferedImage(picture.getImage());
+            for (int i = image.getHeight() / 2; i < image.getHeight(); i++) {
+                for (int j = 0; j < image.getWidth() / 2; j++) {
+                    if (image.getRGB(i, j) == Color.BLACK.getRGB()) {
+                        numberOfBlackPixels++;
+                    }
+                }
+            }
+            return (float) numberOfBlackPixels;
+        } else if (quarterNumber == 3) {
+            int numberOfBlackPixels = 0;
+            BufferedImage image = ImageUtils.toBufferedImage(picture.getImage());
+            for (int i = image.getHeight() / 2; i < image.getHeight(); i++) {
+                for (int j = 0; j < image.getWidth() / 2; j++) {
+                    if (image.getRGB(i, j) == Color.BLACK.getRGB()) {
+                        numberOfBlackPixels++;
+                    }
+                }
+            }
+            return (float) numberOfBlackPixels;
+        } else {
+            int numberOfBlackPixels = 0;
+            BufferedImage image = ImageUtils.toBufferedImage(picture.getImage());
+            for (int i = image.getHeight() / 2; i < image.getHeight(); i++) {
+                for (int j = image.getWidth() / 2; j < image.getWidth(); j++) {
+                    if (image.getRGB(i, j) == Color.BLACK.getRGB()) {
+                        numberOfBlackPixels++;
+                    }
+                }
+            }
+            return (float) numberOfBlackPixels;
+        }
+    }
+
     public static Picture calculateFeatureInOnePicture(Picture picture) {
         float surfaceSize = getSurfaceSize(picture);
+        float quarterSize1 = getQuarterSize(picture, 1);
+        float quarterSize2 = getQuarterSize(picture, 2);
+        float quarterSize3 = getQuarterSize(picture, 3);
+        float quarterSize4 = getQuarterSize(picture, 4);
         float hLenght = getLenghtOfHLine(picture);
         float vLenght = getLenghtOfVLine(picture);
         int numberOfEnded = getNumberOfEnded(picture);
 
         LinkedList<Number> features = new LinkedList<>();
         features.add(surfaceSize);
+        features.add(quarterSize1);
+        features.add(quarterSize2);
+        features.add(quarterSize3);
+        features.add(quarterSize4);
         features.add(hLenght);
         features.add(vLenght);
         features.add(numberOfEnded);
