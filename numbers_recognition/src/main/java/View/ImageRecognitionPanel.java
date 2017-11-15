@@ -25,7 +25,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
     public ImageRecognitionPanel(Window window) {
         this.window = window;
-        window.setTitle("Recognizing image");
+        window.setTitle(WindowTitleEnum.RECOGNIZING_IMAGE.getName());
 
         recognitionBtn = new JButton("RECOGNIZE");
         recognitionBtn.addActionListener(this);
@@ -46,15 +46,15 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
     private void handleFileAdding(ContextEnum context) {
         if(context.equals(ContextEnum.RECOGNITION)) {
             FeaturesVectorLoader t = new FeaturesVectorLoader();
-            t.loadFeaturesVector();
+            if(t.loadFeaturesVector()){
+                java.util.LinkedList<Picture> tempTest = new LinkedList<>();
+                for (Picture picture : pictures) {
+                    tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
+                }
 
-            java.util.LinkedList<Picture> tempTest = new LinkedList<>();
-            for (Picture picture : pictures) {
-                tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
+                java.util.List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,10);
+                window = WindowTestRecognizer.getTestWindows(result);
             }
-
-            java.util.List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,10);
-            window = WindowTestRecognizer.getTestWindows(result);
         }
 
         window.pack();

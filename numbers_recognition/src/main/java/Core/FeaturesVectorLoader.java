@@ -3,14 +3,22 @@ package Core;
 import Extraction.FeaturesVector;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 public class FeaturesVectorLoader {
 
+    private static final String FEATURES_VECTOR_FILE_NAME = "FeaturesVector.fv";
+
     public boolean loadFeaturesVector() {
         boolean featuresVectorLoaded = readFile();
-        fillUpTrainigSets();
+        fillUpTrainingSets();
         return featuresVectorLoaded;
     }
 
@@ -51,9 +59,9 @@ public class FeaturesVectorLoader {
             System.out.println(key + " " + returnValues.get(key).toString());*/
     }
 
-    public void fillUpTrainigSets()
+    public void fillUpTrainingSets()
     {
-        LinkedList<Picture> temptreningSets = new LinkedList<>();
+        LinkedList<Picture> tempTrainingList = new LinkedList<>();
 
         for (String imageClass : FeaturesVector.imageClassToFeaturesValuesMap.keySet()) {
             Map<String, LinkedList<Number>> featureNameToValuesMap = FeaturesVector.imageClassToFeaturesValuesMap.get
@@ -64,17 +72,17 @@ public class FeaturesVectorLoader {
                     features.add(featureNameToValuesMap.get(feature).get(i));
                 }
                 Picture tempPicture = new Picture(imageClass, Integer.parseInt(imageClass), features);
-                temptreningSets.add(tempPicture);
+                tempTrainingList.add(tempPicture);
             }
         }
 
-        KNN.baseTrainingFile = temptreningSets;
+        KNN.baseTrainingFile = tempTrainingList;
     }
 
     public boolean readFile() {
-        try{
+        try {
             //read file
-            FileInputStream fstream = new FileInputStream("FeaturesVector.fv");
+            FileInputStream fstream = new FileInputStream(FEATURES_VECTOR_FILE_NAME);
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 
             //read features
@@ -83,7 +91,7 @@ public class FeaturesVectorLoader {
             //Close the input stream
             br.close();
             return true;
-        }catch (Exception e){//Catch exception if any
+        } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e);
             return false;
         }
