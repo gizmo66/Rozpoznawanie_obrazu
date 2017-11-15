@@ -38,8 +38,8 @@ public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
     }
 
     private void addImage(Image image) {
-        image = ImageUtils.upscaleImage((BufferedImage) image, 2);
-        ImageIcon icon = new ImageIcon(image);
+        Image upscaleImage = ImageUtils.upscaleImage((BufferedImage) image, 2);
+        ImageIcon icon = new ImageIcon(upscaleImage);
         JLabel label = new JLabel(icon);
         this.add(label);
     }

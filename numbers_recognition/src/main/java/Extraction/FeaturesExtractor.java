@@ -5,15 +5,10 @@ import Core.Picture;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-
-enum LINE_TYP
-{
-    horizontal,
-    vertical
-}
 
 public class FeaturesExtractor {
 
@@ -22,24 +17,23 @@ public class FeaturesExtractor {
         Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
 
         for(Picture picture : pictures) {
-            Float surfaceSize = getSurfaceSize(picture);
-            Float quarterSize1 = getQuarterSize(picture, 1);
-            Float quarterSize2 = getQuarterSize(picture, 2);
-            Float quarterSize3 = getQuarterSize(picture, 3);
-            Float quarterSize4 = getQuarterSize(picture, 4);
-            Float lengthOfHLine = getLenghtOfHLine(picture);
-            Float lengthOfVLine = getLenghtOfVLine(picture);
-            Integer numbersOfEnded = getNumberOfEnded(picture);
+            Float surfaceSize = getSurfaceSize(picture) / 10;
+            Float quarterSize1 = getQuarterSize(picture, 1) / 2.5f;
+            Float quarterSize2 = getQuarterSize(picture, 2) / 2.5f;
+            Float quarterSize3 = getQuarterSize(picture, 3) / 2.5f;
+            Float quarterSize4 = getQuarterSize(picture, 4) / 2.5f;
+            Map<String, Integer> minutiaesMap = getMinuatiaesMap(picture);
+            Integer numbersOfEnded = minutiaesMap.get("ENDING_POINT");
+            Integer crossingPointsQuantity = minutiaesMap.get("CROSSING_POINT");
 
             if(imageClassToFeaturesValuesMap.get(picture.getType()) != null) {
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("SURFACE").add(surfaceSize);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("VERTICAL_LINES").add(lengthOfHLine);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("HORIZONTAL_LINES").add(lengthOfVLine);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("ENDED_NUMBER").add(numbersOfEnded);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("LINE_ENDS").add(numbersOfEnded);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_1").add(quarterSize1);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_2").add(quarterSize2);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_3").add(quarterSize3);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_4").add(quarterSize4);
+                imageClassToFeaturesValuesMap.get(picture.getType()).get("CROSSING_POINTS").add(crossingPointsQuantity);
             } else {
                 Map<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
 
@@ -63,17 +57,13 @@ public class FeaturesExtractor {
                 quarterSize4LinkedList.add(quarterSize1);
                 featureNameToValuesMap.put("QUARTER_SIZE_4", quarterSize4LinkedList);
 
-                LinkedList<Number> lengthOfHLineLinkedList = new LinkedList<>();
-                lengthOfHLineLinkedList.add(lengthOfHLine);
-                featureNameToValuesMap.put("VERTICAL_LINES", lengthOfHLineLinkedList);
-
-                LinkedList<Number> lengthOfVLineLinkedList = new LinkedList<>();
-                lengthOfVLineLinkedList.add(lengthOfVLine);
-                featureNameToValuesMap.put("HORIZONTAL_LINES", lengthOfVLineLinkedList);
-
                 LinkedList<Number> numbersOfEndedLinkedList = new LinkedList<>();
                 numbersOfEndedLinkedList.add(numbersOfEnded);
-                featureNameToValuesMap.put("ENDED_NUMBER", numbersOfEndedLinkedList);
+                featureNameToValuesMap.put("LINE_ENDS", numbersOfEndedLinkedList);
+
+                LinkedList<Number> crossingPointsQuantityLinkedList = new LinkedList<>();
+                crossingPointsQuantityLinkedList.add(crossingPointsQuantity);
+                featureNameToValuesMap.put("CROSSING_POINTS", crossingPointsQuantityLinkedList);
 
                 imageClassToFeaturesValuesMap.put(picture.getType(), featureNameToValuesMap);
             }
@@ -81,7 +71,6 @@ public class FeaturesExtractor {
         return new FeaturesVector(imageClassToFeaturesValuesMap);
     }
 
-    // cecha 5,6,7,8
     private static Float getQuarterSize(Picture picture, int quarterNumber) {
         if (quarterNumber == 1) {
             int numberOfBlackPixels = 0;
@@ -131,14 +120,14 @@ public class FeaturesExtractor {
     }
 
     public static Picture calculateFeatureInOnePicture(Picture picture) {
-        float surfaceSize = getSurfaceSize(picture);
-        float quarterSize1 = getQuarterSize(picture, 1);
-        float quarterSize2 = getQuarterSize(picture, 2);
-        float quarterSize3 = getQuarterSize(picture, 3);
-        float quarterSize4 = getQuarterSize(picture, 4);
-        float hLenght = getLenghtOfHLine(picture);
-        float vLenght = getLenghtOfVLine(picture);
-        int numberOfEnded = getNumberOfEnded(picture);
+        float surfaceSize = getSurfaceSize(picture) / 10;
+        float quarterSize1 = getQuarterSize(picture, 1) / 2.5f;
+        float quarterSize2 = getQuarterSize(picture, 2) / 2.5f;
+        float quarterSize3 = getQuarterSize(picture, 3) / 2.5f;
+        float quarterSize4 = getQuarterSize(picture, 4) / 2.5f;
+        Map<String, Integer> minutiaesMap = getMinuatiaesMap(picture);
+        int lineEnds = minutiaesMap.get("ENDING_POINT");
+        int crossingPoints = minutiaesMap.get("CROSSING_POINT");
 
         LinkedList<Number> features = new LinkedList<>();
         features.add(surfaceSize);
@@ -146,231 +135,83 @@ public class FeaturesExtractor {
         features.add(quarterSize2);
         features.add(quarterSize3);
         features.add(quarterSize4);
-        features.add(hLenght);
-        features.add(vLenght);
-        features.add(numberOfEnded);
+        features.add(lineEnds);
+        features.add(crossingPoints);
 
         return new Picture(picture.getImage(), picture.getType(), features);
     }
 
-    //cecha 2 dlugosc lini pionowych
-    public static float getLenghtOfVLine(Picture picture) {
-        return determinatedLineLenght(picture, LINE_TYP.vertical);
-    }
-
-    //cecha 3 dlugosc lini pionowych
-    public static float getLenghtOfHLine(Picture picture) {
-        return determinatedLineLenght(picture, LINE_TYP.horizontal);
-    }
-
-    //1 cecha
     public static float getSurfaceSize(Picture picture) {
         return calculateNumberSurface(picture);
     }
 
-    //2 cecha
-    public static boolean getVLine(Picture picture) {
-        return determinatedLine(picture, LINE_TYP.vertical);
-    }
-
-    //3 cecha
-    public static boolean getHLine(Picture picture) {
-        return determinatedLine(picture, LINE_TYP.horizontal);
-    }
-
-    //4 cecha
-    public static int getNumberOfEnded(Picture picture) {
-        return getNumberOfEndedLines(picture);
-    }
-
-    private static float determinatedLineLenght(Picture picture, LINE_TYP lineType) {
-        BufferedImage tempPicture = ImageUtils.toBufferedImage(picture.getImage());
-        for(int i = 0; i < tempPicture.getWidth(); i++)
-        {
-            for(int j = 0; j < tempPicture.getWidth(); j++)
-            {
-                if(tempPicture.getRGB(i,j) == Color.BLACK.getRGB())
-                {
-                    if(lineType.equals(LINE_TYP.vertical))
-                    {
-                        return countVerticalLine(i,j,tempPicture,4);
-                    }
-                    if(lineType.equals(LINE_TYP.horizontal))
-                    {
-                        return countHorizontalLines(i,j,tempPicture,4);
-                    }
-                }
-            }
-        }
-        return 0;
-    }
-
-    private static boolean determinatedLine(Picture picture, LINE_TYP lineType)
-    {
-        BufferedImage tempPicture = ImageUtils.toBufferedImage(picture.getImage());
-        for(int i = 0; i < tempPicture.getWidth(); i++)
-        {
-            for(int j = 0; j < tempPicture.getWidth(); j++)
-            {
-                if(tempPicture.getRGB(i,j) == Color.BLACK.getRGB())
-                {
-                    if(lineType.equals(LINE_TYP.vertical))
-                    {
-                        if(hasVerticalLine(i,j,tempPicture,5))
-                        {
-                            return true;
-                        }
-                    }
-                    if(lineType.equals(LINE_TYP.horizontal))
-                    {
-                        if(hasHorizontalLine(i,j,tempPicture,5))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private static Integer getNumberOfEndedLines(Picture picture) {
+    private static Map<String, Integer> getMinuatiaesMap(Picture picture) {
         BufferedImage tempImage = ImageUtils.toBufferedImage(picture.getImage());
-        int numberOfEndedLines = 0;
-        for (int i = 1; i < tempImage.getWidth(); i += 3) {
-            for (int j = 1; j < tempImage.getHeight(); j += 3) {
-                if (tempImage.getRGB(i, j) == Color.BLACK.getRGB()) {
-                    if (getLineEndsQuantity(i, j, tempImage) <= 2) {
-                        numberOfEndedLines++;
-                    }
-                }
-            }
-        }
-        return numberOfEndedLines;
+        picture.setImage(tempImage);
+        return getMinutiaes(tempImage);
     }
 
-    private static int getLineEndsQuantity(int w, int h, BufferedImage image) {
+    private static Map<String, Integer> getMinutiaes(BufferedImage image) {
+        int height = image.getHeight();
+        int width = image.getWidth();
+
         int lineEndsQuantity = 0;
-        for (int i = -1; i < 2; i++) {
-            for (int j = -1; j < 2; j++) {
-                if (image.getHeight() > h + j && 0 <= h + j && w + i >= 0 && w + i < image.getWidth()) {
-                    if (image.getRGB(w + i, h + j) == Color.BLACK.getRGB()) {
+        int crossingPointsQuantity = 0;
+        for (int h = 1; h < height - 1; h++) {
+            for (int w = 1; w < width - 1; w++) {
+
+                if (getBinaryValueOfTheColor(image, w, h) == 1) {
+                    double CN = 0;
+
+                    int[] P = new int[10];
+
+                    P[1] = getBinaryValueOfTheColor(image, w + 1, h);
+                    P[2] = getBinaryValueOfTheColor(image, w + 1, h - 1);
+                    P[3] = getBinaryValueOfTheColor(image, w, h - 1);
+                    P[4] = getBinaryValueOfTheColor(image, w - 1, h - 1);
+                    P[5] = getBinaryValueOfTheColor(image, w - 1, h);
+                    P[6] = getBinaryValueOfTheColor(image, w - 1, h + 1);
+                    P[7] = getBinaryValueOfTheColor(image, w, h + 1);
+                    P[8] = getBinaryValueOfTheColor(image, w + 1, h + 1);
+                    P[9] = P[1];
+
+                    for (int i = 1; i <= 8; i++) {
+                        CN += Math.abs(P[i] - P[i + 1]);
+                    }
+                    CN = CN * 0.5;
+
+                    if (CN == 1) {
                         lineEndsQuantity++;
+                        image.setRGB(w, h, Color.RED.getRGB());
+                    } else if (CN >= 3) {
+                        crossingPointsQuantity++;
+                        image.setRGB(w, h, Color.GREEN.getRGB());
                     }
                 }
             }
         }
-        return lineEndsQuantity;
+
+        Map<String, Integer> result = new HashMap<>();
+        result.put("CROSSING_POINT", crossingPointsQuantity);
+        result.put("ENDING_POINT", lineEndsQuantity);
+
+        return result;
     }
 
-    private static float countVerticalLine(int w, int h, BufferedImage image, int rateLenght)
-    {
-        int lineLenght = 0;
-        for(int i = h; i < image.getHeight();i++)
-        {
-            if(h+i >= 0 && h+i < image.getHeight())
-            {
-                if(image.getRGB(w,h+i) == Color.BLACK.getRGB())
-                {
-                    lineLenght++;
-                }
-                else
-                    break;
-            }
-            else
-                break;
-        }
-
-        if(lineLenght >= rateLenght)
-            return  lineLenght;
-        else
+    private static int getBinaryValueOfTheColor(Image image, int w, int h) {
+        Color p = new Color(((BufferedImage) image).getRGB(w, h));
+        if (p.getRGB() == Color.WHITE.getRGB()) {
             return 0;
-    }
-
-    private static boolean hasVerticalLine(int w, int h, BufferedImage image, int minimumLeght)
-    {
-        int lineLenght = 0;
-        for(int i = h; i < image.getHeight();i++)
-        {
-            if(h+i >= 0 && h+i < image.getHeight())
-            {
-                if(image.getRGB(w,h+i) == Color.BLACK.getRGB())
-                {
-                    lineLenght++;
-                }
-                else
-                {
-                    if(lineLenght < minimumLeght)
-                        lineLenght = 0;
-                }
-            }
-            else
-            {
-                break;
-            }
+        } else {
+            return 1;
         }
-        if(lineLenght >= minimumLeght)
-            return  true;
-        else
-            return false;
-    }
-
-    private static float countHorizontalLines(int w, int h, BufferedImage image, int rateLenght)
-    {
-        int lineLenght = 0;
-        for(int i = w; i < image.getWidth();i++)
-        {
-            if(w+i >= 0 && w+i < image.getWidth())
-            {
-                if(image.getRGB(w+i,h) == Color.BLACK.getRGB())
-                {
-                    lineLenght++;
-                }
-                else
-                    break;
-            }
-            else
-                break;
-        }
-        if(lineLenght >= rateLenght)
-            return  lineLenght;
-        else
-            return 0;
-    }
-
-    private static boolean hasHorizontalLine(int w, int h, BufferedImage image, int minimumLeght)
-    {
-        int lineLenght = 0;
-        for(int i = w; i < image.getWidth();i++)
-        {
-            if(w+i >= 0 && w+i < image.getWidth())
-            {
-                if(image.getRGB(w+i,h) == Color.BLACK.getRGB())
-                {
-                    lineLenght++;
-                }
-                else
-                {
-                    if(lineLenght < minimumLeght)
-                        lineLenght = 0;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-        if(lineLenght >= minimumLeght)
-            return  true;
-        else
-            return false;
     }
 
     private static float calculateNumberSurface(Picture picture) {
-        return (float) getNumberWhitePixels(ImageUtils.toBufferedImage(picture.getImage())) / 10;
+        return (float) getNumberOfWhitePixels(ImageUtils.toBufferedImage(picture.getImage()));
     }
 
-    private static int getNumberWhitePixels(BufferedImage image)
+    private static int getNumberOfWhitePixels(BufferedImage image)
     {
         int returnValue = 0;
         for(int i = 0; i < image.getHeight(); i++)

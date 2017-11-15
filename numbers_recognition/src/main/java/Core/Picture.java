@@ -1,6 +1,7 @@
 package Core;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -8,7 +9,7 @@ import java.util.LinkedList;
 @Getter
 public class Picture {
 
-    private final Image image;
+    private Image image;
     private final String type;
 
     private LinkedList<Number> features;
@@ -48,5 +49,9 @@ public class Picture {
 
     public String getType() {
         return type;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }
