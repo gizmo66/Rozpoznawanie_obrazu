@@ -12,47 +12,85 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 
+import static org.opencv.imgproc.Imgproc.threshold;
+
 @Slf4j
 public class ImageUtils {
 
-    private static final String WELCOME_MESSAGE = "Welcome to OpenCV ver. {} ";
     private static final String LIB_NAME = "opencv_java320";
 
-    public static BufferedImage binarizeImage(BufferedImage bfImage){
-        final int THRESHOLD = 160;
-        int height = bfImage.getHeight();
-        int width = bfImage.getWidth();
-        BufferedImage returnImage = bfImage;
+    public static BufferedImage binarizeImage(BufferedImage bfImage, boolean isMnist){
+        if (!isMnist) {
 
-        for(int i=0; i<width; i++){
-            for(int j=0; j<height; j++){
-                Color c = new Color(returnImage.getRGB(i,j));
-                int red = c.getRed();
-                int green = c.getGreen();
-                int blue = c.getBlue();
-                if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
-                    returnImage.setRGB(i,j,Color.WHITE.getRGB());
-                }else{
-                    returnImage.setRGB(i,j,Color.BLACK.getRGB());
+            final int THRESHOLD = 160;
+            int height = bfImage.getHeight();
+            int width = bfImage.getWidth();
+            BufferedImage returnImage = bfImage;
+
+            for(int i=0; i<width; i++){
+                for(int j=0; j<height; j++){
+                    Color c = new Color(returnImage.getRGB(i,j));
+                    int red = c.getRed();
+                    int green = c.getGreen();
+                    int blue = c.getBlue();
+                    if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
+                        returnImage.setRGB(i,j,Color.BLACK.getRGB());
+                    }else{
+                        returnImage.setRGB(i,j,Color.WHITE.getRGB());
+                    }
                 }
             }
+
+            Mat src = bufferedImageToMat(returnImage);
+            Image result = toBufferedImage(src);
+
+            //TODO delete background
+
+            return (BufferedImage) result;
+        } else {
+            final int THRESHOLD = 160;
+            int height = bfImage.getHeight();
+            int width = bfImage.getWidth();
+            BufferedImage returnImage = bfImage;
+
+            for(int i=0; i<width; i++){
+                for(int j=0; j<height; j++){
+                    Color c = new Color(returnImage.getRGB(i,j));
+                    int red = c.getRed();
+                    int green = c.getGreen();
+                    int blue = c.getBlue();
+                    if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
+                        returnImage.setRGB(i,j,Color.WHITE.getRGB());
+                    }else{
+                        returnImage.setRGB(i,j,Color.BLACK.getRGB());
+                    }
+                }
+            }
+            return returnImage;
         }
-        return returnImage;
     }
 
-    static Image bytesToImage(byte[] source) {
-        int type = BufferedImage.TYPE_BYTE_GRAY;
+    public static Mat bufferedImageToMat(BufferedImage bi) {
+        String opencvpath = "C:\\OpenCV\\opencv\\build\\java\\x64\\";
+        System.load(opencvpath + LIB_NAME + ".dll");
 
-        //FIXME akolodziejek: change const image size
-        BufferedImage image = new BufferedImage(28, 28, type);
+        Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+        byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        mat.put(0, 0, data);
+        return mat;
+    }
+
+    static Image bytesToImage(byte[] source, int width, int height) {
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        BufferedImage image = new BufferedImage(width, height, type);
         final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         System.arraycopy(source, 0, targetPixels, 0, source.length);
         return image;
     }
 
     public static Image fileToImage(File file) {
-        System.loadLibrary(LIB_NAME);
-        log.info(WELCOME_MESSAGE, Core.VERSION);
+        String opencvpath = "C:\\OpenCV\\opencv\\build\\java\\x64\\";
+        System.load(opencvpath + LIB_NAME + ".dll");
 
         Mat src = Imgcodecs.imread(file.getAbsolutePath().replaceAll("\\\\", "/"));
         return toBufferedImage(src);

@@ -1,6 +1,4 @@
 package Core;
-import com.sun.media.jfxmedia.logging.Logger;
-import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,26 +6,6 @@ import java.util.*;
 import java.util.List;
 
 public class ThinnerImage {
-
-    final static String[] image = {
-            "                                                          ",
-            " #################                   #############        ",
-            " ##################               ################        ",
-            " ###################            ##################        ",
-            " ########     #######          ###################        ",
-            "   ######     #######         #######       ######        ",
-            "   ######     #######        #######                      ",
-            "   #################         #######                      ",
-            "   ################          #######                      ",
-            "   #################         #######                      ",
-            "   ######     #######        #######                      ",
-            "   ######     #######        #######                      ",
-            "   ######     #######         #######       ######        ",
-            " ########     #######          ###################        ",
-            " ########     ####### ######    ################## ###### ",
-            " ########     ####### ######      ################ ###### ",
-            " ########     ####### ######         ############# ###### ",
-            "                                                          "};
 
     final static int[][] nbrs = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1},
             {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}};
@@ -40,9 +18,9 @@ public class ThinnerImage {
 
     public static Image Start(Picture p) {
         BufferedImage p1 = ImageUtils.toBufferedImage(p.getImage());
-        grid = new int[28][];
+        grid = new int[p1.getHeight()][];
         int index = 0;
-        for(int i = 0 ;i < 28; i ++)
+        for(int i = 0 ;i < p1.getHeight(); i ++)
         {
             grid[index] = getOneRow(p1,i);
             index++;
@@ -57,8 +35,8 @@ public class ThinnerImage {
 
     static int[] getOneRow(BufferedImage img, int rowIndex)
     {
-        int[] temp = new int[28];
-        for(int i = 0 ; i< 28; i++)
+        int[] temp = new int[img.getWidth()];
+        for(int i = 0 ; i< img.getWidth(); i++)
         {
             if(img.getRGB(i,rowIndex) == Color.BLACK.getRGB())
                 temp[i] = 1;//img.getRGB(i,rowIndex);
@@ -137,14 +115,5 @@ public class ThinnerImage {
                 }
             }
         return count > 1;
-    }
-
-    static void printResult() {
-        for (int[] row : grid) {
-            for (int i = 0; i < row.length; i++) {
-                System.out.print(row[i]);
-            }
-            System.out.println("");
-        }
     }
 }

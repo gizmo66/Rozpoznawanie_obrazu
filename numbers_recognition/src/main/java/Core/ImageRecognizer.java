@@ -19,10 +19,10 @@ public class ImageRecognizer {
 
     public static LinkedList<Picture> loadPictures = new LinkedList<>();
 
-    public static void loadTrainingData(File file, FileChoosePanel fileChoosePanel, Window window) {
-        if (file != null) {
+    public static void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
+        if (files != null && files.length > 0) {
             window.remove(fileChoosePanel);
-            String extension = FilenameUtils.getExtension(file.getName());
+            String extension = FilenameUtils.getExtension(files[0].getName());
             LinkedList<Picture> pictures = new LinkedList<>();
             boolean isMnist = false;
 
@@ -31,21 +31,22 @@ public class ImageRecognizer {
                 isMnist = true;
                 MnistFilesLoader mnistFilesLoader = new MnistFilesLoader();
                 try {
-                    pictures = mnistFilesLoader.loadTrainingDataSet(file);
+                    pictures = mnistFilesLoader.loadTrainingDataSet(files[0]);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
-                //potrzebne dopiero w 2 zadaniu
-                //pictures = ImagesLoader.loadTrainingDataSet(files);
+                ImageFileLoader imageFileLoader = new ImageFileLoader();
+                pictures = imageFileLoader.loadTrainingDataSet(files);
             }
 
             loadPictures = pictures;
             for(int i = 0; i < pictures.size();i++)
             {
                 loadPictures.set(i,new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
-                        .getImage())), loadPictures.get(i).getType()));
-                loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType()));
+                        .getImage()), isMnist), loadPictures.get(i).getType()));
+                loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType
+                 ()));
             }
 
             FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(loadPictures);
@@ -72,15 +73,16 @@ public class ImageRecognizer {
                     e.printStackTrace();
                 }
             } else {
-                //potrzebne dopiero w 2 podpunkcie
-                //pictures = ImagesLoader.loadTrainingDataSet(files);
+                ImageFileLoader imageFileLoader = new ImageFileLoader();
+                pictures = imageFileLoader.loadTrainingDataSet(images);
             }
 
             loadPictures = pictures;
             for (int i = 0; i < pictures.size(); i++) {
                 loadPictures.set(i, new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
-                        .getImage())), loadPictures.get(i).getType()));
-                loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType()));
+                        .getImage()), isMnist), loadPictures.get(i).getType()));
+                loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType
+                        ()));
             }
 
             ImageRecognitionPanel panel = new ImageRecognitionPanel(window);
@@ -92,6 +94,13 @@ public class ImageRecognizer {
                 window.setSize(700, 700);
                 for (int i = 0; i < 100; i++) {
                     Picture picture = pictures.get(i);
+                    addImage(picture.getImage(), panel);
+                    temp.add(picture);
+                }
+            } else {
+                window.setLocation(20, 20);
+                window.setSize(700, 700);
+                for (Picture picture : pictures) {
                     addImage(picture.getImage(), panel);
                     temp.add(picture);
                 }

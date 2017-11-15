@@ -52,7 +52,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
                     tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
                 }
 
-                java.util.List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,10);
+                java.util.List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,5);
                 window = WindowTestRecognizer.getTestWindows(result);
             }
         }
