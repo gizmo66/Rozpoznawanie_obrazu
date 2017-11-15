@@ -48,9 +48,9 @@ public class ImageRecognizer {
                 loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType()));
             }
 
-            window.add(new TrainingDataLoadingPanel(loadPictures, window, isMnist));
             FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(loadPictures);
             featuresVector.saveToFile();
+            window.add(new TrainingDataLoadingPanel(loadPictures, window, isMnist));
         }
     }
 
@@ -102,8 +102,8 @@ public class ImageRecognizer {
     }
 
     private static void addImage(Image image, ImageRecognitionPanel panel) {
-        image = ImageUtils.upscaleImage((BufferedImage) image, 2);
-        ImageIcon icon = new ImageIcon(image);
+        Image upscaleImage = ImageUtils.upscaleImage((BufferedImage) image, 2);
+        ImageIcon icon = new ImageIcon(upscaleImage);
         JLabel label = new JLabel(icon);
         panel.add(label);
     }
