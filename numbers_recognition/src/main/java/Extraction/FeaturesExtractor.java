@@ -12,50 +12,61 @@ import java.util.Map;
 
 public class FeaturesExtractor {
 
-    public static FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures) {
+    public static FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures, boolean isMnist) {
 
         Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
 
         for(Picture picture : pictures) {
-            Float surfaceSize = getSurfaceSize(picture) / 10;
-            Float quarterSize1 = getQuarterSize(picture, 1) / 2.5f;
-            Float quarterSize2 = getQuarterSize(picture, 2) / 2.5f;
-            Float quarterSize3 = getQuarterSize(picture, 3) / 2.5f;
-            Float quarterSize4 = getQuarterSize(picture, 4) / 2.5f;
+            Float surfaceSize = null;
+            Float quarterSize1 = null;
+            Float quarterSize2 = null;
+            Float quarterSize3 = null;
+            Float quarterSize4 = null;
+            if (isMnist) {
+                surfaceSize = getSurfaceSize(picture) / 10;
+                quarterSize1 = getQuarterSize(picture, 1) / 2.5f;
+                quarterSize2 = getQuarterSize(picture, 2) / 2.5f;
+                quarterSize3 = getQuarterSize(picture, 3) / 2.5f;
+                quarterSize4 = getQuarterSize(picture, 4) / 2.5f;
+            }
             Map<String, Integer> minutiaesMap = getMinuatiaesMap(picture);
             Integer numbersOfEnded = minutiaesMap.get("ENDING_POINT");
             Integer crossingPointsQuantity = minutiaesMap.get("CROSSING_POINT");
 
             if(imageClassToFeaturesValuesMap.get(picture.getType()) != null) {
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("SURFACE").add(surfaceSize);
+                if (isMnist) {
+                    imageClassToFeaturesValuesMap.get(picture.getType()).get("SURFACE").add(surfaceSize);
+                    imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_1").add(quarterSize1);
+                    imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_2").add(quarterSize2);
+                    imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_3").add(quarterSize3);
+                    imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_4").add(quarterSize4);
+                }
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("LINE_ENDS").add(numbersOfEnded);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_1").add(quarterSize1);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_2").add(quarterSize2);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_3").add(quarterSize3);
-                imageClassToFeaturesValuesMap.get(picture.getType()).get("QUARTER_SIZE_4").add(quarterSize4);
                 imageClassToFeaturesValuesMap.get(picture.getType()).get("CROSSING_POINTS").add(crossingPointsQuantity);
             } else {
                 Map<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
 
-                LinkedList<Number> surfaceSizeLinkedList = new LinkedList<>();
-                surfaceSizeLinkedList.add(surfaceSize);
-                featureNameToValuesMap.put("SURFACE", surfaceSizeLinkedList);
+                if (isMnist) {
+                    LinkedList<Number> surfaceSizeLinkedList = new LinkedList<>();
+                    surfaceSizeLinkedList.add(surfaceSize);
+                    featureNameToValuesMap.put("SURFACE", surfaceSizeLinkedList);
 
-                LinkedList<Number> quarterSize1LinkedList = new LinkedList<>();
-                quarterSize1LinkedList.add(quarterSize1);
-                featureNameToValuesMap.put("QUARTER_SIZE_1", quarterSize1LinkedList);
+                    LinkedList<Number> quarterSize1LinkedList = new LinkedList<>();
+                    quarterSize1LinkedList.add(quarterSize1);
+                    featureNameToValuesMap.put("QUARTER_SIZE_1", quarterSize1LinkedList);
 
-                LinkedList<Number> quarterSize2LinkedList = new LinkedList<>();
-                quarterSize2LinkedList.add(quarterSize1);
-                featureNameToValuesMap.put("QUARTER_SIZE_2", quarterSize2LinkedList);
+                    LinkedList<Number> quarterSize2LinkedList = new LinkedList<>();
+                    quarterSize2LinkedList.add(quarterSize1);
+                    featureNameToValuesMap.put("QUARTER_SIZE_2", quarterSize2LinkedList);
 
-                LinkedList<Number> quarterSize3LinkedList = new LinkedList<>();
-                quarterSize3LinkedList.add(quarterSize1);
-                featureNameToValuesMap.put("QUARTER_SIZE_3", quarterSize3LinkedList);
+                    LinkedList<Number> quarterSize3LinkedList = new LinkedList<>();
+                    quarterSize3LinkedList.add(quarterSize1);
+                    featureNameToValuesMap.put("QUARTER_SIZE_3", quarterSize3LinkedList);
 
-                LinkedList<Number> quarterSize4LinkedList = new LinkedList<>();
-                quarterSize4LinkedList.add(quarterSize1);
-                featureNameToValuesMap.put("QUARTER_SIZE_4", quarterSize4LinkedList);
+                    LinkedList<Number> quarterSize4LinkedList = new LinkedList<>();
+                    quarterSize4LinkedList.add(quarterSize1);
+                    featureNameToValuesMap.put("QUARTER_SIZE_4", quarterSize4LinkedList);
+                }
 
                 LinkedList<Number> numbersOfEndedLinkedList = new LinkedList<>();
                 numbersOfEndedLinkedList.add(numbersOfEnded);
@@ -119,22 +130,31 @@ public class FeaturesExtractor {
         }
     }
 
-    public static Picture calculateFeatureInOnePicture(Picture picture) {
-        float surfaceSize = getSurfaceSize(picture) / 10;
-        float quarterSize1 = getQuarterSize(picture, 1) / 2.5f;
-        float quarterSize2 = getQuarterSize(picture, 2) / 2.5f;
-        float quarterSize3 = getQuarterSize(picture, 3) / 2.5f;
-        float quarterSize4 = getQuarterSize(picture, 4) / 2.5f;
+    public static Picture calculateFeatureInOnePicture(Picture picture, boolean isMnist) {
+        float surfaceSize = 0;
+        float quarterSize1 = 0;
+        float quarterSize2 = 0;
+        float quarterSize3 = 0;
+        float quarterSize4 = 0;
+        if (isMnist) {
+            surfaceSize = getSurfaceSize(picture) / 10;
+            quarterSize1 = getQuarterSize(picture, 1) / 2.5f;
+            quarterSize2 = getQuarterSize(picture, 2) / 2.5f;
+            quarterSize3 = getQuarterSize(picture, 3) / 2.5f;
+            quarterSize4 = getQuarterSize(picture, 4) / 2.5f;
+        }
         Map<String, Integer> minutiaesMap = getMinuatiaesMap(picture);
         int lineEnds = minutiaesMap.get("ENDING_POINT");
         int crossingPoints = minutiaesMap.get("CROSSING_POINT");
 
         LinkedList<Number> features = new LinkedList<>();
-        features.add(surfaceSize);
-        features.add(quarterSize1);
-        features.add(quarterSize2);
-        features.add(quarterSize3);
-        features.add(quarterSize4);
+        if (isMnist) {
+            features.add(surfaceSize);
+            features.add(quarterSize1);
+            features.add(quarterSize2);
+            features.add(quarterSize3);
+            features.add(quarterSize4);
+        }
         features.add(lineEnds);
         features.add(crossingPoints);
 

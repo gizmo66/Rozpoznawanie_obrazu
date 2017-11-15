@@ -45,11 +45,13 @@ public class ImageRecognizer {
             {
                 loadPictures.set(i,new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
                         .getImage()), isMnist), loadPictures.get(i).getType()));
-                loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType
-                 ()));
+                if (isMnist) {
+                    loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType
+                     ()));
+                }
             }
 
-            FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(loadPictures);
+            FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(loadPictures, isMnist);
             featuresVector.saveToFile();
             window.add(new TrainingDataLoadingPanel(loadPictures, window, isMnist));
         }
@@ -81,11 +83,13 @@ public class ImageRecognizer {
             for (int i = 0; i < pictures.size(); i++) {
                 loadPictures.set(i, new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
                         .getImage()), isMnist), loadPictures.get(i).getType()));
-                loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType
-                        ()));
+                if (isMnist) {
+                    loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType
+                            ()));
+                }
             }
 
-            ImageRecognitionPanel panel = new ImageRecognitionPanel(window);
+            ImageRecognitionPanel panel = new ImageRecognitionPanel(window, isMnist);
             window.add(panel);
 
             LinkedList<Picture> temp = new LinkedList<>();
