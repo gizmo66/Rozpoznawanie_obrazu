@@ -14,7 +14,7 @@ public class Picture {
 
     private LinkedList<Number> features;
 
-    public int label;
+    public String label;
     public double distance;
 
     public Picture(Image image, String type) {
@@ -24,7 +24,7 @@ public class Picture {
         distance = 0;
     }
 
-    public Picture(String type, int lable, LinkedList<Number> features) {
+    public Picture(String type, String lable, LinkedList<Number> features) {
         this.features = features;
         this.type = type;
         this.label = lable;

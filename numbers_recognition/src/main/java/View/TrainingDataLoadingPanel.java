@@ -27,7 +27,14 @@ public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
             window.setSize(700, 700);
             for(int i = 0; i < 100; i++) {
                 Picture picture = pictures.get(i);
-                addImage(picture.getImage());
+                addImage(picture.getImage(), 2);
+            }
+        } else {
+            window.setLocation(20, 20);
+            window.setSize(1300, 700);
+            for(int i = 0; i < (pictures.size() <= 18 ? pictures.size() : 18); i++) {
+                Picture picture = pictures.get(i);
+                addImage(picture.getImage(), 7f);
             }
         }
 
@@ -37,8 +44,8 @@ public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
         window.add(recognitionProgramBtn, BorderLayout.CENTER);
     }
 
-    private void addImage(Image image) {
-        Image upscaleImage = ImageUtils.upscaleImage((BufferedImage) image, 2);
+    private void addImage(Image image, float scale) {
+        Image upscaleImage = ImageUtils.upscaleImage((BufferedImage) image, scale);
         ImageIcon icon = new ImageIcon(upscaleImage);
         JLabel label = new JLabel(icon);
         this.add(label);

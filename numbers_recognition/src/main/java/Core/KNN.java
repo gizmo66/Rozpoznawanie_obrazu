@@ -29,12 +29,9 @@ public class KNN {
             return null;
         }
 
-        //int numOfTestingRecord = trainingFile.size();
-        //for(int i = 0; i < numOfTestingRecord; i ++){
-            List<Picture> neighbors = findKNearestNeighbors(trainingFile, testFile, K);
-            int classLabel = classify(neighbors);
-            testFile.label = classLabel;
-        //}
+        List<Picture> neighbors = findKNearestNeighbors(trainingFile, testFile, K);
+        String classLabel = classify(neighbors);
+        testFile.label = classLabel;
 
         List<String> result = new ArrayList<>();
         result.add(testFile.getType());
@@ -50,14 +47,12 @@ public class KNN {
 
         int index;
         for(index = 0; index < K; index++){
-            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(),
-                    testRecord.getCharasteristic());
+            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(), testRecord.getCharasteristic());
             neighbors.add(trainingSet.get(index));
         }
 
         for(index = K; index < NumOfTrainingSet; index ++){
-            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(),
-                    testRecord.getCharasteristic());
+            trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(), testRecord.getCharasteristic());
 
             //get the index of the neighbor with the largest distance to testRecord
             int maxIndex = 0;
@@ -73,12 +68,12 @@ public class KNN {
         return neighbors;
     }
 
-    static int classify(List<Picture> neighbors){
-        HashMap<Integer, Double> map = new HashMap<Integer, Double>();
+    static String classify(List<Picture> neighbors){
+        HashMap<String, Double> map = new HashMap<>();
 
         for(int index = 0;index < neighbors.size(); index ++){
             Picture temp = neighbors.get(index);
-            int key = temp.label;
+            String key = temp.label;
             if(!map.containsKey(key))
                 map.put(key, 1 / temp.distance);
             else{
@@ -89,12 +84,12 @@ public class KNN {
         }
 
         double maxSimilarity = 0;
-        int returnLabel = -1;
-        Set<Integer> labelSet = map.keySet();
-        Iterator<Integer> it = labelSet.iterator();
+        String returnLabel = "error";
+        Set<String> labelSet = map.keySet();
+        Iterator<String> it = labelSet.iterator();
 
         while(it.hasNext()){
-            int label = it.next();
+            String label = it.next();
             double value = map.get(label);
             if(value > maxSimilarity){
                 maxSimilarity = value;

@@ -60,9 +60,14 @@ public class MnistFilesLoader implements FileLoader {
             byte[] imageData = Arrays.copyOfRange(imageBytes, (i * IMAGE_SIZE) + IMAGE_OFFSET,
                     (i * IMAGE_SIZE) + IMAGE_OFFSET + IMAGE_SIZE);
 
-            pictures.add(new Picture(ImageUtils.bytesToImage(imageData), String.valueOf(label)));
+            pictures.add(new Picture(ImageUtils.bytesToImage(imageData, 28, 28), String.valueOf(label)));
         }
 
         return pictures;
+    }
+
+    @Override
+    public LinkedList<Picture> loadTrainingDataSet(File[] files) throws IOException{
+        return loadTrainingDataSet(files[0]);
     }
 }

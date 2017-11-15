@@ -71,7 +71,7 @@ public class FeaturesVectorLoader {
                 for(String feature : featureNameToValuesMap.keySet()) {
                     features.add(featureNameToValuesMap.get(feature).get(i));
                 }
-                Picture tempPicture = new Picture(imageClass, Integer.parseInt(imageClass), features);
+                Picture tempPicture = new Picture(imageClass, imageClass, features);
                 tempTrainingList.add(tempPicture);
             }
         }

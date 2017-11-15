@@ -50,7 +50,7 @@ public class FileChoosePanel extends JPanel implements ActionListener {
 
     private void handleFileAdding(ContextEnum context, JFileChooser fileChooser) {
         if(context.equals(ContextEnum.TRAINING)) {
-            ImageRecognizer.loadTrainingData(fileChooser.getSelectedFile(), this, window);
+            ImageRecognizer.loadTrainingData(fileChooser.getSelectedFiles(), this, window);
         } else if (context.equals(ContextEnum.RECOGNITION)) {
             ImageRecognizer.initImageRecognition(fileChooser.getSelectedFiles(), this, window);
         }
@@ -58,5 +58,6 @@ public class FileChoosePanel extends JPanel implements ActionListener {
 
     protected void initFileChooser() {
         fileChooser = new JFileChooser("./data/");
+        fileChooser.setMultiSelectionEnabled(true);
     }
 }
