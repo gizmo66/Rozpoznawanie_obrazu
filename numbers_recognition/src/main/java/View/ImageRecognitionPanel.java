@@ -18,13 +18,15 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
     private JButton recognitionBtn;
     private Window window;
     private LinkedList<Picture> pictures;
+    private boolean isMnist;
 
     public void setPictures(LinkedList<Picture> pictures) {
         this.pictures = pictures;
     }
 
-    public ImageRecognitionPanel(Window window) {
+    public ImageRecognitionPanel(Window window, boolean isMnist) {
         this.window = window;
+        this.isMnist = isMnist;
         window.setTitle(WindowTitleEnum.RECOGNIZING_IMAGE.getName());
 
         recognitionBtn = new JButton("RECOGNIZE");
@@ -49,10 +51,10 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
             if(t.loadFeaturesVector()){
                 java.util.LinkedList<Picture> tempTest = new LinkedList<>();
                 for (Picture picture : pictures) {
-                    tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
+                    tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture, isMnist));
                 }
 
-                java.util.List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,5);
+                java.util.List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,10);
                 window = WindowTestRecognizer.getTestWindows(result);
             }
         }

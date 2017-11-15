@@ -1,7 +1,6 @@
 package Core;
 
 import lombok.extern.slf4j.Slf4j;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -12,8 +11,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 
-import static org.opencv.imgproc.Imgproc.threshold;
-
 @Slf4j
 public class ImageUtils {
 
@@ -22,7 +19,7 @@ public class ImageUtils {
     public static BufferedImage binarizeImage(BufferedImage bfImage, boolean isMnist){
         if (!isMnist) {
 
-            final int THRESHOLD = 160;
+            final int THRESHOLD = 110;
             int height = bfImage.getHeight();
             int width = bfImage.getWidth();
             BufferedImage returnImage = bfImage;
@@ -44,7 +41,38 @@ public class ImageUtils {
             Mat src = bufferedImageToMat(returnImage);
             Image result = toBufferedImage(src);
 
-            //TODO delete background
+            for (int y = 0; y < height - 7; y += 5) {
+                for (int x = 0; x < width - 7; x += 5) {
+                    int count = 0;
+                    for (int h = y; h < y + 7; h++) {
+                        for (int w = x; w < x + 7; w++) {
+                            if (((BufferedImage) result).getRGB(w, h) == Color.WHITE.getRGB()
+                                    || ((BufferedImage) result).getRGB(w, h) == Color.YELLOW.getRGB()) {
+                                count++;
+                            }
+                        }
+                    }
+
+                    if (count > 45) {
+                        for (int h = y; h < y + 7; h++) {
+                            for (int w = x; w < x + 7; w++) {
+                                ((BufferedImage) result).setRGB(w, h, Color.YELLOW.getRGB());
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(int i=0; i<width; i++){
+                for(int j=0; j<height; j++){
+                    if (((BufferedImage) result).getRGB(i, j) == Color.YELLOW.getRGB()) {
+                        ((BufferedImage) result).setRGB(i,j,Color.WHITE.getRGB());
+                    } else if (((BufferedImage) result).getRGB(i, j) == Color.WHITE.getRGB() && i < width - 7 && j <
+                            height - 7) {
+                        ((BufferedImage) result).setRGB(i,j,Color.BLACK.getRGB());
+                    }
+                }
+            }
 
             return (BufferedImage) result;
         } else {
