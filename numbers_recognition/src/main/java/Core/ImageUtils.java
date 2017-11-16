@@ -138,12 +138,12 @@ public class ImageUtils {
         return image;
     }
 
-    public static BufferedImage toBufferImageFrom2DArray(int[][] array)
+    public static BufferedImage toBufferImageFrom2DArray(int[][] array, int width, int height)
     {
-        BufferedImage bimage = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB);
-        for(int i =0 ; i < 28;i ++)
+        BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for(int i =0 ; i < width;i ++)
         {
-            for(int j = 0; j < 28; j++)
+            for(int j = 0; j < height; j++)
             {
                 if(array[i][j] == 1)
                     bimage.setRGB(j,i,Color.BLACK.getRGB());

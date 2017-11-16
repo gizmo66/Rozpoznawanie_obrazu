@@ -45,10 +45,8 @@ public class ImageRecognizer {
             {
                 loadPictures.set(i,new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
                         .getImage()), isMnist), loadPictures.get(i).getType()));
-                if (isMnist) {
-                    loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType
-                     ()));
-                }
+                loadPictures.set(i,new Picture(ThinnerImage.Start(loadPictures.get(i)),loadPictures.get(i).getType
+                 ()));
             }
 
             FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(loadPictures, isMnist);
@@ -83,10 +81,8 @@ public class ImageRecognizer {
             for (int i = 0; i < pictures.size(); i++) {
                 loadPictures.set(i, new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
                         .getImage()), isMnist), loadPictures.get(i).getType()));
-                if (isMnist) {
-                    loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType
-                            ()));
-                }
+                loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType
+                        ()));
             }
 
             ImageRecognitionPanel panel = new ImageRecognitionPanel(window, isMnist);
@@ -98,14 +94,14 @@ public class ImageRecognizer {
                 window.setSize(700, 700);
                 for (int i = 0; i < 100; i++) {
                     Picture picture = pictures.get(i);
-                    addImage(picture.getImage(), panel);
+                    addImage(picture.getImage(), panel, 2);
                     temp.add(picture);
                 }
             } else {
                 window.setLocation(20, 20);
                 window.setSize(700, 700);
                 for (Picture picture : pictures) {
-                    addImage(picture.getImage(), panel);
+                    addImage(picture.getImage(), panel, 1f);
                     temp.add(picture);
                 }
             }
@@ -114,8 +110,8 @@ public class ImageRecognizer {
         }
     }
 
-    private static void addImage(Image image, ImageRecognitionPanel panel) {
-        Image upscaleImage = ImageUtils.upscaleImage((BufferedImage) image, 2);
+    private static void addImage(Image image, ImageRecognitionPanel panel, float scale) {
+        Image upscaleImage = ImageUtils.upscaleImage((BufferedImage) image, scale);
         ImageIcon icon = new ImageIcon(upscaleImage);
         JLabel label = new JLabel(icon);
         panel.add(label);
