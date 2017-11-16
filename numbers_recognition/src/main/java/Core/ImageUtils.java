@@ -19,7 +19,7 @@ public class ImageUtils {
     public static BufferedImage binarizeImage(BufferedImage bfImage, boolean isMnist){
         if (!isMnist) {
 
-            final int THRESHOLD = 110;
+            final int THRESHOLD = 120;
             int height = bfImage.getHeight();
             int width = bfImage.getWidth();
             BufferedImage returnImage = bfImage;
@@ -46,8 +46,7 @@ public class ImageUtils {
                     int count = 0;
                     for (int h = y; h < y + 7; h++) {
                         for (int w = x; w < x + 7; w++) {
-                            if (((BufferedImage) result).getRGB(w, h) == Color.WHITE.getRGB()
-                                    || ((BufferedImage) result).getRGB(w, h) == Color.YELLOW.getRGB()) {
+                            if (returnImage.getRGB(w, h) == Color.WHITE.getRGB()) {
                                 count++;
                             }
                         }
