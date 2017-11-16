@@ -30,7 +30,7 @@ public class ThinnerImage {
         //printResult();
         thinImage();
 
-        return ImageUtils.toBufferImageFrom2DArray(grid);
+        return ImageUtils.toBufferImageFrom2DArray(grid, p1.getWidth(), p1.getHeight());
     }
 
     static int[] getOneRow(BufferedImage img, int rowIndex)
