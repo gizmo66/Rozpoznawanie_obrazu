@@ -66,8 +66,10 @@ public class ImageRecognizer {
         for(int i = 0; i < loadPictures.size();i++){
             loadPictures.set(i, new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
                     .getImage()), isMnist), loadPictures.get(i).getType()));
-            loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType
-                    ()));
+            if (isMnist) {
+                loadPictures.set(i, new Picture(ThinnerImage.Start(loadPictures.get(i)), loadPictures.get(i).getType
+                        ()));
+            }
         }
         return isMnist;
     }
