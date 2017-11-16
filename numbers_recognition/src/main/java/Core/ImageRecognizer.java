@@ -89,7 +89,7 @@ public class ImageRecognizer {
         if(isMnist) {
             MnistFilesLoader mnistFilesLoader = new MnistFilesLoader();
             try {
-                pictures = mnistFilesLoader.loadTrainingDataSet(files[0]);
+                pictures = mnistFilesLoader.loadTrainingDataSet(files[0], 100);
             } catch (IOException e) {
                 e.printStackTrace();
             }

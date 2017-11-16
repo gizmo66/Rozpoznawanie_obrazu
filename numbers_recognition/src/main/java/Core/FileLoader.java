@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FileLoader {
 
-    List<Picture> loadTrainingDataSet(File file) throws IOException;
+    LinkedList<Picture> loadTrainingDataSet(File file) throws IOException;
 
     LinkedList<Picture> loadTrainingDataSet(File[] files) throws IOException;
 }
