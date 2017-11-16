@@ -9,7 +9,7 @@ import java.util.List;
 public class ImageFileLoader implements FileLoader {
 
     @Override
-    public List<Picture> loadTrainingDataSet(File file) {
+    public LinkedList<Picture> loadTrainingDataSet(File file) {
         return loadTrainingDataSet(new File[]{ file });
     }
 

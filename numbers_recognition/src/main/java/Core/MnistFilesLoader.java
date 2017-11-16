@@ -14,7 +14,12 @@ public class MnistFilesLoader implements FileLoader {
     private static final int IMAGE_OFFSET = 16;
     private static final int IMAGE_SIZE = ROWS * COLUMNS;
 
+    @Override
     public LinkedList<Picture> loadTrainingDataSet(File file) throws IOException {
+        return loadTrainingDataSet(file, 0);
+    }
+
+    public LinkedList<Picture> loadTrainingDataSet(File file, int from) throws IOException {
         LinkedList<Picture> pictures = new LinkedList<>();
 
         String imagesFileName = file.getName();
@@ -55,7 +60,7 @@ public class MnistFilesLoader implements FileLoader {
             throw new IOException("The number of labels and images do not match!");
         }
 
-        for(int i = 0; i < numberOfLabels; i++) {
+        for(int i = from; i < numberOfLabels; i++) {
             int label = labelBytes[OFFSET_SIZE + ITEMS_SIZE + i];
             byte[] imageData = Arrays.copyOfRange(imageBytes, (i * IMAGE_SIZE) + IMAGE_OFFSET,
                     (i * IMAGE_SIZE) + IMAGE_OFFSET + IMAGE_SIZE);
