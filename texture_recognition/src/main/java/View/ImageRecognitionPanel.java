@@ -1,16 +1,16 @@
 package View;
 
+import Classification.KNearestNeighborsClassifier;
+import Classification.ResultData;
 import Core.*;
 import Extraction.FeaturesExtractor;
+import Extraction.Picture;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
@@ -52,7 +52,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
                     tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
                 }
 
-                java.util.List<ResultData> result = KNN.knnTEST(KNN.baseTrainingFile,tempTest,10);
+                java.util.List<ResultData> result = KNearestNeighborsClassifier.classify(KNearestNeighborsClassifier.baseTrainingFile,tempTest,10);
                 window = WindowTestRecognizer.getTestWindows(result);
             }
         }

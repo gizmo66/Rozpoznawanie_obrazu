@@ -2,17 +2,18 @@ package Core;
 
 import Extraction.FeaturesExtractor;
 import Extraction.FeaturesVector;
+import Extraction.Picture;
+import File.ImageFileLoader;
+import Image.ImageUtils;
 import View.FileChoosePanel;
 import View.ImageRecognitionPanel;
 import View.TrainingDataLoadingPanel;
 import View.Window;
-import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 
 public class ImageRecognizer {

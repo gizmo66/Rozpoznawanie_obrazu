@@ -1,4 +1,4 @@
-package Core;
+package Extraction;
 
 import lombok.Getter;
 import lombok.Setter;

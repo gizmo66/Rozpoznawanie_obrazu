@@ -1,4 +1,4 @@
-package Core;
+package Classification;
 
 public class ResultData {
 

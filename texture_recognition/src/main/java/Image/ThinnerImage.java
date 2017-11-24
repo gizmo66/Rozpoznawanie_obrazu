@@ -1,4 +1,6 @@
-package Core;
+package Image;
+
+import Extraction.Picture;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

@@ -1,4 +1,7 @@
-package Core;
+package File;
+
+import Extraction.Picture;
+import Image.ImageUtils;
 
 import java.awt.*;
 import java.io.File;

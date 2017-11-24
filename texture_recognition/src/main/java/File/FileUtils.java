@@ -1,4 +1,4 @@
-package Core;
+package File;
 
 import View.ImageTypeEnum;
 import org.apache.commons.io.FilenameUtils;
