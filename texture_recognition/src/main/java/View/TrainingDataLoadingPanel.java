@@ -18,24 +18,14 @@ public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
     private JButton recognitionProgramBtn;
     private Window window;
 
-    public TrainingDataLoadingPanel(LinkedList<Picture> pictures, Window window, boolean isMnist) {
+    public TrainingDataLoadingPanel(LinkedList<Picture> pictures, Window window) {
         this.window = window;
         window.setTitle(WindowTitleEnum.TRAINING_DATA.getName());
-
-        if (isMnist) {
-            window.setLocation(20, 20);
-            window.setSize(700, 700);
-            for(int i = 0; i < 100; i++) {
-                Picture picture = pictures.get(i);
-                addImage(picture.getImage(), 2);
-            }
-        } else {
-            window.setLocation(20, 20);
-            window.setSize(1300, 700);
-            for(int i = 0; i < (pictures.size() <= 18 ? pictures.size() : 18); i++) {
-                Picture picture = pictures.get(i);
-                addImage(picture.getImage(), 1f);
-            }
+        window.setLocation(20, 20);
+        window.setSize(1300, 700);
+        for(int i = 0; i < (pictures.size() <= 18 ? pictures.size() : 18); i++) {
+            Picture picture = pictures.get(i);
+            addImage(picture.getImage(), 1f);
         }
 
         recognitionProgramBtn = new JButton("Go To RECOGNITION");

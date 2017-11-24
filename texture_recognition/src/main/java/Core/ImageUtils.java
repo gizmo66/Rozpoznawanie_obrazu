@@ -16,85 +16,62 @@ public class ImageUtils {
 
     private static final String LIB_NAME = "opencv_java320";
 
-    public static BufferedImage binarizeImage(BufferedImage bfImage, boolean isMnist){
-        if (!isMnist) {
+    public static BufferedImage binarizeImage(BufferedImage bfImage){
+        final int THRESHOLD = 120;
+        int height = bfImage.getHeight();
+        int width = bfImage.getWidth();
+        BufferedImage returnImage = bfImage;
 
-            final int THRESHOLD = 120;
-            int height = bfImage.getHeight();
-            int width = bfImage.getWidth();
-            BufferedImage returnImage = bfImage;
-
-            for(int i=0; i<width; i++){
-                for(int j=0; j<height; j++){
-                    Color c = new Color(returnImage.getRGB(i,j));
-                    int red = c.getRed();
-                    int green = c.getGreen();
-                    int blue = c.getBlue();
-                    if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
-                        returnImage.setRGB(i,j,Color.BLACK.getRGB());
-                    }else{
-                        returnImage.setRGB(i,j,Color.WHITE.getRGB());
-                    }
+        for(int i=0; i<width; i++){
+            for(int j=0; j<height; j++){
+                Color c = new Color(returnImage.getRGB(i,j));
+                int red = c.getRed();
+                int green = c.getGreen();
+                int blue = c.getBlue();
+                if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
+                    returnImage.setRGB(i,j,Color.BLACK.getRGB());
+                }else{
+                    returnImage.setRGB(i,j,Color.WHITE.getRGB());
                 }
             }
+        }
 
-            Mat src = bufferedImageToMat(returnImage);
-            Image result = toBufferedImage(src);
+        Mat src = bufferedImageToMat(returnImage);
+        Image result = toBufferedImage(src);
 
-            for (int y = 0; y < height - 7; y += 5) {
-                for (int x = 0; x < width - 7; x += 5) {
-                    int count = 0;
+        for (int y = 0; y < height - 7; y += 5) {
+            for (int x = 0; x < width - 7; x += 5) {
+                int count = 0;
+                for (int h = y; h < y + 7; h++) {
+                    for (int w = x; w < x + 7; w++) {
+                        if (returnImage.getRGB(w, h) == Color.WHITE.getRGB()) {
+                            count++;
+                        }
+                    }
+                }
+
+                if (count > 45) {
                     for (int h = y; h < y + 7; h++) {
                         for (int w = x; w < x + 7; w++) {
-                            if (returnImage.getRGB(w, h) == Color.WHITE.getRGB()) {
-                                count++;
-                            }
-                        }
-                    }
-
-                    if (count > 45) {
-                        for (int h = y; h < y + 7; h++) {
-                            for (int w = x; w < x + 7; w++) {
-                                ((BufferedImage) result).setRGB(w, h, Color.YELLOW.getRGB());
-                            }
+                            ((BufferedImage) result).setRGB(w, h, Color.YELLOW.getRGB());
                         }
                     }
                 }
             }
-
-            for(int i=0; i<width; i++){
-                for(int j=0; j<height; j++){
-                    if (((BufferedImage) result).getRGB(i, j) == Color.YELLOW.getRGB()) {
-                        ((BufferedImage) result).setRGB(i,j,Color.WHITE.getRGB());
-                    } else if (((BufferedImage) result).getRGB(i, j) == Color.WHITE.getRGB() && i < width - 7 && j <
-                            height - 7) {
-                        ((BufferedImage) result).setRGB(i,j,Color.BLACK.getRGB());
-                    }
-                }
-            }
-
-            return (BufferedImage) result;
-        } else {
-            final int THRESHOLD = 160;
-            int height = bfImage.getHeight();
-            int width = bfImage.getWidth();
-            BufferedImage returnImage = bfImage;
-
-            for(int i=0; i<width; i++){
-                for(int j=0; j<height; j++){
-                    Color c = new Color(returnImage.getRGB(i,j));
-                    int red = c.getRed();
-                    int green = c.getGreen();
-                    int blue = c.getBlue();
-                    if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
-                        returnImage.setRGB(i,j,Color.WHITE.getRGB());
-                    }else{
-                        returnImage.setRGB(i,j,Color.BLACK.getRGB());
-                    }
-                }
-            }
-            return returnImage;
         }
+
+        for(int i=0; i<width; i++){
+            for(int j=0; j<height; j++){
+                if (((BufferedImage) result).getRGB(i, j) == Color.YELLOW.getRGB()) {
+                    ((BufferedImage) result).setRGB(i,j,Color.WHITE.getRGB());
+                } else if (((BufferedImage) result).getRGB(i, j) == Color.WHITE.getRGB() && i < width - 7 && j <
+                        height - 7) {
+                    ((BufferedImage) result).setRGB(i,j,Color.BLACK.getRGB());
+                }
+            }
+        }
+
+        return (BufferedImage) result;
     }
 
     public static Mat bufferedImageToMat(BufferedImage bi) {
@@ -105,14 +82,6 @@ public class ImageUtils {
         byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
         mat.put(0, 0, data);
         return mat;
-    }
-
-    static Image bytesToImage(byte[] source, int width, int height) {
-        int type = BufferedImage.TYPE_BYTE_GRAY;
-        BufferedImage image = new BufferedImage(width, height, type);
-        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        System.arraycopy(source, 0, targetPixels, 0, source.length);
-        return image;
     }
 
     public static Image fileToImage(File file) {

@@ -20,7 +20,7 @@ public class FeaturesVector {
         FeaturesVector.imageClassToFeaturesValuesMap = imageClassToFeaturesValuesMap;
     }
 
-    private <T> void save(Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap, BufferedWriter bf)
+    private void save(Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap, BufferedWriter bf)
             throws IOException {
         for (Map.Entry<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValues : imageClassToFeaturesValuesMap.entrySet()) {
             bf.newLine();
