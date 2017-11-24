@@ -21,7 +21,6 @@ public class KNN {
         return result;
     }
 
-    //first element expected, second result of knn
     public static List<String> knn(List<Picture> trainingFile, Picture testFile, int K){
 
         if(K <= 0){
@@ -39,7 +38,6 @@ public class KNN {
         return result;
     }
 
-    // Find K nearest neighbors of testRecord within trainingSet
     static List<Picture> findKNearestNeighbors(List<Picture>trainingSet, Picture testRecord,int K){
         int NumOfTrainingSet = trainingSet.size();
         assert K <= NumOfTrainingSet : "K is lager than the length of trainingSet!";
@@ -54,14 +52,12 @@ public class KNN {
         for(index = K; index < NumOfTrainingSet; index ++){
             trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(), testRecord.getCharasteristic());
 
-            //get the index of the neighbor with the largest distance to testRecord
             int maxIndex = 0;
             for(int i = 1; i < K; i ++){
                 if(neighbors.get(i).distance > neighbors.get(maxIndex).distance)
                     maxIndex = i;
             }
 
-            //add the current trainingSet[index] into neighbors if applicable
             if(neighbors.get(maxIndex).distance > trainingSet.get(index).distance)      //TODO >
                 neighbors.set(maxIndex,trainingSet.get(index));
         }
