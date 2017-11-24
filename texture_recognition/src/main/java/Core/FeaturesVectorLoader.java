@@ -53,10 +53,6 @@ public class FeaturesVectorLoader {
                 }
             }
         }
-
-        //DEBUG println
-        /*for(String key : returnValues.keySet())
-            System.out.println(key + " " + returnValues.get(key).toString());*/
     }
 
     public void fillUpTrainingSets()

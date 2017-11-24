@@ -10,46 +10,23 @@ import java.util.*;
 
 public class FeaturesExtractor {
 
-    public static FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures, boolean isMnist) {
+    public static FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures) {
         Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
         for (Picture picture : pictures) {
             LinkedHashMap<StarFeaturesEnum, Number> starFeaturesValues = new LinkedHashMap<>();
-            LinkedHashMap<MnistFeaturesEnum, Number> mnistFeaturesValues = new LinkedHashMap<>();
 
-            Map<String, Integer> minutiaesMap = getMinutiaes(picture, isMnist);
-            if (isMnist) {
-                BufferedImage image = (BufferedImage) picture.getImage();
-                int height = image.getHeight();
-                int width = image.getWidth();
-                mnistFeaturesValues.put(MnistFeaturesEnum.SURFACE, getSurfaceSize(picture) / 10);
-                mnistFeaturesValues.put(MnistFeaturesEnum.QUARTER_SIZE_1, getQuarterSize(picture, 0,
-                        height / 2, 0, width / 2) / 2.5f);
-                mnistFeaturesValues.put(MnistFeaturesEnum.QUARTER_SIZE_2, getQuarterSize(picture, 0,
-                        height / 2, width / 2, width) / 2.5f);
-                mnistFeaturesValues.put(MnistFeaturesEnum.QUARTER_SIZE_3, getQuarterSize(picture,
-                        height / 2, height, 0, width / 2) / 2.5f);
-                mnistFeaturesValues.put(MnistFeaturesEnum.QUARTER_SIZE_4, getQuarterSize(picture,
-                        height / 2, height, width / 2, width) / 2.5f);
-            } else {
-                starFeaturesValues.put(StarFeaturesEnum.EDGES_TO_SURFACE, minutiaesMap.get(MinutiaesEnum.EDGES_LENGTH
+            Map<String, Integer> minutiaesMap = getMinutiaes(picture);
+            starFeaturesValues.put(StarFeaturesEnum.EDGES_TO_SURFACE, minutiaesMap.get(MinutiaesEnum.EDGES_LENGTH
                         .getName()) / getSurfaceSize(picture) * 50);
-            }
 
             LinkedHashMap<FeaturesEnum, Number> allFeaturesValues = new LinkedHashMap<>();
             allFeaturesValues.put(FeaturesEnum.LINE_ENDS, minutiaesMap.get(MinutiaesEnum.ENDING_POINT.getName()));
             allFeaturesValues.put(FeaturesEnum.CROSSING_POINTS, minutiaesMap.get(MinutiaesEnum.CROSSING_POINT.getName()));
 
             if (imageClassToFeaturesValuesMap.get(picture.getType()) != null) {
-                if (isMnist) {
-                    for (MnistFeaturesEnum mnistFeature : Arrays.asList(MnistFeaturesEnum.values())) {
-                        imageClassToFeaturesValuesMap.get(picture.getType()).get(mnistFeature.getName())
-                                .add(mnistFeaturesValues.get(mnistFeature));
-                    }
-                } else {
-                    for (StarFeaturesEnum feature : Arrays.asList(StarFeaturesEnum.values())) {
-                        imageClassToFeaturesValuesMap.get(picture.getType()).get(feature.getName())
-                                .add(starFeaturesValues.get(feature));
-                    }
+                for (StarFeaturesEnum feature : Arrays.asList(StarFeaturesEnum.values())) {
+                    imageClassToFeaturesValuesMap.get(picture.getType()).get(feature.getName())
+                            .add(starFeaturesValues.get(feature));
                 }
 
                 for (FeaturesEnum feature : Arrays.asList(FeaturesEnum.values())) {
@@ -59,18 +36,10 @@ public class FeaturesExtractor {
             } else {
                 LinkedHashMap<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
 
-                if (isMnist) {
-                    for (MnistFeaturesEnum mnistFeature : Arrays.asList(MnistFeaturesEnum.values())) {
-                        LinkedList<Number> valuesList = new LinkedList<>();
-                        valuesList.add(mnistFeaturesValues.get(mnistFeature));
-                        featureNameToValuesMap.put(mnistFeature.getName(), valuesList);
-                    }
-                } else {
-                    for (StarFeaturesEnum starFeature : Arrays.asList(StarFeaturesEnum.values())) {
-                        LinkedList<Number> valuesList = new LinkedList<>();
-                        valuesList.add(starFeaturesValues.get(starFeature));
-                        featureNameToValuesMap.put(starFeature.getName(), valuesList);
-                    }
+                for (StarFeaturesEnum starFeature : Arrays.asList(StarFeaturesEnum.values())) {
+                    LinkedList<Number> valuesList = new LinkedList<>();
+                    valuesList.add(starFeaturesValues.get(starFeature));
+                    featureNameToValuesMap.put(starFeature.getName(), valuesList);
                 }
 
                 for (FeaturesEnum feature : Arrays.asList(FeaturesEnum.values())) {
@@ -97,24 +66,12 @@ public class FeaturesExtractor {
         return (float) numberOfBlackPixels;
     }
 
-    public static Picture calculateFeatureInOnePicture(Picture picture, boolean isMnist) {
+    public static Picture calculateFeatureInOnePicture(Picture picture) {
         LinkedList<Number> features = new LinkedList<>();
 
-        Map<String, Integer> minutiaesMap = getMinutiaes(picture, isMnist);
-        if (isMnist) {
-            BufferedImage image = (BufferedImage) picture.getImage();
-            int height = image.getHeight();
-            int width = image.getWidth();
-            features.add(getSurfaceSize(picture) / 10);
-            features.add(getQuarterSize(picture, 0, height / 2, 0, width / 2) / 2.5f);
-            features.add(getQuarterSize(picture, 0, height / 2, width / 2, width) / 2.5f);
-            features.add(getQuarterSize(picture, height / 2, height, 0, width / 2) / 2.5f);
-            features.add(getQuarterSize(picture, height / 2, height, width / 2, width) / 2.5f);
-        } else {
-            float edgesToSurface = minutiaesMap.get(MinutiaesEnum.EDGES_LENGTH.getName()) / getSurfaceSize(picture) *
-                    50;
-            features.add(edgesToSurface);
-        }
+        Map<String, Integer> minutiaesMap = getMinutiaes(picture);
+        float edgesToSurface = minutiaesMap.get(MinutiaesEnum.EDGES_LENGTH.getName()) / getSurfaceSize(picture) * 50;
+        features.add(edgesToSurface);
 
         int lineEnds = minutiaesMap.get(MinutiaesEnum.ENDING_POINT.getName());
         int crossingPoints = minutiaesMap.get(MinutiaesEnum.CROSSING_POINT.getName());
@@ -129,7 +86,7 @@ public class FeaturesExtractor {
         return calculateNumberSurface(picture);
     }
 
-    private static Map<String, Integer> getMinutiaes(Picture picture, boolean isMnist) {
+    private static Map<String, Integer> getMinutiaes(Picture picture) {
         BufferedImage image = (BufferedImage) picture.getImage();
         BufferedImage tempImage = ImageUtils.toBufferedImage(picture.getImage());
 
@@ -158,9 +115,7 @@ public class FeaturesExtractor {
             }
         }
 
-        if (!isMnist) {
-            image = (BufferedImage) ThinnerImage.Start(picture);
-        }
+        image = (BufferedImage) ThinnerImage.Start(picture);
 
         int lineEndsQuantity = 0;
         int crossingPointsQuantity = 0;
