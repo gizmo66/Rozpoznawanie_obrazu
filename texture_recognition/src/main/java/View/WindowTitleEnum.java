@@ -1,4 +1,4 @@
-package Core;
+package View;
 
 import lombok.Getter;
 

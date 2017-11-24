@@ -1,8 +1,7 @@
 package Extraction;
 
-import Core.ImageUtils;
-import Core.Picture;
-import Core.ThinnerImage;
+import Image.ImageUtils;
+import Image.ThinnerImage;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

@@ -2,6 +2,7 @@ package Core;
 
 import View.FileChoosePanel;
 import View.Window;
+import View.WindowTitleEnum;
 
 public class Application {
 

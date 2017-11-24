@@ -1,15 +1,11 @@
 package View;
 
-
-import Core.ResultData;
-import Extraction.FeaturesVector;
+import Classification.ResultData;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
-import java.util.Map;
-
 
 public class WindowTestRecognizer {
 

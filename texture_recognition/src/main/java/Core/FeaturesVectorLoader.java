@@ -1,6 +1,8 @@
 package Core;
 
+import Classification.KNearestNeighborsClassifier;
 import Extraction.FeaturesVector;
+import Extraction.Picture;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
@@ -72,7 +74,7 @@ public class FeaturesVectorLoader {
             }
         }
 
-        KNN.baseTrainingFile = tempTrainingList;
+        KNearestNeighborsClassifier.baseTrainingFile = tempTrainingList;
     }
 
     public boolean readFile() {

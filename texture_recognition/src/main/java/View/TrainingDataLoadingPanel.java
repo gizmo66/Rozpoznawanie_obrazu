@@ -1,16 +1,14 @@
 package View;
 
 import Core.ContextEnum;
-import Core.Picture;
-import Core.ImageUtils;
-import Core.WindowTitleEnum;
+import Extraction.Picture;
+import Image.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.Comparator;
 import java.util.LinkedList;
 
 public class TrainingDataLoadingPanel extends JPanel implements ActionListener {

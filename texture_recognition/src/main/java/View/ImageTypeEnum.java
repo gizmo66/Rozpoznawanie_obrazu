@@ -1,6 +1,6 @@
 package View;
 
-import Core.FileUtils;
+import File.FileUtils;
 import lombok.Getter;
 
 import javax.swing.*;

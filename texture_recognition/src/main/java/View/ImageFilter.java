@@ -1,6 +1,6 @@
 package View;
 
-import Core.FileUtils;
+import File.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.filechooser.FileFilter;
