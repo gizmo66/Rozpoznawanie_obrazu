@@ -16,7 +16,7 @@ public class FeaturesExtractor {
 
             Map<String, Integer> minutiaesMap = getMinutiaes(picture);
             starFeaturesValues.put(StarFeaturesEnum.EDGES_TO_SURFACE, minutiaesMap.get(MinutiaesEnum.EDGES_LENGTH
-                        .getName()) / getSurfaceSize(picture) * 50);
+                    .getName()) / getSurfaceSize(picture) * 50);
 
             LinkedHashMap<FeaturesEnum, Number> allFeaturesValues = new LinkedHashMap<>();
             allFeaturesValues.put(FeaturesEnum.LINE_ENDS, minutiaesMap.get(MinutiaesEnum.ENDING_POINT.getName()));
@@ -52,19 +52,6 @@ public class FeaturesExtractor {
         return new FeaturesVector(imageClassToFeaturesValuesMap);
     }
 
-    private static Float getQuarterSize(Picture picture, int hStart, int hEnd, int wStart, int wEnd) {
-        int numberOfBlackPixels = 0;
-        BufferedImage image = ImageUtils.toBufferedImage(picture.getImage());
-        for (int i = hStart; i < hEnd; i++) {
-            for (int j = wStart; j < wEnd; j++) {
-                if (image.getRGB(i, j) == Color.BLACK.getRGB()) {
-                    numberOfBlackPixels++;
-                }
-            }
-        }
-        return (float) numberOfBlackPixels;
-    }
-
     public static Picture calculateFeatureInOnePicture(Picture picture) {
         LinkedList<Number> features = new LinkedList<>();
 
@@ -81,7 +68,7 @@ public class FeaturesExtractor {
         return new Picture(picture.getImage(), picture.getType(), features);
     }
 
-    public static float getSurfaceSize(Picture picture) {
+    private static float getSurfaceSize(Picture picture) {
         return calculateNumberSurface(picture);
     }
 
@@ -176,13 +163,11 @@ public class FeaturesExtractor {
 
     private static int getNumberOfBlackPixels(BufferedImage image) {
         int returnValue = 0;
-        for(int i = 0; i < image.getHeight(); i++)
-        {
-            for (int j = 0 ; j < image.getWidth(); j++)
-            {
-                //bufferedImage.getRaster().getDataBuffer()).getData()
-                if(image.getRGB(i,j) == Color.BLACK.getRGB())
-                    returnValue ++;
+        for (int i = 0; i < image.getHeight(); i++) {
+            for (int j = 0; j < image.getWidth(); j++) {
+                if (image.getRGB(i, j) == Color.BLACK.getRGB()) {
+                    returnValue++;
+                }
             }
         }
 

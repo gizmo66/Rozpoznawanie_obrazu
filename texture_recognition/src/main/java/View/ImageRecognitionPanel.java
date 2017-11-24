@@ -2,7 +2,8 @@ package View;
 
 import Classification.KNearestNeighborsClassifier;
 import Classification.ResultData;
-import Core.*;
+import Core.ContextEnum;
+import Core.FeaturesVectorLoader;
 import Extraction.FeaturesExtractor;
 import Extraction.Picture;
 
@@ -10,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.LinkedList;
 
 public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
@@ -44,15 +45,15 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
     }
 
     private void handleFileAdding(ContextEnum context) {
-        if(context.equals(ContextEnum.RECOGNITION)) {
+        if (context.equals(ContextEnum.RECOGNITION)) {
             FeaturesVectorLoader t = new FeaturesVectorLoader();
-            if(t.loadFeaturesVector()){
+            if (t.loadFeaturesVector()) {
                 java.util.LinkedList<Picture> tempTest = new LinkedList<>();
                 for (Picture picture : pictures) {
                     tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
                 }
 
-                java.util.List<ResultData> result = KNearestNeighborsClassifier.classify(KNearestNeighborsClassifier.baseTrainingFile,tempTest,10);
+                java.util.List<ResultData> result = KNearestNeighborsClassifier.classify(KNearestNeighborsClassifier.baseTrainingFile, tempTest, 10);
                 window = WindowTestRecognizer.getTestWindows(result);
             }
         }

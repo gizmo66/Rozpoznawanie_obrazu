@@ -2,7 +2,10 @@ package Classification;
 
 import Extraction.Picture;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 public class KNearestNeighborsClassifier {
 
@@ -10,7 +13,7 @@ public class KNearestNeighborsClassifier {
 
     public static List<ResultData> classify(List<Picture> trainingFile, List<Picture> testFiles, int K) {
         List<ResultData> result = new ArrayList<>();
-        for(Picture picture : testFiles) {
+        for (Picture picture : testFiles) {
             List<Picture> neighbors = findKNearestNeighbors(trainingFile, picture, K);
             picture.label = classify(neighbors);
 
@@ -18,13 +21,13 @@ public class KNearestNeighborsClassifier {
             tempResult.add(picture.getType());
             tempResult.add(String.valueOf(picture.label));
 
-            result.add(new ResultData(tempResult.get(0),tempResult.get(1)));
+            result.add(new ResultData(tempResult.get(0), tempResult.get(1)));
         }
 
         return result;
     }
 
-    private static List<Picture> findKNearestNeighbors(List<Picture> trainingSet, Picture testRecord, int K){
+    private static List<Picture> findKNearestNeighbors(List<Picture> trainingSet, Picture testRecord, int K) {
         int NumOfTrainingSet = trainingSet.size();
         if (K > NumOfTrainingSet) {
             throw new AssertionError("K is lager than the length of trainingSet!");
@@ -32,31 +35,31 @@ public class KNearestNeighborsClassifier {
         List<Picture> neighbors = new ArrayList<>();
 
         int index;
-        for(index = 0; index < K; index++){
+        for (index = 0; index < K; index++) {
             trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(),
                     testRecord.getCharasteristic());
             neighbors.add(trainingSet.get(index));
         }
 
-        for(index = K; index < NumOfTrainingSet; index ++){
+        for (index = K; index < NumOfTrainingSet; index++) {
             trainingSet.get(index).distance = getEuclideanDistance(trainingSet.get(index).getCharasteristic(),
                     testRecord.getCharasteristic());
 
             int maxIndex = 0;
-            for(int i = 1; i < K; i ++){
-                if(neighbors.get(i).distance > neighbors.get(maxIndex).distance) {
+            for (int i = 1; i < K; i++) {
+                if (neighbors.get(i).distance > neighbors.get(maxIndex).distance) {
                     maxIndex = i;
                 }
             }
 
-            if(neighbors.get(maxIndex).distance > trainingSet.get(index).distance) {
+            if (neighbors.get(maxIndex).distance > trainingSet.get(index).distance) {
                 neighbors.set(maxIndex, trainingSet.get(index));
             }
         }
         return neighbors;
     }
 
-    private static String classify(List<Picture> neighbors){
+    private static String classify(List<Picture> neighbors) {
         HashMap<String, Double> map = new HashMap<>();
 
         for (Picture temp : neighbors) {
@@ -92,7 +95,7 @@ public class KNearestNeighborsClassifier {
         int numOfAttributes = f0.size();
         double sum2 = 0;
 
-        for(int i = 0; i < numOfAttributes; i ++){
+        for (int i = 0; i < numOfAttributes; i++) {
             sum2 += Math.pow(f0.get(i).floatValue() - f1.get(i).floatValue(), 2);
         }
 

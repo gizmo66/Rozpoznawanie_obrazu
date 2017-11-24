@@ -2,10 +2,10 @@ package View;
 
 import File.FileUtils;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileView;
 import java.io.File;
 import java.util.Optional;
-import javax.swing.*;
-import javax.swing.filechooser.*;
 
 
 public class ImageFileView extends FileView {

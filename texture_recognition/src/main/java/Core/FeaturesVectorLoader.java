@@ -27,13 +27,13 @@ public class FeaturesVectorLoader {
     private void readFeaturesVector(BufferedReader br) throws IOException {
 
         //Read File Line By Line
-        for(String strLine; (strLine = br.readLine()) != null; ) {
+        for (String strLine; (strLine = br.readLine()) != null; ) {
             if (strLine.contains(FeaturesVector.CLASS_TAG_START)) {
                 String imageClass = strLine.split("\"")[1];
                 Map<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
-                while (true){
+                while (true) {
                     strLine = br.readLine();
-                    if(strLine.contains(FeaturesVector.CLASS_TAG_END)) {
+                    if (strLine.contains(FeaturesVector.CLASS_TAG_END)) {
                         FeaturesVector.imageClassToFeaturesValuesMap.put(imageClass,
                                 featureNameToValuesMap);
                         break;
@@ -57,16 +57,15 @@ public class FeaturesVectorLoader {
         }
     }
 
-    public void fillUpTrainingSets()
-    {
+    private void fillUpTrainingSets() {
         LinkedList<Picture> tempTrainingList = new LinkedList<>();
 
         for (String imageClass : FeaturesVector.imageClassToFeaturesValuesMap.keySet()) {
             Map<String, LinkedList<Number>> featureNameToValuesMap = FeaturesVector.imageClassToFeaturesValuesMap.get
                     (imageClass);
-            for(int i = 0; i < featureNameToValuesMap.entrySet().iterator().next().getValue().size(); i++) {
+            for (int i = 0; i < featureNameToValuesMap.entrySet().iterator().next().getValue().size(); i++) {
                 LinkedList<Number> features = new LinkedList<>();
-                for(String feature : featureNameToValuesMap.keySet()) {
+                for (String feature : featureNameToValuesMap.keySet()) {
                     features.add(featureNameToValuesMap.get(feature).get(i));
                 }
                 Picture tempPicture = new Picture(imageClass, imageClass, features);
@@ -77,7 +76,7 @@ public class FeaturesVectorLoader {
         KNearestNeighborsClassifier.baseTrainingFile = tempTrainingList;
     }
 
-    public boolean readFile() {
+    private boolean readFile() {
         try {
             //read file
             FileInputStream fstream = new FileInputStream(FEATURES_VECTOR_FILE_NAME);
