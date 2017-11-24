@@ -4,7 +4,7 @@ import Core.ContextEnum;
 
 public class ImageFileChoosePanel extends FileChoosePanel {
 
-    public ImageFileChoosePanel(ContextEnum context, Window window) {
+    ImageFileChoosePanel(ContextEnum context, Window window) {
         super(context, window);
     }
 

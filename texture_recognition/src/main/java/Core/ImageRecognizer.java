@@ -18,7 +18,7 @@ import java.util.LinkedList;
 
 public class ImageRecognizer {
 
-    public static LinkedList<Picture> loadPictures = new LinkedList<>();
+    private static LinkedList<Picture> loadPictures = new LinkedList<>();
 
     public static void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         if (files != null && files.length > 0) {
@@ -52,7 +52,7 @@ public class ImageRecognizer {
         window.remove(fileChoosePanel);
 
         loadPictures = loadPictures(files);
-        for(int i = 0; i < loadPictures.size();i++){
+        for (int i = 0; i < loadPictures.size(); i++) {
             loadPictures.set(i, new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
                     .getImage())), loadPictures.get(i).getType()));
         }

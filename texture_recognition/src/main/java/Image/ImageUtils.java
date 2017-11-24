@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -16,22 +17,22 @@ public class ImageUtils {
 
     private static final String LIB_NAME = "opencv_java320";
 
-    public static BufferedImage binarizeImage(BufferedImage bfImage){
+    public static BufferedImage binarizeImage(BufferedImage bfImage) {
         final int THRESHOLD = 120;
         int height = bfImage.getHeight();
         int width = bfImage.getWidth();
         BufferedImage returnImage = bfImage;
 
-        for(int i=0; i<width; i++){
-            for(int j=0; j<height; j++){
-                Color c = new Color(returnImage.getRGB(i,j));
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Color c = new Color(returnImage.getRGB(i, j));
                 int red = c.getRed();
                 int green = c.getGreen();
                 int blue = c.getBlue();
-                if(red<THRESHOLD && green<THRESHOLD && blue<THRESHOLD){
-                    returnImage.setRGB(i,j,Color.BLACK.getRGB());
-                }else{
-                    returnImage.setRGB(i,j,Color.WHITE.getRGB());
+                if (red < THRESHOLD && green < THRESHOLD && blue < THRESHOLD) {
+                    returnImage.setRGB(i, j, Color.BLACK.getRGB());
+                } else {
+                    returnImage.setRGB(i, j, Color.WHITE.getRGB());
                 }
             }
         }
@@ -60,13 +61,13 @@ public class ImageUtils {
             }
         }
 
-        for(int i=0; i<width; i++){
-            for(int j=0; j<height; j++){
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 if (((BufferedImage) result).getRGB(i, j) == Color.YELLOW.getRGB()) {
-                    ((BufferedImage) result).setRGB(i,j,Color.WHITE.getRGB());
+                    ((BufferedImage) result).setRGB(i, j, Color.WHITE.getRGB());
                 } else if (((BufferedImage) result).getRGB(i, j) == Color.WHITE.getRGB() && i < width - 7 && j <
                         height - 7) {
-                    ((BufferedImage) result).setRGB(i,j,Color.BLACK.getRGB());
+                    ((BufferedImage) result).setRGB(i, j, Color.BLACK.getRGB());
                 }
             }
         }
@@ -74,7 +75,7 @@ public class ImageUtils {
         return (BufferedImage) result;
     }
 
-    public static Mat bufferedImageToMat(BufferedImage bi) {
+    private static Mat bufferedImageToMat(BufferedImage bi) {
         String opencvpath = "C:\\OpenCV\\opencv\\build\\java\\x64\\";
         System.load(opencvpath + LIB_NAME + ".dll");
 
@@ -106,27 +107,22 @@ public class ImageUtils {
         return image;
     }
 
-    public static BufferedImage toBufferImageFrom2DArray(int[][] array, int width, int height)
-    {
+    static BufferedImage toBufferImageFrom2DArray(int[][] array, int width, int height) {
         BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        for(int i =0 ; i < width;i ++)
-        {
-            for(int j = 0; j < height; j++)
-            {
-                if(array[i][j] == 1)
-                    bimage.setRGB(j,i,Color.BLACK.getRGB());
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (array[i][j] == 1)
+                    bimage.setRGB(j, i, Color.BLACK.getRGB());
                 else
-                    bimage.setRGB(j,i,Color.WHITE.getRGB());
+                    bimage.setRGB(j, i, Color.WHITE.getRGB());
             }
         }
 
         return bimage;
     }
 
-    public static BufferedImage toBufferedImage(Image img)
-    {
-        if (img instanceof BufferedImage)
-        {
+    public static BufferedImage toBufferedImage(Image img) {
+        if (img instanceof BufferedImage) {
             return (BufferedImage) img;
         }
 

@@ -20,8 +20,8 @@ public class FileChoosePanel extends JPanel implements ActionListener {
         this.context = context;
         this.window = window;
 
-        log = new JTextArea(5,20);
-        log.setMargin(new Insets(5,5,5,5));
+        log = new JTextArea(5, 20);
+        log.setMargin(new Insets(5, 5, 5, 5));
         log.setEditable(false);
         JScrollPane logScrollPane = new JScrollPane(log);
 
@@ -49,7 +49,7 @@ public class FileChoosePanel extends JPanel implements ActionListener {
     }
 
     private void handleFileAdding() {
-        if(context.equals(ContextEnum.TRAINING)) {
+        if (context.equals(ContextEnum.TRAINING)) {
             ImageRecognizer.loadTrainingData(fileChooser.getSelectedFiles(), this, window);
         } else if (context.equals(ContextEnum.RECOGNITION)) {
             ImageRecognizer.initImageRecognition(fileChooser.getSelectedFiles(), this, window);
