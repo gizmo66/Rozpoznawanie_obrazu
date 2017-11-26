@@ -8,9 +8,9 @@ import java.util.*;
 public class KNearestNeighborsClassifier extends ClassifierImpl implements Classifier {
 
     @Override
-    public LinkedList<ResultData> classify(LinkedList<Picture> testFiles, int K) {
+    public LinkedList<ResultData> classify(LinkedList<Picture> picturesToClassify, int K) {
         LinkedList<ResultData> result = new LinkedList<>();
-        for (Picture picture : testFiles) {
+        for (Picture picture : picturesToClassify) {
             LinkedList<Picture> neighbors = findKNearestNeighbors(ImageRecognizer.trainingData.getPictures(), picture, K);
             String foundClass = classify(neighbors);
             result.add(new ResultData(picture.getType(), foundClass));
