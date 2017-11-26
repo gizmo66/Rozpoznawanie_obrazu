@@ -7,15 +7,13 @@ import java.awt.*;
 import java.util.LinkedList;
 
 @Getter
+@Setter
 public class Picture {
 
     private Image image;
-    private final String type;
-
+    private String type;
     private LinkedList<Number> features;
-
-    public String label;
-    public double distance;
+    private double distance;
 
     public Picture(Image image, String type) {
         this.image = image;
@@ -24,10 +22,9 @@ public class Picture {
         distance = 0;
     }
 
-    public Picture(String type, String lable, LinkedList<Number> features) {
+    public Picture(String type, LinkedList<Number> features) {
         this.features = features;
         this.type = type;
-        this.label = lable;
         image = null;
         distance = 0;
     }
@@ -37,21 +34,5 @@ public class Picture {
         this.image = image;
         this.type = type;
         distance = 0;
-    }
-
-    public LinkedList<Number> getCharasteristic() {
-        return features;
-    }
-
-    public Image getImage() {
-        return image;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
     }
 }

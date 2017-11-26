@@ -19,6 +19,7 @@ import java.util.LinkedList;
 public class ImageRecognizer {
 
     private static LinkedList<Picture> loadPictures = new LinkedList<>();
+    public static TrainingData trainingData = new TrainingData();
 
     public static void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         if (files != null && files.length > 0) {

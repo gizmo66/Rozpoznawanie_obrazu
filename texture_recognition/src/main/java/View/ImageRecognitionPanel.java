@@ -46,14 +46,15 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
     private void handleFileAdding(ContextEnum context) {
         if (context.equals(ContextEnum.RECOGNITION)) {
-            FeaturesVectorLoader t = new FeaturesVectorLoader();
-            if (t.loadFeaturesVector()) {
-                java.util.LinkedList<Picture> tempTest = new LinkedList<>();
+            FeaturesVectorLoader featuresVectorLoader = new FeaturesVectorLoader();
+            if (featuresVectorLoader.loadFeaturesVector()) {
+                java.util.LinkedList<Picture> picturesWithExtractedFeatures = new LinkedList<>();
                 for (Picture picture : pictures) {
-                    tempTest.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
+                    picturesWithExtractedFeatures.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
                 }
 
-                java.util.List<ResultData> result = KNearestNeighborsClassifier.classify(KNearestNeighborsClassifier.baseTrainingFile, tempTest, 10);
+                KNearestNeighborsClassifier classifier = new KNearestNeighborsClassifier();
+                java.util.List<ResultData> result = classifier.classify(picturesWithExtractedFeatures,10);
                 window = WindowTestRecognizer.getTestWindows(result);
             }
         }

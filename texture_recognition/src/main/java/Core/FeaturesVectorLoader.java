@@ -1,6 +1,5 @@
 package Core;
 
-import Classification.KNearestNeighborsClassifier;
 import Extraction.FeaturesVector;
 import Extraction.Picture;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +24,6 @@ public class FeaturesVectorLoader {
     }
 
     private void readFeaturesVector(BufferedReader br) throws IOException {
-
-        //Read File Line By Line
         for (String strLine; (strLine = br.readLine()) != null; ) {
             if (strLine.contains(FeaturesVector.CLASS_TAG_START)) {
                 String imageClass = strLine.split("\"")[1];
@@ -59,6 +56,7 @@ public class FeaturesVectorLoader {
 
     private void fillUpTrainingSets() {
         LinkedList<Picture> tempTrainingList = new LinkedList<>();
+        LinkedHashMap<String, Integer> classToQuantityMap = new LinkedHashMap<>();
 
         for (String imageClass : FeaturesVector.imageClassToFeaturesValuesMap.keySet()) {
             Map<String, LinkedList<Number>> featureNameToValuesMap = FeaturesVector.imageClassToFeaturesValuesMap.get
@@ -68,27 +66,28 @@ public class FeaturesVectorLoader {
                 for (String feature : featureNameToValuesMap.keySet()) {
                     features.add(featureNameToValuesMap.get(feature).get(i));
                 }
-                Picture tempPicture = new Picture(imageClass, imageClass, features);
+                Picture tempPicture = new Picture(imageClass, features);
                 tempTrainingList.add(tempPicture);
+                if(classToQuantityMap.containsKey(imageClass)) {
+                    classToQuantityMap.replace(imageClass, classToQuantityMap.get(imageClass) + 1);
+                } else {
+                    classToQuantityMap.put(imageClass, 1);
+                }
             }
         }
 
-        KNearestNeighborsClassifier.baseTrainingFile = tempTrainingList;
+        ImageRecognizer.trainingData.setPictures(tempTrainingList);
+        ImageRecognizer.trainingData.setClassToQuantityMap(classToQuantityMap);
     }
 
     private boolean readFile() {
         try {
-            //read file
             FileInputStream fstream = new FileInputStream(FEATURES_VECTOR_FILE_NAME);
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-
-            //read features
             readFeaturesVector(br);
-
-            //Close the input stream
             br.close();
             return true;
-        } catch (Exception e) {//Catch exception if any
+        } catch (Exception e) {
             System.err.println("Error: " + e);
             return false;
         }
