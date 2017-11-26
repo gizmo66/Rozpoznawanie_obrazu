@@ -11,11 +11,11 @@ import java.util.stream.Collectors;
 public class NaiveBayesClassifier extends ClassifierImpl implements Classifier {
 
     @Override
-    public List<ResultData> classify(LinkedList<Picture> picturesToClassify, int K) {
+    public List<ResultData> classify(LinkedList<Picture> picturesToClassify, int nearestNeighborsQuantity) {
         LinkedList<ResultData> result = new LinkedList<>();
         for (Picture picture : picturesToClassify) {
             LinkedList<Picture> trainingPictures = ImageRecognizer.trainingData.getPictures();
-            LinkedList<Picture> neighbors = findKNearestNeighbors(trainingPictures, picture, K);
+            LinkedList<Picture> neighbors = findKNearestNeighbors(trainingPictures, picture, nearestNeighborsQuantity);
             String foundClass = getMostLikelyClass(neighbors, trainingPictures.size());
             result.add(new ResultData(picture.getType(), foundClass));
         }
@@ -31,8 +31,9 @@ public class NaiveBayesClassifier extends ClassifierImpl implements Classifier {
         for(String className : classToQuantityMap.keySet()) {
             double neighborsInTheSameClassQuantity = neighbors.stream().filter(n -> n.getType().equals(className))
                     .collect(Collectors.toList()).size();
-            double classProbability = classToQuantityMap.get(className) / ((double)trainingDataSize);
-            double probabilityAccordingToNeighbors = neighborsInTheSameClassQuantity / classToQuantityMap.get(className);
+            double classQuantity = classToQuantityMap.get(className);
+            double classProbability = classQuantity / ((double)trainingDataSize);
+            double probabilityAccordingToNeighbors = neighborsInTheSameClassQuantity / classQuantity;
             currentProbability = classProbability * probabilityAccordingToNeighbors;
             if(currentProbability > probability) {
                 probability = currentProbability;
