@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface Classifier {
 
-    List<ResultData> classify(LinkedList<Picture> testFiles, int K);
+    List<ResultData> classify(LinkedList<Picture> picturesToClassify, int K);
 }
