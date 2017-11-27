@@ -1,9 +1,8 @@
 package Extraction;
 
-import org.reflections.Reflections;
-
 import java.util.*;
 
+import static Core.ReflectionUtils.getSubTypesOf;
 import static Core.ReflectionUtils.invokeMethod;
 import static Extraction.Feature.CALCULATE_FEATURE_METHOD;
 import static Extraction.Feature.GET_FEATURE_NAME_METHOD;
@@ -14,15 +13,16 @@ public class FeaturesExtractor {
     private List<String> featureNames = new ArrayList<>();
 
     public FeaturesExtractor() {
-        Package pack = this.getClass().getPackage();
-        String packageName = pack.getName();
-        Reflections reflections = new Reflections(packageName);
-        Set<Class<? extends Feature>> featureImplementations = reflections.getSubTypesOf(Feature.class);
-        for (Class<? extends Feature> featureImpl : featureImplementations) {
+        for (Class<? extends Feature> featureImpl : getSubTypesOf(getPackageName(), Feature.class)) {
             String featureName = (String) invokeMethod(GET_FEATURE_NAME_METHOD, featureImpl);
             this.featureNameToClassMap.put(featureName, featureImpl);
             this.featureNames.add(featureName);
         }
+    }
+
+    private String getPackageName() {
+        Package pack = this.getClass().getPackage();
+        return pack.getName();
     }
 
     public FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures) {
