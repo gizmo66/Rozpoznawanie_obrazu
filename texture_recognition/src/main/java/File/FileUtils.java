@@ -1,6 +1,6 @@
 package File;
 
-import View.ImageTypeEnum;
+import View.Utils.ImageTypeEnum;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.swing.*;

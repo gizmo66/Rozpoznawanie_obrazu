@@ -5,10 +5,10 @@ import Extraction.FeaturesVector;
 import Extraction.Picture;
 import File.ImageFileLoader;
 import Image.ImageUtils;
-import View.FileChoosePanel;
-import View.ImageRecognitionPanel;
-import View.TrainingDataLoadingPanel;
-import View.Window;
+import View.Panel.FileChoosePanel;
+import View.Panel.ImageRecognitionPanel;
+import View.Panel.TrainingDataLoadingPanel;
+import View.Window.Window;
 
 import javax.swing.*;
 import java.awt.*;

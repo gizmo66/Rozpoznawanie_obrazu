@@ -1,4 +1,4 @@
-package View;
+package View.Utils;
 
 import File.FileUtils;
 import lombok.Getter;

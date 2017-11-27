@@ -1,7 +1,6 @@
 package View.Utils;
 
 import File.FileUtils;
-import View.ImageTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.filechooser.FileFilter;
