@@ -45,16 +45,11 @@ public class FeaturesVector {
 
     public void saveToFile() {
         try {
-            // Create file
             FileWriter fstream = new FileWriter("FeaturesVector.fv");
             BufferedWriter out = new BufferedWriter(fstream);
-
-            //save
             save(imageClassToFeaturesValuesMap, out);
-            //Close the output stream
             out.close();
-
-        } catch (Exception e) {//Catch exception if any
+        } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
         }
     }

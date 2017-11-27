@@ -7,11 +7,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
-public class WindowTestRecognizer {
+class WindowTestRecognizer {
 
-    public static Window getTestWindows(List<ResultData> testResults) {
+    static Window getTestWindows(List<ResultData> testResults) {
         Window window = new Window("Recognized - " + String.valueOf(passToFailTest(testResults)) + "%");
-        String data[][] = new String[testResults.size()][testResults.size()];
+        String data[][] = new String[testResults.size()][(testResults.size() + 1) * 4];
         int testID = 0;
         for (ResultData resultData : testResults) {
             data[testID][0] = String.valueOf(testID);

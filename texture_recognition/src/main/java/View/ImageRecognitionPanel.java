@@ -6,6 +6,7 @@ import Classification.NaiveBayesClassifier;
 import Classification.ResultData;
 import Core.ContextEnum;
 import Core.FeaturesVectorLoader;
+import Core.ImageRecognizer;
 import Extraction.FeaturesExtractor;
 import Extraction.Picture;
 
@@ -46,11 +47,11 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(recognitionBtn) || e.getSource().equals(recognitionBtn1)) {
-            FeaturesVectorLoader featuresVectorLoader = new FeaturesVectorLoader();
-            if (featuresVectorLoader.loadFeaturesVector()) {
+            if (ImageRecognizer.loadFeaturesVector()) {
                 java.util.LinkedList<Picture> picturesWithExtractedFeatures = new LinkedList<>();
+
                 for (Picture picture : pictures) {
-                    picturesWithExtractedFeatures.add(FeaturesExtractor.calculateFeatureInOnePicture(picture));
+                    picturesWithExtractedFeatures.add(ImageRecognizer.calculateFeatureInOnePicture(picture));
                 }
 
                 Classifier classifier;
