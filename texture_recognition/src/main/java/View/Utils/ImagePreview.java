@@ -1,4 +1,4 @@
-package View;
+package View.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ public class ImagePreview extends JComponent implements PropertyChangeListener {
     ImageIcon thumbnail = null;
     File file = null;
 
-    ImagePreview(JFileChooser fc) {
+    public ImagePreview(JFileChooser fc) {
         setPreferredSize(new Dimension(100, 50));
         fc.addPropertyChangeListener(this);
     }

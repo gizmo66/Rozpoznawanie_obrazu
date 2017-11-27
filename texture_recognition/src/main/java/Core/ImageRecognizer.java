@@ -20,11 +20,16 @@ public class ImageRecognizer {
 
     private static LinkedList<Picture> loadPictures = new LinkedList<>();
     public static TrainingData trainingData = new TrainingData();
+    private static FeaturesVectorLoader featuresVectorLoader;
+    private static FeaturesExtractor featuresExtractor;
 
     public static void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         if (files != null && files.length > 0) {
             init(files, fileChoosePanel, window);
-            FeaturesVector featuresVector = FeaturesExtractor.extractFeaturesVector(loadPictures);
+            if(featuresExtractor == null) {
+                featuresExtractor = new FeaturesExtractor();
+            }
+            FeaturesVector featuresVector = featuresExtractor.extractFeaturesVector(loadPictures);
             featuresVector.saveToFile();
             window.add(new TrainingDataLoadingPanel(loadPictures, window));
         }
@@ -71,5 +76,19 @@ public class ImageRecognizer {
         ImageIcon icon = new ImageIcon(upscaleImage);
         JLabel label = new JLabel(icon);
         panel.add(label);
+    }
+
+    public static boolean loadFeaturesVector() {
+        if (featuresVectorLoader == null) {
+            featuresVectorLoader = new FeaturesVectorLoader();
+        }
+        return featuresVectorLoader.loadFeaturesVector();
+    }
+
+    public static Picture calculateFeatureInOnePicture(Picture picture) {
+        if(featuresExtractor == null) {
+            featuresExtractor = new FeaturesExtractor();
+        }
+        return featuresExtractor.calculateFeatureInOnePicture(picture);
     }
 }
