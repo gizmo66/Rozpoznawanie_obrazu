@@ -1,4 +1,4 @@
-package View;
+package View.Window;
 
 import lombok.Getter;
 

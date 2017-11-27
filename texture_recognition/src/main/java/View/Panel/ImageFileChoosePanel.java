@@ -1,9 +1,10 @@
-package View;
+package View.Panel;
 
 import Core.ContextEnum;
 import View.Utils.ImageFileView;
 import View.Utils.ImageFilter;
 import View.Utils.ImagePreview;
+import View.Window.Window;
 
 public class ImageFileChoosePanel extends FileChoosePanel {
 

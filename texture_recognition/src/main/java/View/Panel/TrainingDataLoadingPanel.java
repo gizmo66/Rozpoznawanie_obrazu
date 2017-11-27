@@ -1,8 +1,10 @@
-package View;
+package View.Panel;
 
 import Core.ContextEnum;
 import Extraction.Picture;
 import Image.ImageUtils;
+import View.Window.*;
+import View.Window.Window;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +16,7 @@ import java.util.LinkedList;
 public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
 
     private JButton recognitionProgramBtn;
-    private Window window;
+    private View.Window.Window window;
 
     public TrainingDataLoadingPanel(LinkedList<Picture> pictures, Window window) {
         this.window = window;

@@ -1,8 +1,8 @@
 package Core;
 
-import View.FileChoosePanel;
-import View.Window;
-import View.WindowTitleEnum;
+import View.Panel.FileChoosePanel;
+import View.Window.Window;
+import View.Window.WindowTitleEnum;
 
 public class Application {
 

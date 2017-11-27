@@ -1,7 +1,6 @@
 package View.Utils;
 
 import File.FileUtils;
-import View.ImageTypeEnum;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileView;

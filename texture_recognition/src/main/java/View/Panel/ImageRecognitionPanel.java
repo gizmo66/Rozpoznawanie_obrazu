@@ -1,14 +1,13 @@
-package View;
+package View.Panel;
 
 import Classification.Classifier;
 import Classification.KNearestNeighborsClassifier;
 import Classification.NaiveBayesClassifier;
 import Classification.ResultData;
-import Core.ContextEnum;
-import Core.FeaturesVectorLoader;
 import Core.ImageRecognizer;
-import Extraction.FeaturesExtractor;
 import Extraction.Picture;
+import View.Window.WindowTestRecognizer;
+import View.Window.WindowTitleEnum;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,14 +19,14 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
     private JButton recognitionBtn;
     private JButton recognitionBtn1;
-    private Window window;
+    private View.Window.Window window;
     private LinkedList<Picture> pictures;
 
     public void setPictures(LinkedList<Picture> pictures) {
         this.pictures = pictures;
     }
 
-    public ImageRecognitionPanel(Window window) {
+    public ImageRecognitionPanel(View.Window.Window window) {
         this.window = window;
         window.setTitle(WindowTitleEnum.RECOGNIZING_IMAGE.getName());
 
@@ -55,12 +54,12 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
                 }
 
                 Classifier classifier;
-                if(e.getSource().equals(recognitionBtn)) {
+                if (e.getSource().equals(recognitionBtn)) {
                     classifier = new KNearestNeighborsClassifier();
                 } else {
                     classifier = new NaiveBayesClassifier();
                 }
-                java.util.List<ResultData> result = classifier.classify(picturesWithExtractedFeatures,10);
+                java.util.List<ResultData> result = classifier.classify(picturesWithExtractedFeatures, 10);
                 window = WindowTestRecognizer.getTestWindows(result);
             }
             window.pack();

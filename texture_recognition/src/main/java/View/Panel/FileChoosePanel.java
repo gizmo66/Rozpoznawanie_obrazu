@@ -1,4 +1,4 @@
-package View;
+package View.Panel;
 
 import Core.ContextEnum;
 import Core.ImageRecognizer;
@@ -14,9 +14,9 @@ public class FileChoosePanel extends JPanel implements ActionListener {
     private JTextArea log;
     JFileChooser fileChooser;
     private ContextEnum context;
-    private Window window;
+    private View.Window.Window window;
 
-    public FileChoosePanel(ContextEnum context, Window window) {
+    public FileChoosePanel(ContextEnum context, View.Window.Window window) {
         this.context = context;
         this.window = window;
 

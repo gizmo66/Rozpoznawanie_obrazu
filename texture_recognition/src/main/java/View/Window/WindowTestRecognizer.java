@@ -1,4 +1,4 @@
-package View;
+package View.Window;
 
 import Classification.ResultData;
 
@@ -7,9 +7,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
-class WindowTestRecognizer {
+public class WindowTestRecognizer {
 
-    static Window getTestWindows(List<ResultData> testResults) {
+    public static Window getTestWindows(List<ResultData> testResults) {
         Window window = new Window("Recognized - " + String.valueOf(passToFailTest(testResults)) + "%");
         String data[][] = new String[testResults.size()][(testResults.size() + 1) * 4];
         int testID = 0;
