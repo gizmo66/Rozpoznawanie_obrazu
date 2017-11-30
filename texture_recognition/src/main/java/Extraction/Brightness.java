@@ -7,9 +7,4 @@ public class Brightness implements Feature {
         //TODO akolodziejek
         return 0;
     }
-
-    @Override
-    public String getFeatureName() {
-        return FeatureNameEnum.BRIGHTNESS.getName();
-    }
 }
