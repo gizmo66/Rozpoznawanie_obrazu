@@ -21,12 +21,12 @@ public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
     public TrainingDataLoadingPanel(LinkedList<Picture> pictures, Window window) {
         this.window = window;
         window.setTitle(WindowTitleEnum.TRAINING_DATA.getName());
-        window.setLocation(20, 20);
-        window.setSize(1300, 700);
-        for (int i = 0; i < (pictures.size() <= 18 ? pictures.size() : 18); i++) {
+        window.setLocation(20, 30);
+        window.setSize(300, 300);
+        /*for (int i = 0; i < (pictures.size() <= 18 ? pictures.size() : 18); i++) {
             Picture picture = pictures.get(i);
             addImage(picture.getImage(), 1f);
-        }
+        }*/
 
         recognitionProgramBtn = new JButton("Go To RECOGNITION");
         recognitionProgramBtn.addActionListener(this);

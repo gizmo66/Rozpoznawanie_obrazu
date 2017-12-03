@@ -17,7 +17,7 @@ public class ImageFileLoader implements FileLoader {
             Image image = ImageUtils.fileToImage(file);
             String fileName = file.getName().split("[.]")[0];
             String label = fileName.replaceAll("\\P{L}+", "");
-            pictures.add(new Picture(image, label));
+            pictures.add(new Picture(image, label, fileName));
         }
         return pictures;
     }
