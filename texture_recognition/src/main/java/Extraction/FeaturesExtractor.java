@@ -1,6 +1,14 @@
 package Extraction;
 
+import Image.ImageUtils;
+import Math.DiscreteFourierTransform;
+import org.apache.commons.math3.complex.Complex;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.*;
+import java.util.List;
 
 import static Core.ReflectionUtils.getSubTypesOf;
 import static Core.ReflectionUtils.invokeMethod;
@@ -28,6 +36,15 @@ public class FeaturesExtractor {
     public FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures) {
         Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
         for (Picture picture : pictures) {
+            String fileName = "./spectrum/" + picture.getOriginalFileName();
+            if(!fileExists(fileName + ".bmp")) {
+                Image spectrum = extractSpectrum(picture.getImage());
+                picture.setSpectrum(spectrum);
+                ImageUtils.save(spectrum, fileName, "bmp");
+            } else {
+                picture.setSpectrum(ImageUtils.fileToImage(new File(fileName + ".bmp")));
+            }
+
             LinkedHashMap<String, Number> featureNameToValueMap = new LinkedHashMap<>();
             for (String featureName : featureNames) {
                 featureNameToValueMap.put(featureName, getFeature(featureName, picture));
@@ -51,16 +68,32 @@ public class FeaturesExtractor {
         return new FeaturesVector(imageClassToFeaturesValuesMap);
     }
 
-    public Picture calculateFeatureInOnePicture(Picture picture) {
+    private Image extractSpectrum(Image image) {
+        BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+        Complex[][] input = ImageUtils.imageToComplex(bufferedImage);
+        Complex[][] output = DiscreteFourierTransform.calculate(input);
+        Image spectrum = ImageUtils.complexToImage(output, bufferedImage);
+        return spectrum;
+    }
+
+    public Picture calculateFeaturesInOnePicture(Picture picture) {
+        Image spectrum = extractSpectrum(picture.getImage());
+        picture.setSpectrum(spectrum);
+
         LinkedList<Number> features = new LinkedList<>();
         for (String featureName : featureNames) {
             features.add(getFeature(featureName, picture));
         }
-        return new Picture(picture.getImage(), picture.getType(), features);
+        return new Picture(picture.getImage(), picture.getType(), features, picture.getOriginalFileName());
     }
 
     private Number getFeature(String featureName, Picture picture) {
         return (Number) invokeMethod(CALCULATE_FEATURE_METHOD, featureNameToClassMap.get(featureName),
                 new Picture[]{picture}, Picture.class);
+    }
+
+    private boolean fileExists(String path) {
+        java.io.File f = new java.io.File(path);
+        return f.exists() && !f.isDirectory();
     }
 }

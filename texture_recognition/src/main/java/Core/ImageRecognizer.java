@@ -56,12 +56,7 @@ public class ImageRecognizer {
 
     private static void init(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         window.remove(fileChoosePanel);
-
         loadPictures = loadPictures(files);
-        for (int i = 0; i < loadPictures.size(); i++) {
-            loadPictures.set(i, new Picture(ImageUtils.binarizeImage(ImageUtils.toBufferedImage(loadPictures.get(i)
-                    .getImage())), loadPictures.get(i).getType()));
-        }
     }
 
     private static LinkedList<Picture> loadPictures(File[] files) {
@@ -89,6 +84,6 @@ public class ImageRecognizer {
         if(featuresExtractor == null) {
             featuresExtractor = new FeaturesExtractor();
         }
-        return featuresExtractor.calculateFeatureInOnePicture(picture);
+        return featuresExtractor.calculateFeaturesInOnePicture(picture);
     }
 }
