@@ -2,10 +2,12 @@ package Extraction;
 
 import Image.ImageUtils;
 import Math.DiscreteFourierTransform;
+import View.Utils.ImageTypeEnum;
 import org.apache.commons.math3.complex.Complex;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -17,6 +19,8 @@ import static Extraction.Feature.GET_FEATURE_NAME_METHOD;
 
 public class FeaturesExtractor {
 
+    private static final String SPECTRA_DIRECTORY_PATH = "./spectrum/";
+    private static final String DOT = ".";
     private Map<String, Class<? extends Feature>> featureNameToClassMap = new HashMap<>();
     private List<String> featureNames = new ArrayList<>();
 
@@ -36,13 +40,14 @@ public class FeaturesExtractor {
     public FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures) {
         Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
         for (Picture picture : pictures) {
-            String fileName = "./spectrum/" + picture.getOriginalFileName();
-            if(!fileExists(fileName + ".bmp")) {
+            String fileName = SPECTRA_DIRECTORY_PATH + picture.getOriginalFileName();
+            String extension = ImageTypeEnum.BMP.getExtensions().get(0);
+            if(!fileExists(fileName + DOT + extension)) {
                 Image spectrum = extractSpectrum(picture.getImage());
                 picture.setSpectrum(spectrum);
-                ImageUtils.save(spectrum, fileName, "bmp");
+                ImageUtils.save(spectrum, fileName, extension);
             } else {
-                picture.setSpectrum(ImageUtils.fileToImage(new File(fileName + ".bmp")));
+                picture.setSpectrum(ImageUtils.fileToImage(new File(fileName + "." + extension)));
             }
 
             LinkedHashMap<String, Number> featureNameToValueMap = new LinkedHashMap<>();
@@ -70,10 +75,10 @@ public class FeaturesExtractor {
 
     private Image extractSpectrum(Image image) {
         BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-        Complex[][] input = ImageUtils.imageToComplex(bufferedImage);
-        Complex[][] output = DiscreteFourierTransform.calculate(input);
-        Image spectrum = ImageUtils.complexToImage(output, bufferedImage);
-        return spectrum;
+        //Complex[][] input = ImageUtils.imageToComplex(bufferedImage);
+        //Complex[][] spectrum = DiscreteFourierTransform.ft(input);
+        Complex[][] spectrum = DiscreteFourierTransform.fft(bufferedImage);
+        return ImageUtils.complexToImage(spectrum, bufferedImage);
     }
 
     public Picture calculateFeaturesInOnePicture(Picture picture) {
@@ -84,7 +89,8 @@ public class FeaturesExtractor {
         for (String featureName : featureNames) {
             features.add(getFeature(featureName, picture));
         }
-        return new Picture(picture.getImage(), picture.getType(), features, picture.getOriginalFileName());
+        picture.setFeatures(features);
+        return picture;
     }
 
     private Number getFeature(String featureName, Picture picture) {

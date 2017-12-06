@@ -18,6 +18,16 @@ public class KNearestNeighborsClassifier extends ClassifierImpl implements Class
         return result;
     }
 
+    @Override
+    public ResultData classify(Picture pictureToClassify, int K, ResultData result) {
+        LinkedList<Picture> neighbors = findKNearestNeighbors(ImageRecognizer.trainingData.getPictures(),
+                pictureToClassify, K);
+        String foundClass = classify(neighbors);
+        result.pictureType = pictureToClassify.getType();
+        result.resultOfKnn = foundClass;
+        return result;
+    }
+
     private String classify(LinkedList<Picture> neighbors) {
         HashMap<String, Double> map = new HashMap<>();
 
