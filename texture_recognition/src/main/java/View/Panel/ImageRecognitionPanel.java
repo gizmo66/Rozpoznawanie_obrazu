@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
 public class ImageRecognitionPanel extends JPanel implements ActionListener {
@@ -58,47 +59,48 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(recognitionBtn) || e.getSource().equals(recognitionBtn1)) {
-            if (ImageRecognizer.loadFeaturesVector()) {
+            if (window.imageRecognizer.loadFeaturesVector()) {
                 java.util.LinkedList<Picture> picturesWithExtractedFeatures = new LinkedList<>();
 
                 for (Picture picture : pictures) {
-                    picturesWithExtractedFeatures.add(ImageRecognizer.calculateFeatureInOnePicture(picture));
+                    picturesWithExtractedFeatures.add(window.imageRecognizer.calculateFeatureInOnePicture(picture));
                 }
 
                 Classifier classifier;
                 if (e.getSource().equals(recognitionBtn)) {
-                    classifier = new KNearestNeighborsClassifier();
+                    classifier = new KNearestNeighborsClassifier(window.imageRecognizer);
                 } else {
-                    classifier = new NaiveBayesClassifier();
+                    classifier = new NaiveBayesClassifier(window.imageRecognizer);
                 }
                 java.util.List<ResultData> result = classifier.classify(picturesWithExtractedFeatures, 10);
-                window = WindowTestRecognizer.getTestWindows(result);
+                window = WindowTestRecognizer.getTestWindows(result, window.imageRecognizer);
             }
             window.pack();
             window.setVisible(true);
         } else {
-            if (ImageRecognizer.loadFeaturesVector()) {
-                Window window1 = new Window("Recognized");
+            if (window.imageRecognizer.loadFeaturesVector()) {
+                Window window1 = new Window("Recognized", window.imageRecognizer);
                 JPanel panel = new JPanel();
                 window1.add(panel);
 
                 window1.setLocation(20, 20);
                 window1.setSize(700, 700);
+                window1.setVisible(true);
 
                 Classifier classifier;
                 if (e.getSource().equals(recognitionBtn2)) {
-                    classifier = new KNearestNeighborsClassifier();
+                    classifier = new KNearestNeighborsClassifier(window.imageRecognizer);
                 } else {
-                    classifier = new NaiveBayesClassifier();
+                    classifier = new NaiveBayesClassifier(window.imageRecognizer);
                 }
 
                 for (Picture picture : pictures) {
-                    Image imageWithMarkedTextures = ImageRecognizer.recognizeTextures(picture, classifier);
-                    ImageRecognizer.addImage(imageWithMarkedTextures, panel, 1f);
+                    ImageIcon imageIcon = new ImageIcon();
+                    JLabel pictureFrame = new JLabel(imageIcon);
+                    panel.add(pictureFrame);
+                    new Thread(() -> window.imageRecognizer.recognizeTextures(picture, classifier, imageIcon, window1))
+                            .start();
                 }
-                SwingUtilities.updateComponentTreeUI(window1);
-                window1.pack();
-                window1.setVisible(true);
             }
         }
     }

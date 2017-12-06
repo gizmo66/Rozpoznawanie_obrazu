@@ -10,11 +10,15 @@ import java.util.stream.Collectors;
 
 public class NaiveBayesClassifier extends ClassifierImpl implements Classifier {
 
+    public NaiveBayesClassifier(ImageRecognizer imageRecognizer) {
+        super(imageRecognizer);
+    }
+
     @Override
     public List<ResultData> classify(LinkedList<Picture> picturesToClassify, int nearestNeighborsQuantity) {
         LinkedList<ResultData> result = new LinkedList<>();
         for (Picture picture : picturesToClassify) {
-            LinkedList<Picture> trainingPictures = ImageRecognizer.trainingData.getPictures();
+            LinkedList<Picture> trainingPictures = imageRecognizer.trainingData.getPictures();
             LinkedList<Picture> neighbors = findKNearestNeighbors(trainingPictures, picture, nearestNeighborsQuantity);
             String foundClass = getMostLikelyClass(neighbors, trainingPictures.size());
             result.add(new ResultData(picture.getType(), foundClass));
@@ -24,7 +28,7 @@ public class NaiveBayesClassifier extends ClassifierImpl implements Classifier {
 
     @Override
     public ResultData classify(Picture pictureToClassify, int K, ResultData result) {
-        LinkedList<Picture> trainingPictures = ImageRecognizer.trainingData.getPictures();
+        LinkedList<Picture> trainingPictures = imageRecognizer.trainingData.getPictures();
         LinkedList<Picture> neighbors = findKNearestNeighbors(trainingPictures, pictureToClassify, K);
         String foundClass = getMostLikelyClass(neighbors, trainingPictures.size());
         result.pictureType = pictureToClassify.getType();
@@ -33,7 +37,7 @@ public class NaiveBayesClassifier extends ClassifierImpl implements Classifier {
     }
 
     private String getMostLikelyClass(LinkedList<Picture> neighbors, int trainingDataSize) {
-        LinkedHashMap<String, Integer> classToQuantityMap = ImageRecognizer.trainingData.getClassToQuantityMap();
+        LinkedHashMap<String, Integer> classToQuantityMap = imageRecognizer.trainingData.getClassToQuantityMap();
 
         String result = "";
         double probability = 0;
