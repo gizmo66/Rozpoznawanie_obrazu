@@ -5,7 +5,7 @@ public class ResultData {
     public String pictureType, resultOfKnn;
     public boolean result = false;
 
-    ResultData(String p, String r) {
+    public ResultData(String p, String r) {
         pictureType = p;
         resultOfKnn = r;
 
