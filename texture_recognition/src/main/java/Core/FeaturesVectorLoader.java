@@ -17,6 +17,12 @@ public class FeaturesVectorLoader {
 
     private static final String FEATURES_VECTOR_FILE_NAME = "FeaturesVector.fv";
 
+    private ImageRecognizer imageRecognizer;
+
+    public FeaturesVectorLoader(ImageRecognizer imageRecognizer) {
+        this.imageRecognizer = imageRecognizer;
+    }
+
     public boolean loadFeaturesVector() {
         boolean featuresVectorLoaded = readFile();
         fillUpTrainingSets();
@@ -76,8 +82,8 @@ public class FeaturesVectorLoader {
             }
         }
 
-        ImageRecognizer.trainingData.setPictures(tempTrainingList);
-        ImageRecognizer.trainingData.setClassToQuantityMap(classToQuantityMap);
+        imageRecognizer.trainingData.setPictures(tempTrainingList);
+        imageRecognizer.trainingData.setClassToQuantityMap(classToQuantityMap);
     }
 
     private boolean readFile() {

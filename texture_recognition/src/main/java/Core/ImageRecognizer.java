@@ -20,12 +20,12 @@ import java.util.LinkedList;
 
 public class ImageRecognizer {
 
-    private static LinkedList<Picture> loadPictures = new LinkedList<>();
-    public static TrainingData trainingData = new TrainingData();
-    private static FeaturesVectorLoader featuresVectorLoader;
-    private static FeaturesExtractor featuresExtractor;
+    private LinkedList<Picture> loadPictures = new LinkedList<>();
+    public TrainingData trainingData = new TrainingData();
+    private FeaturesVectorLoader featuresVectorLoader;
+    private FeaturesExtractor featuresExtractor;
 
-    public static void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
+    public void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         if (files != null && files.length > 0) {
             init(files, fileChoosePanel, window);
             if (featuresExtractor == null) {
@@ -37,7 +37,7 @@ public class ImageRecognizer {
         }
     }
 
-    public static void initImageRecognition(File[] files, FileChoosePanel fileChoosePanel, Window window) {
+    public void initImageRecognition(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         if (files != null && files.length > 0) {
             init(files, fileChoosePanel, window);
 
@@ -56,40 +56,40 @@ public class ImageRecognizer {
         }
     }
 
-    private static void init(File[] files, FileChoosePanel fileChoosePanel, Window window) {
+    private void init(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         window.remove(fileChoosePanel);
         loadPictures = loadPictures(files);
     }
 
-    private static LinkedList<Picture> loadPictures(File[] files) {
+    private LinkedList<Picture> loadPictures(File[] files) {
         LinkedList<Picture> pictures;
         ImageFileLoader imageFileLoader = new ImageFileLoader();
         pictures = imageFileLoader.loadTrainingDataSet(files);
         return pictures;
     }
 
-    public static void addImage(Image image, JPanel panel, float scale) {
+    public void addImage(Image image, JPanel panel, float scale) {
         Image upscaleImage = ImageUtils.upscaleImage((BufferedImage) image, scale);
         ImageIcon icon = new ImageIcon(upscaleImage);
         JLabel label = new JLabel(icon);
         panel.add(label);
     }
 
-    public static boolean loadFeaturesVector() {
+    public boolean loadFeaturesVector() {
         if (featuresVectorLoader == null) {
-            featuresVectorLoader = new FeaturesVectorLoader();
+            featuresVectorLoader = new FeaturesVectorLoader(this);
         }
         return featuresVectorLoader.loadFeaturesVector();
     }
 
-    public static Picture calculateFeatureInOnePicture(Picture picture) {
+    public Picture calculateFeatureInOnePicture(Picture picture) {
         if (featuresExtractor == null) {
             featuresExtractor = new FeaturesExtractor();
         }
         return featuresExtractor.calculateFeaturesInOnePicture(picture);
     }
 
-    public static Image recognizeTextures(Picture picture, Classifier classifier) {
+    public void recognizeTextures(Picture picture, Classifier classifier, ImageIcon imageIcon, Window window1) {
         BufferedImage image = (BufferedImage) picture.getImage();
         int imageWidth = image.getWidth();
         int imageHeight = image.getHeight();
@@ -110,8 +110,8 @@ public class ImageRecognizer {
         ResultData result = new ResultData("", "");
         Color color;
 
-        for (int w = 0; w < imageWidth - partToRecognizeSize; w += partToRecognizeSize) {
-            for (int h = 0; h < imageHeight - partToRecognizeSize; h += partToRecognizeSize) {
+        for (int w = 0; w < imageWidth; w += partToRecognizeSize) {
+            for (int h = 0; h < imageHeight; h += partToRecognizeSize) {
 
                 for (int x = 0; x < partToRecognizeSize; x++) {
                     for (int y = 0; y < partToRecognizeSize; y++) {
@@ -146,10 +146,11 @@ public class ImageRecognizer {
                         resultImage.setRGB(x, y, color.getRGB());
                     }
                 }
+                imageIcon.setImage(resultImage);
+                SwingUtilities.updateComponentTreeUI(window1);
             }
         }
 
         ImageUtils.save(resultImage, "result", "bmp");
-        return resultImage;
     }
 }
