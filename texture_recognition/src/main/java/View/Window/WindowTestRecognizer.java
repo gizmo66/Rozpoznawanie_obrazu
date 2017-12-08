@@ -10,8 +10,8 @@ import java.util.List;
 
 public class WindowTestRecognizer {
 
-    public static Window getTestWindows(List<ResultData> testResults, ImageRecognizer imageRecognizer) {
-        Window window = new Window("Recognized - " + String.valueOf(passToFailTest(testResults)) + "%", imageRecognizer);
+    public static Window getTestWindows(List<ResultData> testResults) {
+        Window window = new Window("Recognized - " + String.valueOf(passToFailTest(testResults)) + "%");
         String data[][] = new String[testResults.size()][(testResults.size() + 1) * 4];
         int testID = 0;
         for (ResultData resultData : testResults) {

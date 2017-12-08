@@ -7,7 +7,6 @@ import org.apache.commons.math3.complex.Complex;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -16,6 +15,7 @@ import static Core.ReflectionUtils.getSubTypesOf;
 import static Core.ReflectionUtils.invokeMethod;
 import static Extraction.Feature.CALCULATE_FEATURE_METHOD;
 import static Extraction.Feature.GET_FEATURE_NAME_METHOD;
+import static Extraction.Feature.IS_ACTIVE_NAME_METHOD;
 
 public class FeaturesExtractor {
 
@@ -26,9 +26,12 @@ public class FeaturesExtractor {
 
     public FeaturesExtractor() {
         for (Class<? extends Feature> featureImpl : getSubTypesOf(getPackageName(), Feature.class)) {
-            String featureName = (String) invokeMethod(GET_FEATURE_NAME_METHOD, featureImpl);
-            this.featureNameToClassMap.put(featureName, featureImpl);
-            this.featureNames.add(featureName);
+            boolean isActive = (boolean) invokeMethod(IS_ACTIVE_NAME_METHOD, featureImpl);
+            if (isActive) {
+                String featureName = (String) invokeMethod(GET_FEATURE_NAME_METHOD, featureImpl);
+                this.featureNameToClassMap.put(featureName, featureImpl);
+                this.featureNames.add(featureName);
+            }
         }
     }
 

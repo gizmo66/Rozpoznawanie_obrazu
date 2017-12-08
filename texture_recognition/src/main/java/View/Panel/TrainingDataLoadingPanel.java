@@ -43,7 +43,7 @@ public class TrainingDataLoadingPanel extends JPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         window.remove(this);
-        window = new Window(WindowTitleEnum.CHOOSE_IMAGE_TO_RECOGNIZE.getName(), window.imageRecognizer);
+        window = new Window(WindowTitleEnum.CHOOSE_IMAGE_TO_RECOGNIZE.getName());
         window.add(new ImageFileChoosePanel(ContextEnum.RECOGNITION, window));
         window.pack();
         window.setVisible(true);
