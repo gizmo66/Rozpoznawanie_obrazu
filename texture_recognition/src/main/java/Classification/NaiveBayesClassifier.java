@@ -54,6 +54,9 @@ public class NaiveBayesClassifier extends ClassifierImpl implements Classifier {
                 result = className;
             }
         }
+        /*if(probability < 0.004) {
+            result = "";
+        }*/
         return result;
     }
 }

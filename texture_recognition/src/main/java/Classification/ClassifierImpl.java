@@ -17,7 +17,7 @@ abstract class ClassifierImpl implements Classifier {
     LinkedList<Picture> findKNearestNeighbors(LinkedList<Picture> trainingData, Picture testRecord, int K) {
         int trainingDataSize = trainingData.size();
         if (K > trainingDataSize) {
-            throw new AssertionError("K is lager than the length of trainingSet!");
+            throw new AssertionError("K is larger than the length of trainingSet!");
         }
         LinkedList<Picture> neighbors = new LinkedList<>();
 

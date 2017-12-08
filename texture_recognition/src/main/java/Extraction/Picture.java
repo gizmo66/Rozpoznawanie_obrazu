@@ -11,14 +11,16 @@ import java.util.LinkedList;
 public class Picture {
 
     private Image image;
+    private Image labelImage;
     private Image spectrum;
     private String type;
     private LinkedList<Number> features;
     private double distance;
     private String originalFileName;
 
-    public Picture(Image image, String type, String originalFileName) {
+    public Picture(Image image, Image labelImage, String type, String originalFileName) {
         this.image = image;
+        this.labelImage = labelImage;
         this.type = type;
         this.originalFileName = originalFileName;
         distance = 0;
@@ -28,14 +30,6 @@ public class Picture {
         this.features = features;
         this.type = type;
         image = null;
-        distance = 0;
-    }
-
-    public Picture(Image image, String type, LinkedList<Number> features, String originalFileName) {
-        this.features = features;
-        this.image = image;
-        this.type = type;
-        this.originalFileName = originalFileName;
         distance = 0;
     }
 }

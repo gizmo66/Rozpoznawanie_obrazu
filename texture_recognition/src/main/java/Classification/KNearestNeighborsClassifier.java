@@ -58,6 +58,9 @@ public class KNearestNeighborsClassifier extends ClassifierImpl implements Class
                 returnLabel = label;
             }
         }
+        /*if(maxSimilarity < 600) {
+            returnLabel = "";
+        }*/
         return returnLabel;
     }
 

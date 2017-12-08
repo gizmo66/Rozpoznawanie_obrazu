@@ -49,10 +49,11 @@ public class FileChoosePanel extends JPanel implements ActionListener {
     }
 
     private void handleFileAdding() {
+        ImageRecognizer imageRecognizer = new ImageRecognizer();
         if (context.equals(ContextEnum.TRAINING)) {
-            window.imageRecognizer.loadTrainingData(fileChooser.getSelectedFiles(), this, window);
+            imageRecognizer.loadTrainingData(fileChooser.getSelectedFiles(), this, window);
         } else if (context.equals(ContextEnum.RECOGNITION)) {
-            window.imageRecognizer.initImageRecognition(fileChooser.getSelectedFiles(), this, window);
+            imageRecognizer.initImageRecognition(fileChooser.getSelectedFiles(), this, window);
         }
     }
 
