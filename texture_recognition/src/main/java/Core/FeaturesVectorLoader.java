@@ -74,7 +74,7 @@ public class FeaturesVectorLoader {
                 }
                 Picture tempPicture = new Picture(imageClass, features);
                 tempTrainingList.add(tempPicture);
-                if(classToQuantityMap.containsKey(imageClass)) {
+                if (classToQuantityMap.containsKey(imageClass)) {
                     classToQuantityMap.replace(imageClass, classToQuantityMap.get(imageClass) + 1);
                 } else {
                     classToQuantityMap.put(imageClass, 1);

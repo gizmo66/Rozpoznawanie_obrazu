@@ -1,7 +1,6 @@
 package View.Window;
 
 import Classification.ResultData;
-import Core.ImageRecognizer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

@@ -1,7 +1,5 @@
 package View.Window;
 
-import Core.ImageRecognizer;
-
 import javax.swing.*;
 
 public class Window extends JFrame {

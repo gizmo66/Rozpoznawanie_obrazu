@@ -3,7 +3,9 @@ package Classification;
 import Core.ImageRecognizer;
 import Extraction.Picture;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Set;
 
 public class KNearestNeighbors extends ClassifierImpl implements Classifier {
 
