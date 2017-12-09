@@ -1,4 +1,4 @@
-package Extraction;
+package Extraction.Features.Spectrum;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
