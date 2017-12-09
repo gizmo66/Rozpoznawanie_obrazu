@@ -31,7 +31,9 @@ public class ImageRecognizer {
     private static Color saltLabel = new Color(160, 160, 160);
     private static Color strawLabel = new Color(96, 96, 96);
     private static Color woodLabel = new Color(32, 32, 32);
+
     public static final String DOUBLE_FORMAT = "%.1f";
+    private static final int OFFSET = 15;
 
     private LinkedList<Picture> loadPictures = new LinkedList<>();
     public TrainingData trainingData = new TrainingData();
@@ -39,6 +41,8 @@ public class ImageRecognizer {
     private FeaturesExtractor featuresExtractor;
     private Map<Point2D, Map<String, Integer>> classMap = new LinkedHashMap<>();
     private Classifier classifier;
+    private Window window;
+    private String originalWindowTitle;
 
     private int partToRecognizeSize = 64;
     private boolean simulate = true;
@@ -47,8 +51,10 @@ public class ImageRecognizer {
 
     private static int imageWidth;
     private static int imageHeight;
+    private Picture picture;
     private BufferedImage labelImage;
     private static boolean MARK_PART = true;
+    private BufferedImage resultImage;
     private BufferedImage previewImage;
     private HashMap<Point2D, Integer> markedPart = new HashMap<>();
 
@@ -80,7 +86,7 @@ public class ImageRecognizer {
             window.setLocation(20, 20);
             window.setSize(700, 700);
             for (Picture picture : loadPictures) {
-                addImage(ImageUtils.upscaleImage((BufferedImage) picture.getImage(), 0.5f), panel, 1f);
+                addImage(ImageUtils.upscaleImage((BufferedImage) picture.getImage(), 1f), panel, 1f);
                 temp.add(picture);
             }
             panel.setPictures(temp);
@@ -120,28 +126,26 @@ public class ImageRecognizer {
         return featuresExtractor.calculateFeaturesInOnePicture(picture);
     }
 
-    public BufferedImage recognizeTextures(Picture picture, Classifier classifier, ImageIcon imageIcon, Window window1) {
-        initTexturesRecognition(picture, classifier);
-        BufferedImage resultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-        ResultData classificationResult = new ResultData("", "");
-        String originalWindowTitle = window1.getTitle();
-        previewImage = copyImage(resultImage);
+    public BufferedImage recognizeTextures(Picture picture, Classifier classifier, ImageIcon imageIcon, Window window) {
+        initTexturesRecognition(window, picture, classifier);
+        recognizeTextures(imageIcon);
+        return saveResults();
+    }
 
+    private void recognizeTextures(ImageIcon imageIcon) {
+        ResultData classificationResult = new ResultData("", "");
         double counter = 0;
         for (int a = 0; a < 2; a++) {
-            for (int offsetX = 0; offsetX < partToRecognizeSize - 1; offsetX += 15) {
-                for (int offsetY = 0; offsetY < partToRecognizeSize - 1; offsetY += 15) {
+            for (int offsetX = 0; offsetX < partToRecognizeSize - 1; offsetX += OFFSET) {
+                for (int offsetY = 0; offsetY < partToRecognizeSize - 1; offsetY += OFFSET) {
                     for (int w = offsetX; w < imageWidth - offsetX; w += partToRecognizeSize) {
                         for (int h = offsetY; h < imageHeight - offsetY; h += partToRecognizeSize) {
                             if (!simulate) {
-                                classifyPart(picture, classificationResult, w, h);
+                                classifyPart(classificationResult, w, h);
                                 fillPixelsClassCountMap(classificationResult, w, h);
-                                determinateAndMarkPixelClass(resultImage, w, h);
-                                recognized = getCorrectlyRecognizedPixelsPercentage(resultImage,
-                                        labelImage, false);
-                                counter++;
-
-                                updatePreview(imageIcon, window1, resultImage, originalWindowTitle, w, h, counter);
+                                determinateAndMarkPixelClass(w, h);
+                                recognized = getCorrectlyRecognizedPixelsPercentage(resultImage, false);
+                                updatePreview(imageIcon, w, h, ++counter);
                             } else {
                                 iterations++;
                             }
@@ -151,16 +155,14 @@ public class ImageRecognizer {
             }
             simulate = false;
         }
-        return saveResults(labelImage, resultImage, picture);
     }
 
-    private void updatePreview(ImageIcon imageIcon, Window window1, BufferedImage resultImage,
-                               String originalWindowTitle, int w, int h, double counter) {
+    private void updatePreview(ImageIcon imageIcon, int w, int h, double counter) {
         if (MARK_PART) {
             markPart(previewImage, w, h);
-            updatePreview(imageIcon, window1, previewImage, originalWindowTitle, counter);
+            updatePreview(imageIcon, previewImage, counter);
         } else {
-            updatePreview(imageIcon, window1, resultImage, originalWindowTitle, counter);
+            updatePreview(imageIcon, resultImage, counter);
         }
     }
 
@@ -183,15 +185,21 @@ public class ImageRecognizer {
         }
     }
 
-    private void initTexturesRecognition(Picture picture, Classifier classifier) {
+    private void initTexturesRecognition(Window window, Picture picture, Classifier classifier) {
         BufferedImage image = (BufferedImage) picture.getImage();
         imageWidth = image.getWidth();
         imageHeight = image.getHeight();
+
+        this.window = window;
+        this.originalWindowTitle = window.getTitle();
         this.classifier = classifier;
         this.labelImage = (BufferedImage) picture.getLabelImage();
+        this.resultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+        this.previewImage = copyImage(resultImage);
+        this.picture = picture;
     }
 
-    private BufferedImage saveResults(BufferedImage labelImage, BufferedImage resultImage, Picture picture) {
+    private BufferedImage saveResults() {
         java.util.List<String> featureIds = featuresExtractor.getFeatureIds().stream().sorted()
                 .collect(Collectors.toList());
         String fileName = picture.getOriginalFileName() + "_" + classifier.getClass().getSimpleName();
@@ -199,7 +207,7 @@ public class ImageRecognizer {
         BufferedImage tempResultImage = copyImage(resultImage);
         saveResultToFile(resultImage, "./results/raw_" + resultFileName,
                 ImageTypeEnum.BMP.getExtensions().get(0));
-        getCorrectlyRecognizedPixelsPercentage(tempResultImage, labelImage, true);
+        getCorrectlyRecognizedPixelsPercentage(tempResultImage, true);
         saveResultToFile(tempResultImage, "./results/marked_" + resultFileName,
                 ImageTypeEnum.BMP.getExtensions().get(0));
         return tempResultImage;
@@ -217,20 +225,19 @@ public class ImageRecognizer {
         return copy;
     }
 
-    private void updatePreview(ImageIcon imageIcon, Window window1, BufferedImage image, String originalWindowTitle,
-                               double counter) {
+    private void updatePreview(ImageIcon imageIcon, BufferedImage image, double counter) {
         imageIcon.setImage(image);
-        SwingUtilities.updateComponentTreeUI(window1);
+        SwingUtilities.updateComponentTreeUI(window);
         double progress = (counter / iterations) * 100;
-        updateRecognitionWindowTitle(window1, originalWindowTitle, progress);
+        updateRecognitionWindowTitle(progress);
     }
 
-    private void updateRecognitionWindowTitle(Window window1, String originalWindowTitle, double progress) {
-        window1.setTitle(originalWindowTitle + ": " + String.format(DOUBLE_FORMAT, progress) +
+    private void updateRecognitionWindowTitle(double progress) {
+        window.setTitle(originalWindowTitle + ": " + String.format(DOUBLE_FORMAT, progress) +
                 "%" + " (recognized: " + String.format(DOUBLE_FORMAT, recognized) + "%)");
     }
 
-    private void classifyPart(Picture picture, ResultData classificationResult, int w, int h) {
+    private void classifyPart(ResultData classificationResult, int w, int h) {
         BufferedImage tempImage = new BufferedImage(partToRecognizeSize, partToRecognizeSize,
                 BufferedImage.TYPE_INT_RGB);
         Picture tempPicture = new Picture(tempImage, picture.getLabelImage(), picture.getType(),
@@ -253,7 +260,7 @@ public class ImageRecognizer {
         ImageUtils.save(imageForSaving, fileName, extension);
     }
 
-    private void determinateAndMarkPixelClass(BufferedImage resultImage, int w, int h) {
+    private void determinateAndMarkPixelClass(int w, int h) {
         for (int x = w; x < w + partToRecognizeSize; x++) {
             for (int y = h; y < h + partToRecognizeSize; y++) {
                 if (x < imageWidth && y < imageHeight) {
@@ -318,8 +325,7 @@ public class ImageRecognizer {
         return color.getRGB();
     }
 
-    public double getCorrectlyRecognizedPixelsPercentage(BufferedImage imageWithRecognizedTextures,
-                                                         BufferedImage labelImage, boolean markPixels) {
+    public double getCorrectlyRecognizedPixelsPercentage(BufferedImage imageWithRecognizedTextures, boolean markPixels) {
         double count = 0;
         double correctQuantity = 0;
         for (int w = 0; w < imageWidth; w++) {
