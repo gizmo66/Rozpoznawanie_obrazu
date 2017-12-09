@@ -53,7 +53,7 @@ public class FeaturesExtractor {
         for (Picture picture : pictures) {
             String fileName = SPECTRA_DIRECTORY_PATH + picture.getOriginalFileName();
             String extension = ImageTypeEnum.BMP.getExtensions().get(0);
-            if(!fileExists(fileName + DOT + extension)) {
+            if (!fileExists(fileName + DOT + extension)) {
                 Image spectrum = extractSpectrum(picture.getImage());
                 picture.setSpectrum(spectrum);
                 ImageUtils.save(spectrum, fileName, extension);

@@ -10,13 +10,13 @@ public class BrightToDarkPixelsRatio implements Feature {
         BufferedImage image = (BufferedImage) picture.getImage();
         Color darkestColor = Color.WHITE;
         Color brightestColor = Color.BLACK;
-        for(int w = 0; w < image.getWidth(); w++) {
+        for (int w = 0; w < image.getWidth(); w++) {
             for (int h = 0; h < image.getHeight(); h++) {
                 Color currentColor = new Color(image.getRGB(w, h));
-                if(isBrighter(currentColor, brightestColor)) {
+                if (isBrighter(currentColor, brightestColor)) {
                     brightestColor = currentColor;
                 }
-                if(isDarker(currentColor, darkestColor)) {
+                if (isDarker(currentColor, darkestColor)) {
                     darkestColor = currentColor;
                 }
             }
@@ -25,7 +25,7 @@ public class BrightToDarkPixelsRatio implements Feature {
         Color midBrightnessColor = new Color(mid, mid, mid);
         double brightPixelsQuantity = 0;
         double darkPixelsQuantity = 0;
-        for(int w = 0; w < image.getWidth(); w++) {
+        for (int w = 0; w < image.getWidth(); w++) {
             for (int h = 0; h < image.getHeight(); h++) {
                 Color currentColor = new Color(image.getRGB(w, h));
                 if (currentColor.getRed() > midBrightnessColor.getRed()) {

@@ -7,7 +7,7 @@ public class PixelsInColorPercentageInSpectrum {
 
     double getPixelsInColorQuantity(BufferedImage spectrum, Color color) {
         double pixelsQuantity = 0;
-        for(int w = 0; w < spectrum.getWidth(); w++) {
+        for (int w = 0; w < spectrum.getWidth(); w++) {
             for (int h = 0; h < spectrum.getHeight(); h++) {
                 Color currentPixelColor = new Color(spectrum.getRGB(w, h));
                 if (isSimilar(currentPixelColor, color)) {

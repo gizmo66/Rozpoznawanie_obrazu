@@ -7,7 +7,6 @@ import javax.swing.filechooser.FileView;
 import java.io.File;
 import java.util.Optional;
 
-
 public class ImageFileView extends FileView {
 
     public String getName(File f) {

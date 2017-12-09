@@ -168,7 +168,7 @@ public class ImageRecognizer {
 
         saveResultToFile(resultImage, "raw_" + resultFileName, "bmp");
         countAndMarkCorrectlyRecognizedPixelsPercentage(tempResultImage, labelImage, true);
-        saveResultToFile(tempResultImage, "marked_" + resultFileName,"bmp");
+        saveResultToFile(tempResultImage, "marked_" + resultFileName, "bmp");
 
         return tempResultImage;
     }
@@ -181,7 +181,8 @@ public class ImageRecognizer {
         updateRecognitionWindowTitle(window1, originalWindowTitle, progress, recognized);
     }
 
-    private void updateRecognitionWindowTitle(Window window1, String originalWindowTitle, double progress, double recognized) {
+    private void updateRecognitionWindowTitle(Window window1, String originalWindowTitle, double progress,
+                                              double recognized) {
         window1.setTitle(originalWindowTitle + ": " + String.format(DOUBLE_FORMAT, progress) +
                 "%" + " (recognized: " + String.format(DOUBLE_FORMAT, recognized) + "%)");
     }

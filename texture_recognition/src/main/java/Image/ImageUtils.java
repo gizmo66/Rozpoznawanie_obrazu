@@ -2,7 +2,6 @@ package Image;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.complex.Complex;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
@@ -10,7 +9,10 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.*;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,7 +67,7 @@ public class ImageUtils {
         File file = new File(fileName + "." + extension);
         try {
             ImageIO.write(toBufferedImage(image, BufferedImage.TYPE_INT_RGB), extension, file);
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error(e.toString());
         }
     }
@@ -103,7 +105,7 @@ public class ImageUtils {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 double modules = Math.sqrt(Math.pow(input[x][y].getReal() - input[x][y].getImaginary(), 2));
-                pixelCoordinatesToModules.put(new Point(x,y), modules);
+                pixelCoordinatesToModules.put(new Point(x, y), modules);
             }
         }
 
@@ -117,7 +119,7 @@ public class ImageUtils {
         double maxModules = topBorder + Math.abs(bottomBorder);
 
         for (Map.Entry pixelToModules : pixelCoordinatesToModules.entrySet()) {
-            double modulesClampValue = (double)pixelToModules.getValue() > topBorder ? topBorder : (double)
+            double modulesClampValue = (double) pixelToModules.getValue() > topBorder ? topBorder : (double)
                     pixelToModules.getValue();
             modulesClampValue = modulesClampValue < bottomBorder ? bottomBorder : modulesClampValue;
             Color color = ColorHelper.numberToColor((modulesClampValue * 100.0) / maxModules);

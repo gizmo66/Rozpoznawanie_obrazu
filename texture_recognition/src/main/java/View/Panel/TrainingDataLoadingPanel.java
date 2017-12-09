@@ -3,8 +3,8 @@ package View.Panel;
 import Core.ContextEnum;
 import Extraction.Picture;
 import Image.ImageUtils;
-import View.Window.*;
 import View.Window.Window;
+import View.Window.WindowTitleEnum;
 
 import javax.swing.*;
 import java.awt.*;
