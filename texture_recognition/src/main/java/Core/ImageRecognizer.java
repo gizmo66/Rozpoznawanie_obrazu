@@ -8,10 +8,11 @@ import Extraction.Picture;
 import File.ImageFileLoader;
 import Image.ImageUtils;
 import View.Panel.FileChoosePanel;
+import View.Panel.ImageFileChoosePanel;
 import View.Panel.ImageRecognitionPanel;
-import View.Panel.TrainingDataLoadingPanel;
 import View.Utils.ImageTypeEnum;
 import View.Window.Window;
+import View.Window.WindowTitleEnum;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,7 +59,11 @@ public class ImageRecognizer {
             }
             FeaturesVector featuresVector = featuresExtractor.extractFeaturesVector(loadPictures);
             featuresVector.saveToFile();
-            window.add(new TrainingDataLoadingPanel(loadPictures, window));
+            window.dispose();
+            window = new Window(WindowTitleEnum.CHOOSE_IMAGE_TO_RECOGNIZE.getName());
+            window.add(new ImageFileChoosePanel(ContextEnum.RECOGNITION, window));
+            window.pack();
+            window.setVisible(true);
         }
     }
 
@@ -118,6 +123,7 @@ public class ImageRecognizer {
         initTexturesRecognition(picture, classifier);
         BufferedImage resultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
         ResultData classificationResult = new ResultData("", "");
+        String originalWindowTitle = window1.getTitle();
 
         for (int a = 0; a < 2; a++) {
             for (int n = (partToRecognizeSize / 2) - 2; n > 7; n /= 2) {
@@ -132,7 +138,7 @@ public class ImageRecognizer {
                                     recognized = countAndMarkCorrectlyRecognizedPixelsPercentage(resultImage,
                                             labelImage, false);
                                     counter++;
-                                    updatePreview(imageIcon, window1, resultImage, window1.getTitle());
+                                    updatePreview(imageIcon, window1, resultImage, originalWindowTitle);
                                 } else {
                                     iterations++;
                                 }
