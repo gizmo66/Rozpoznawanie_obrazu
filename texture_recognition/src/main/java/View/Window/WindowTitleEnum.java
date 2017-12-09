@@ -8,7 +8,8 @@ public enum WindowTitleEnum {
     CHOOSE_TRAINING_DATA("Choose training data"),
     RECOGNIZING_IMAGE("Recognizing image"),
     CHOOSE_IMAGE_TO_RECOGNIZE("Choose image to recognize"),
-    TRAINING_DATA("Training data");
+    TRAINING_DATA("Training data"),
+    FEATURES_VECTOR_EXTRACTING("Features vector extracting");
 
     private String name;
 

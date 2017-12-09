@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
+import static Core.ImageRecognizer.DOUBLE_FORMAT;
 import static Core.ReflectionUtils.getSubTypesOf;
 import static Core.ReflectionUtils.invokeMethod;
 import static Extraction.Feature.CALCULATE_FEATURE_METHOD;
@@ -55,13 +56,18 @@ public class FeaturesExtractor {
         return pack.getName();
     }
 
-    public FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures) {
+    public FeaturesVector extractFeaturesVector(LinkedList<Picture> pictures, View.Window.Window window) {
+        String originalWindowTitle = window.getTitle();
         Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap = new LinkedHashMap<>();
-        for (Picture picture : pictures) {
+        for (int i = 0; i < pictures.size(); i++) {
+            Picture picture = pictures.get(i);
             String fileName = SPECTRA_DIRECTORY_PATH + picture.getOriginalFileName();
             String extension = ImageTypeEnum.BMP.getExtensions().get(0);
             extractSpectra(picture, fileName, extension);
             extractFeatures(imageClassToFeaturesValuesMap, picture);
+            double progress = ((double) i / (double) pictures.size()) * 100.0;
+            String windowTitle = originalWindowTitle + " " + String.format(DOUBLE_FORMAT, progress) + "%";
+            window.setTitle(windowTitle);
         }
         return new FeaturesVector(imageClassToFeaturesValuesMap);
     }
