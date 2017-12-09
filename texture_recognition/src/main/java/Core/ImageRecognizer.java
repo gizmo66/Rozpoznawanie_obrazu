@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ImageRecognizer {
 
@@ -140,9 +141,9 @@ public class ImageRecognizer {
                                     determinateAndMarkPixelClass(resultImage, partToRecognizeSize, classMap, w, h);
                                     recognized = countAndMarkCorrectlyRecognizedPixelsPercentage(resultImage,
                                             labelImage, false);
+                                    counter++;
                                     updatePreview(imageIcon, window1, resultImage, originalWindowTitle,
                                             iterations, counter, recognized);
-                                    counter++;
                                 } else {
                                     iterations++;
                                 }
@@ -153,12 +154,23 @@ public class ImageRecognizer {
             }
             simulate = false;
         }
-        saveResultToFile(resultImage, "raw_" + fileName + "_" + String.format(DOUBLE_FORMAT, recognized) + "%",
-                "bmp");
-        countAndMarkCorrectlyRecognizedPixelsPercentage(resultImage, labelImage, true);
-        saveResultToFile(resultImage, "marked_" + fileName + "_" + String.format(DOUBLE_FORMAT, recognized) + "%",
-                "bmp");
-        return resultImage;
+
+        java.util.List<String> featureIds = featuresExtractor.getFeatureIds().stream().sorted()
+                .collect(Collectors.toList());
+        String resultFileName = fileName + "_" + featureIds + "_" + String.format(DOUBLE_FORMAT, recognized) + "%";
+
+        BufferedImage tempResultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+        for (int w = 0; w < imageWidth; w++) {
+            for (int h = 0; h < imageHeight; h++) {
+                tempResultImage.setRGB(w, h, resultImage.getRGB(w, h));
+            }
+        }
+
+        saveResultToFile(resultImage, "raw_" + resultFileName, "bmp");
+        countAndMarkCorrectlyRecognizedPixelsPercentage(tempResultImage, labelImage, true);
+        saveResultToFile(tempResultImage, "marked_" + resultFileName,"bmp");
+
+        return tempResultImage;
     }
 
     private void updatePreview(ImageIcon imageIcon, Window window1, BufferedImage resultImage,

@@ -6,11 +6,6 @@ import java.awt.image.BufferedImage;
 public class BrightToDarkPixelsRatio implements Feature {
 
     @Override
-    public boolean isActive() {
-        return false;
-    }
-
-    @Override
     public Number calculateValue(Picture picture) {
         BufferedImage image = (BufferedImage) picture.getImage();
         Color darkestColor = Color.WHITE;

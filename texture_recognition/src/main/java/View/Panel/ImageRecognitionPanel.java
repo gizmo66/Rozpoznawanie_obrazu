@@ -1,8 +1,8 @@
 package View.Panel;
 
 import Classification.Classifier;
-import Classification.KNearestNeighborsClassifier;
-import Classification.NaiveBayesClassifier;
+import Classification.KNearestNeighbors;
+import Classification.NaiveBayes;
 import Classification.ResultData;
 import Core.ImageRecognizer;
 import Extraction.Picture;
@@ -77,9 +77,9 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
                 Classifier classifier;
                 if (e.getSource().equals(recognitionBtn)) {
-                    classifier = new KNearestNeighborsClassifier(imageRecognizer);
+                    classifier = new KNearestNeighbors(imageRecognizer);
                 } else {
-                    classifier = new NaiveBayesClassifier(imageRecognizer);
+                    classifier = new NaiveBayes(imageRecognizer);
                 }
                 java.util.List<ResultData> result = classifier.classify(picturesWithExtractedFeatures, 10);
                 window = WindowTestRecognizer.getTestWindows(result);
@@ -100,8 +100,8 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
                 if (e.getSource().equals(recognitionBtn4)) {
                     java.util.List<Classifier> classifiers = new ArrayList<>();
-                    classifiers.add(new KNearestNeighborsClassifier(imageRecognizer1));
-                    classifiers.add(new NaiveBayesClassifier(imageRecognizer2));
+                    classifiers.add(new KNearestNeighbors(imageRecognizer1));
+                    classifiers.add(new NaiveBayes(imageRecognizer2));
 
                     for (int n = 0; n < classifiers.size(); n++) {
                         recognizeTexturesInPicture(picture, imageRecognizers.get(n), classifiers.get
@@ -111,9 +111,9 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
                 } else {
                     Classifier classifier;
                     if (e.getSource().equals(recognitionBtn2)) {
-                        classifier = new KNearestNeighborsClassifier(imageRecognizer1);
+                        classifier = new KNearestNeighbors(imageRecognizer1);
                     } else {
-                        classifier = new NaiveBayesClassifier(imageRecognizer1);
+                        classifier = new NaiveBayes(imageRecognizer1);
                     }
 
                     recognizeTexturesInPicture(picture, imageRecognizer1, classifier, i);
@@ -129,8 +129,8 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
         JPanel panel = new JPanel();
         window1.add(panel);
 
-        window1.setLocation(20, 20 + 50 * i);
-        window1.setSize(1300, 700);
+        window1.setLocation(20, 20 + 100 * i);
+        window1.setSize(1050, 580);
         window1.setVisible(true);
 
         ImageIcon imageIcon = new ImageIcon();

@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NaiveBayesClassifier extends ClassifierImpl implements Classifier {
+public class NaiveBayes extends ClassifierImpl implements Classifier {
 
-    public NaiveBayesClassifier(ImageRecognizer imageRecognizer) {
+    public NaiveBayes(ImageRecognizer imageRecognizer) {
         super(imageRecognizer);
     }
 
