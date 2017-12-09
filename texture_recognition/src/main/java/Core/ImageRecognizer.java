@@ -10,6 +10,7 @@ import Image.ImageUtils;
 import View.Panel.FileChoosePanel;
 import View.Panel.ImageRecognitionPanel;
 import View.Panel.TrainingDataLoadingPanel;
+import View.Utils.ImageTypeEnum;
 import View.Window.Window;
 
 import javax.swing.*;
@@ -36,6 +37,15 @@ public class ImageRecognizer {
     public TrainingData trainingData = new TrainingData();
     private FeaturesVectorLoader featuresVectorLoader;
     private FeaturesExtractor featuresExtractor;
+    private Map<Point2D, Map<String, Integer>> classMap = new LinkedHashMap<>();
+    private Classifier classifier;
+
+    private int partToRecognizeSize = 64;
+    private boolean simulate = true;
+    private int bigCounter = 0;
+    private double iterations = 0;
+    private double counter = 0;
+    private double recognized = 0;
 
     private static int imageWidth;
     private static int imageHeight;
@@ -109,25 +119,17 @@ public class ImageRecognizer {
         BufferedImage image = (BufferedImage) picture.getImage();
         imageWidth = image.getWidth();
         imageHeight = image.getHeight();
+        this.classifier = classifier;
 
         BufferedImage resultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-
-        int partToRecognizeSize = 64;
         BufferedImage tempImage = new BufferedImage(partToRecognizeSize, partToRecognizeSize,
                 BufferedImage.TYPE_INT_RGB);
         Picture tempPicture = new Picture(tempImage, picture.getLabelImage(), picture.getType(),
                 picture.getOriginalFileName());
         ResultData result = new ResultData("", "");
         String fileName = picture.getOriginalFileName() + "_" + classifier.getClass().getSimpleName();
-
         String originalWindowTitle = window1.getTitle();
-        Map<Point2D, Map<String, Integer>> classMap = new LinkedHashMap<>();
 
-        boolean simulate = true;
-        int bigCounter = 0;
-        double iterations = 0;
-        double counter = 0;
-        double recognized = 0;
         for (int a = 0; a < 2; a++) {
             for (int n = (partToRecognizeSize / 2) - 2; n > 7; n /= 2, bigCounter++) {
                 for (int offsetX = 0; offsetX < partToRecognizeSize - 1; offsetX += n) {
@@ -135,15 +137,13 @@ public class ImageRecognizer {
                         for (int w = offsetX; w < imageWidth - offsetX; w += partToRecognizeSize) {
                             for (int h = offsetY; h < imageHeight - offsetY; h += partToRecognizeSize) {
                                 if (!simulate) {
-                                    classifyPart(classifier, image, partToRecognizeSize, tempImage, tempPicture, result,
-                                            w, h);
-                                    fillPixelsClassCountMap(partToRecognizeSize, result, classMap, w, h);
-                                    determinateAndMarkPixelClass(resultImage, partToRecognizeSize, classMap, w, h);
+                                    classifyPart(image, tempImage, tempPicture, result, w, h);
+                                    fillPixelsClassCountMap(result, w, h);
+                                    determinateAndMarkPixelClass(resultImage, w, h);
                                     recognized = countAndMarkCorrectlyRecognizedPixelsPercentage(resultImage,
                                             labelImage, false);
                                     counter++;
-                                    updatePreview(imageIcon, window1, resultImage, originalWindowTitle,
-                                            iterations, counter, recognized);
+                                    updatePreview(imageIcon, window1, resultImage, originalWindowTitle);
                                 } else {
                                     iterations++;
                                 }
@@ -155,6 +155,10 @@ public class ImageRecognizer {
             simulate = false;
         }
 
+        return saveResults(labelImage, resultImage, fileName);
+    }
+
+    private BufferedImage saveResults(BufferedImage labelImage, BufferedImage resultImage, String fileName) {
         java.util.List<String> featureIds = featuresExtractor.getFeatureIds().stream().sorted()
                 .collect(Collectors.toList());
         String resultFileName = fileName + "_" + featureIds + "_" + String.format(DOUBLE_FORMAT, recognized) + "%";
@@ -166,29 +170,27 @@ public class ImageRecognizer {
             }
         }
 
-        saveResultToFile(resultImage, "raw_" + resultFileName, "bmp");
+        saveResultToFile(resultImage, "raw_" + resultFileName, ImageTypeEnum.BMP.getExtensions().get(0));
         countAndMarkCorrectlyRecognizedPixelsPercentage(tempResultImage, labelImage, true);
-        saveResultToFile(tempResultImage, "marked_" + resultFileName, "bmp");
-
+        saveResultToFile(tempResultImage, "marked_" + resultFileName,
+                ImageTypeEnum.BMP.getExtensions().get(0));
         return tempResultImage;
     }
 
     private void updatePreview(ImageIcon imageIcon, Window window1, BufferedImage resultImage,
-                               String originalWindowTitle, double iterations, double counter, double recognized) {
+                               String originalWindowTitle) {
         imageIcon.setImage(resultImage);
         SwingUtilities.updateComponentTreeUI(window1);
         double progress = (counter / iterations) * 100;
-        updateRecognitionWindowTitle(window1, originalWindowTitle, progress, recognized);
+        updateRecognitionWindowTitle(window1, originalWindowTitle, progress);
     }
 
-    private void updateRecognitionWindowTitle(Window window1, String originalWindowTitle, double progress,
-                                              double recognized) {
+    private void updateRecognitionWindowTitle(Window window1, String originalWindowTitle, double progress) {
         window1.setTitle(originalWindowTitle + ": " + String.format(DOUBLE_FORMAT, progress) +
                 "%" + " (recognized: " + String.format(DOUBLE_FORMAT, recognized) + "%)");
     }
 
-    private void classifyPart(Classifier classifier, BufferedImage image, int partToRecognizeSize,
-                              BufferedImage tempImage, Picture tempPicture, ResultData result, int w, int h) {
+    private void classifyPart(BufferedImage image, BufferedImage tempImage, Picture tempPicture, ResultData result, int w, int h) {
         Picture tempPictureWithExtractedFeatures;
         for (int x = 0; x < partToRecognizeSize; x++) {
             for (int y = 0; y < partToRecognizeSize; y++) {
@@ -206,8 +208,7 @@ public class ImageRecognizer {
         ImageUtils.save(imageForSaving, fileName, extension);
     }
 
-    private void determinateAndMarkPixelClass(BufferedImage resultImage, int partToRecognizeSize, Map<Point2D,
-            Map<String, Integer>> classMap, int w, int h) {
+    private void determinateAndMarkPixelClass(BufferedImage resultImage, int w, int h) {
         for (int x = w; x < w + partToRecognizeSize; x++) {
             for (int y = h; y < h + partToRecognizeSize; y++) {
                 if (x < imageWidth && y < imageHeight) {
@@ -229,8 +230,7 @@ public class ImageRecognizer {
         }
     }
 
-    private void fillPixelsClassCountMap(int partToRecognizeSize, ResultData result,
-                                         Map<Point2D, Map<String, Integer>> classMap, int w, int h) {
+    private void fillPixelsClassCountMap(ResultData result, int w, int h) {
         String className = result.resultOfKnn;
         if (!Objects.equals(className, "")) {
             for (int x = w; x < w + partToRecognizeSize; x++) {
