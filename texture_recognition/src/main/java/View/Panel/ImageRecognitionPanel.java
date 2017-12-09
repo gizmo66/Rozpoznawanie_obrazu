@@ -163,7 +163,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
             }
         }
         correctlyRecognizedPixelsPercentage[0] = imageRecognizer
-                .getCorrectlyRecognizedPixelsPercentage(tempImage, labelImage, true);
+                .getCorrectlyRecognizedPixelsPercentage(tempImage, true);
         showWindowWithResult(picture, tempImage, correctlyRecognizedPixelsPercentage[0]);
     }
 
