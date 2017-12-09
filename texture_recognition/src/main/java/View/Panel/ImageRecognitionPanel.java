@@ -155,15 +155,15 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
         imageWithRecognizedTextures[0] = imageRecognizer.recognizeTextures(picture, classifier, imageIcon, window1);
         int imageWidth = labelImage.getWidth();
         int imageHeight = labelImage.getHeight();
-        BufferedImage imageWithMarkedPixels = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+        BufferedImage tempImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
         for (int w = 0; w < imageWidth; w++) {
             for (int h = 0; h < imageHeight; h++) {
-                imageWithMarkedPixels.setRGB(w, h, imageWithRecognizedTextures[0].getRGB(w, h));
+                tempImage.setRGB(w, h, imageWithRecognizedTextures[0].getRGB(w, h));
             }
         }
         correctlyRecognizedPixelsPercentage[0] = imageRecognizer
-                .countAndMarkCorrectlyRecognizedPixelsPercentage(imageWithMarkedPixels, labelImage, true);
-        showWindowWithResult(picture, imageWithMarkedPixels, correctlyRecognizedPixelsPercentage[0]);
+                .getCorrectlyRecognizedPixelsPercentage(tempImage, labelImage, true);
+        showWindowWithResult(picture, tempImage, correctlyRecognizedPixelsPercentage[0]);
     }
 
     private void showWindowWithResult(Picture picture, BufferedImage imageWithMarkedPixels, double v) {
