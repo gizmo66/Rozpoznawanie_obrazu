@@ -5,14 +5,12 @@ import Math.DiscreteFourierTransform;
 import View.Utils.ImageTypeEnum;
 import lombok.Getter;
 import org.apache.commons.math3.complex.Complex;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static Core.ReflectionUtils.getSubTypesOf;
 import static Core.ReflectionUtils.invokeMethod;
@@ -30,21 +28,24 @@ public class FeaturesExtractor {
     private List<String> featureIds = new ArrayList<>();
 
     public FeaturesExtractor() {
+        initFeatures();
+    }
+
+    private void initFeatures() {
         for (Class<? extends Feature> featureImpl : getSubTypesOf(getPackageName(), Feature.class)) {
             String simpleName = featureImpl.getSimpleName();
-            Optional<FeatureEnum> featureEnum = Arrays.stream(FeatureEnum.values()).filter(f -> f.getSimpleName()
+            Optional<FeatureEnum> featureEnumOptional = Arrays.stream(FeatureEnum.values()).filter(f -> f.getSimpleName()
                     .equals(simpleName)).findFirst();
-            if (featureEnum.isPresent()) {
-                FeatureEnum featureEnum1 = featureEnum.get();
-                boolean isActive = featureEnum1.isActive();
-                if (isActive) {
+            if (featureEnumOptional.isPresent()) {
+                FeatureEnum featureEnum = featureEnumOptional.get();
+                if (featureEnum.isActive()) {
                     String featureName = (String) invokeMethod(GET_FEATURE_NAME_METHOD, featureImpl);
                     this.featureNameToClassMap.put(featureName, featureImpl);
                     this.featureNames.add(featureName);
-                    this.featureIds.add(featureEnum1.name());
+                    this.featureIds.add(featureEnum.name());
                 }
             } else {
-                throw new IllegalStateException("Feature " + simpleName + " is not present in FeatureEnum!");
+                throw new IllegalAccessError("Feature " + simpleName + " is not present in FeatureEnum!");
             }
         }
     }

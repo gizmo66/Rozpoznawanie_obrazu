@@ -1,4 +1,7 @@
-package Extraction;
+package Extraction.Features.Image;
+
+import Extraction.Feature;
+import Extraction.Picture;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
