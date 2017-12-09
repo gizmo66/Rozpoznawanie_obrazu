@@ -8,7 +8,7 @@ import View.Window.Window;
 
 public class ImageFileChoosePanel extends FileChoosePanel {
 
-    ImageFileChoosePanel(ContextEnum context, Window window) {
+    public ImageFileChoosePanel(ContextEnum context, Window window) {
         super(context, window);
     }
 
