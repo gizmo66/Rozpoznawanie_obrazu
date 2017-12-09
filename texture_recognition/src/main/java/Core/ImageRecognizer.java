@@ -166,11 +166,11 @@ public class ImageRecognizer {
                 .collect(Collectors.toList());
         String fileName = picture.getOriginalFileName() + "_" + classifier.getClass().getSimpleName();
         String resultFileName = fileName + "_" + featureIds + "_" + String.format(DOUBLE_FORMAT, recognized) + "%";
-
         BufferedImage tempResultImage = copyImage(resultImage);
-        saveResultToFile(resultImage, "raw_" + resultFileName, ImageTypeEnum.BMP.getExtensions().get(0));
+        saveResultToFile(resultImage, "./results/raw_" + resultFileName,
+                ImageTypeEnum.BMP.getExtensions().get(0));
         getCorrectlyRecognizedPixelsPercentage(tempResultImage, labelImage, true);
-        saveResultToFile(tempResultImage, "marked_" + resultFileName,
+        saveResultToFile(tempResultImage, "./results/marked_" + resultFileName,
                 ImageTypeEnum.BMP.getExtensions().get(0));
         return tempResultImage;
     }
