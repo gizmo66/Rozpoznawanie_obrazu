@@ -135,7 +135,7 @@ public class ImageRecognizer {
                                     classifyPart(picture, classificationResult, w, h);
                                     fillPixelsClassCountMap(classificationResult, w, h);
                                     determinateAndMarkPixelClass(resultImage, w, h);
-                                    recognized = countAndMarkCorrectlyRecognizedPixelsPercentage(resultImage,
+                                    recognized = getCorrectlyRecognizedPixelsPercentage(resultImage,
                                             labelImage, false);
                                     counter++;
                                     updatePreview(imageIcon, window1, resultImage, originalWindowTitle);
@@ -169,7 +169,7 @@ public class ImageRecognizer {
 
         BufferedImage tempResultImage = copyImage(resultImage);
         saveResultToFile(resultImage, "raw_" + resultFileName, ImageTypeEnum.BMP.getExtensions().get(0));
-        countAndMarkCorrectlyRecognizedPixelsPercentage(tempResultImage, labelImage, true);
+        getCorrectlyRecognizedPixelsPercentage(tempResultImage, labelImage, true);
         saveResultToFile(tempResultImage, "marked_" + resultFileName,
                 ImageTypeEnum.BMP.getExtensions().get(0));
         return tempResultImage;
@@ -285,8 +285,8 @@ public class ImageRecognizer {
         return color.getRGB();
     }
 
-    public double countAndMarkCorrectlyRecognizedPixelsPercentage(BufferedImage imageWithRecognizedTextures,
-                                                                  BufferedImage labelImage, boolean markPixels) {
+    public double getCorrectlyRecognizedPixelsPercentage(BufferedImage imageWithRecognizedTextures,
+                                                         BufferedImage labelImage, boolean markPixels) {
         double count = 0;
         double correctQuantity = 0;
         for (int w = 0; w < imageWidth; w++) {
