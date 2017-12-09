@@ -5,6 +5,7 @@ import Math.DiscreteFourierTransform;
 import View.Utils.ImageTypeEnum;
 import lombok.Getter;
 import org.apache.commons.math3.complex.Complex;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -31,14 +32,19 @@ public class FeaturesExtractor {
     public FeaturesExtractor() {
         for (Class<? extends Feature> featureImpl : getSubTypesOf(getPackageName(), Feature.class)) {
             String simpleName = featureImpl.getSimpleName();
-            FeatureEnum featureEnum = Arrays.stream(FeatureEnum.values()).filter(f -> f.getSimpleName().equals(simpleName))
-                    .collect(Collectors.toList()).get(0);
-            boolean isActive = featureEnum.isActive();
-            if (isActive) {
-                String featureName = (String) invokeMethod(GET_FEATURE_NAME_METHOD, featureImpl);
-                this.featureNameToClassMap.put(featureName, featureImpl);
-                this.featureNames.add(featureName);
-                this.featureIds.add(featureEnum.name());
+            Optional<FeatureEnum> featureEnum = Arrays.stream(FeatureEnum.values()).filter(f -> f.getSimpleName()
+                    .equals(simpleName)).findFirst();
+            if (featureEnum.isPresent()) {
+                FeatureEnum featureEnum1 = featureEnum.get();
+                boolean isActive = featureEnum1.isActive();
+                if (isActive) {
+                    String featureName = (String) invokeMethod(GET_FEATURE_NAME_METHOD, featureImpl);
+                    this.featureNameToClassMap.put(featureName, featureImpl);
+                    this.featureNames.add(featureName);
+                    this.featureIds.add(featureEnum1.name());
+                }
+            } else {
+                throw new IllegalStateException("Feature " + simpleName + " is not present in FeatureEnum!");
             }
         }
     }
@@ -53,35 +59,43 @@ public class FeaturesExtractor {
         for (Picture picture : pictures) {
             String fileName = SPECTRA_DIRECTORY_PATH + picture.getOriginalFileName();
             String extension = ImageTypeEnum.BMP.getExtensions().get(0);
-            if (!fileExists(fileName + DOT + extension)) {
-                Image spectrum = extractSpectrum(picture.getImage());
-                picture.setSpectrum(spectrum);
-                ImageUtils.save(spectrum, fileName, extension);
-            } else {
-                picture.setSpectrum(ImageUtils.fileToImage(new File(fileName + "." + extension)));
-            }
-
-            LinkedHashMap<String, Number> featureNameToValueMap = new LinkedHashMap<>();
-            for (String featureName : featureNames) {
-                featureNameToValueMap.put(featureName, getFeature(featureName, picture));
-            }
-
-            if (imageClassToFeaturesValuesMap.get(picture.getType()) != null) {
-                for (String featureName : featureNames) {
-                    imageClassToFeaturesValuesMap.get(picture.getType()).get(featureName)
-                            .add(featureNameToValueMap.get(featureName));
-                }
-            } else {
-                LinkedHashMap<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
-                for (String featureName : featureNames) {
-                    LinkedList<Number> valuesList = new LinkedList<>();
-                    valuesList.add(featureNameToValueMap.get(featureName));
-                    featureNameToValuesMap.put(featureName, valuesList);
-                }
-                imageClassToFeaturesValuesMap.put(picture.getType(), featureNameToValuesMap);
-            }
+            extractSpectra(picture, fileName, extension);
+            extractFeatures(imageClassToFeaturesValuesMap, picture);
         }
         return new FeaturesVector(imageClassToFeaturesValuesMap);
+    }
+
+    private void extractFeatures(Map<String, Map<String, LinkedList<Number>>> imageClassToFeaturesValuesMap,
+                                 Picture picture) {
+        LinkedHashMap<String, Number> featureNameToValueMap = new LinkedHashMap<>();
+        for (String featureName : featureNames) {
+            featureNameToValueMap.put(featureName, getFeature(featureName, picture));
+        }
+
+        if (imageClassToFeaturesValuesMap.get(picture.getType()) != null) {
+            for (String featureName : featureNames) {
+                imageClassToFeaturesValuesMap.get(picture.getType()).get(featureName)
+                        .add(featureNameToValueMap.get(featureName));
+            }
+        } else {
+            LinkedHashMap<String, LinkedList<Number>> featureNameToValuesMap = new LinkedHashMap<>();
+            for (String featureName : featureNames) {
+                LinkedList<Number> valuesList = new LinkedList<>();
+                valuesList.add(featureNameToValueMap.get(featureName));
+                featureNameToValuesMap.put(featureName, valuesList);
+            }
+            imageClassToFeaturesValuesMap.put(picture.getType(), featureNameToValuesMap);
+        }
+    }
+
+    private void extractSpectra(Picture picture, String fileName, String extension) {
+        if (!fileExists(fileName + DOT + extension)) {
+            Image spectrum = extractSpectrum(picture.getImage());
+            picture.setSpectrum(spectrum);
+            ImageUtils.save(spectrum, fileName, extension);
+        } else {
+            picture.setSpectrum(ImageUtils.fileToImage(new File(fileName + "." + extension)));
+        }
     }
 
     private Image extractSpectrum(Image image) {
