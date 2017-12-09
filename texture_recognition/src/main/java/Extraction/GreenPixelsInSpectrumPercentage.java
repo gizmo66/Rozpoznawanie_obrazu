@@ -6,11 +6,6 @@ import java.awt.image.BufferedImage;
 public class GreenPixelsInSpectrumPercentage extends PixelsInColorPercentageInSpectrum implements Feature {
 
     @Override
-    public boolean isActive() {
-        return true;
-    }
-
-    @Override
     public Number calculateValue(Picture picture) {
         BufferedImage spectrum = (BufferedImage) picture.getSpectrum();
         double size = spectrum.getWidth() * spectrum.getHeight();

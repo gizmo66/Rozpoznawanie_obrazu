@@ -5,9 +5,9 @@ import Extraction.Picture;
 
 import java.util.*;
 
-public class KNearestNeighborsClassifier extends ClassifierImpl implements Classifier {
+public class KNearestNeighbors extends ClassifierImpl implements Classifier {
 
-    public KNearestNeighborsClassifier(ImageRecognizer imageRecognizer) {
+    public KNearestNeighbors(ImageRecognizer imageRecognizer) {
         super(imageRecognizer);
     }
 
