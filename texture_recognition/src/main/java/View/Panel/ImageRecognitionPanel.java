@@ -61,7 +61,8 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
         recognitionBtn4.setSize(50, 25);
         add(recognitionBtn4, BorderLayout.CENTER);
 
-        window.setSize(1300, 700);
+        window.setSize(600, 700);
+        window.pack();
         setVisible(true);
     }
 

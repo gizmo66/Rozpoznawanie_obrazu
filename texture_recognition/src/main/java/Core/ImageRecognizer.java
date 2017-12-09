@@ -13,18 +13,17 @@ import View.Panel.ImageRecognitionPanel;
 import View.Utils.ImageTypeEnum;
 import View.Window.Window;
 import View.Window.WindowTitleEnum;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ImageRecognizer {
 
     //linen (224), salt (160), straw (96), wood (32)
@@ -32,7 +31,7 @@ public class ImageRecognizer {
     private static Color saltLabel = new Color(160, 160, 160);
     private static Color strawLabel = new Color(96, 96, 96);
     private static Color woodLabel = new Color(32, 32, 32);
-    private static final String DOUBLE_FORMAT = "%.1f";
+    public static final String DOUBLE_FORMAT = "%.1f";
 
     private LinkedList<Picture> loadPictures = new LinkedList<>();
     public TrainingData trainingData = new TrainingData();
@@ -44,12 +43,14 @@ public class ImageRecognizer {
     private int partToRecognizeSize = 64;
     private boolean simulate = true;
     private double iterations = 0;
-    private double counter = 0;
     private double recognized = 0;
 
     private static int imageWidth;
     private static int imageHeight;
     private BufferedImage labelImage;
+    private static boolean MARK_PART = true;
+    private BufferedImage previewImage;
+    private HashMap<Point2D, Integer> markedPart = new HashMap<>();
 
     public void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         if (files != null && files.length > 0) {
@@ -57,7 +58,8 @@ public class ImageRecognizer {
             if (featuresExtractor == null) {
                 featuresExtractor = new FeaturesExtractor();
             }
-            FeaturesVector featuresVector = featuresExtractor.extractFeaturesVector(loadPictures);
+            window.setTitle(WindowTitleEnum.FEATURES_VECTOR_EXTRACTING.getName());
+            FeaturesVector featuresVector = featuresExtractor.extractFeaturesVector(loadPictures, window);
             featuresVector.saveToFile();
             window.dispose();
             window = new Window(WindowTitleEnum.CHOOSE_IMAGE_TO_RECOGNIZE.getName());
@@ -82,7 +84,6 @@ public class ImageRecognizer {
                 temp.add(picture);
             }
             panel.setPictures(temp);
-            SwingUtilities.updateComponentTreeUI(window);
         }
     }
 
@@ -124,24 +125,25 @@ public class ImageRecognizer {
         BufferedImage resultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
         ResultData classificationResult = new ResultData("", "");
         String originalWindowTitle = window1.getTitle();
+        previewImage = copyImage(resultImage);
 
+        double counter = 0;
         for (int a = 0; a < 2; a++) {
-            for (int n = (partToRecognizeSize / 2) - 2; n > 7; n /= 2) {
-                for (int offsetX = 0; offsetX < partToRecognizeSize - 1; offsetX += n) {
-                    for (int offsetY = 0; offsetY < partToRecognizeSize - 1; offsetY += n) {
-                        for (int w = offsetX; w < imageWidth - offsetX; w += partToRecognizeSize) {
-                            for (int h = offsetY; h < imageHeight - offsetY; h += partToRecognizeSize) {
-                                if (!simulate) {
-                                    classifyPart(picture, classificationResult, w, h);
-                                    fillPixelsClassCountMap(classificationResult, w, h);
-                                    determinateAndMarkPixelClass(resultImage, w, h);
-                                    recognized = getCorrectlyRecognizedPixelsPercentage(resultImage,
-                                            labelImage, false);
-                                    counter++;
-                                    updatePreview(imageIcon, window1, resultImage, originalWindowTitle);
-                                } else {
-                                    iterations++;
-                                }
+            for (int offsetX = 0; offsetX < partToRecognizeSize - 1; offsetX += 15) {
+                for (int offsetY = 0; offsetY < partToRecognizeSize - 1; offsetY += 15) {
+                    for (int w = offsetX; w < imageWidth - offsetX; w += partToRecognizeSize) {
+                        for (int h = offsetY; h < imageHeight - offsetY; h += partToRecognizeSize) {
+                            if (!simulate) {
+                                classifyPart(picture, classificationResult, w, h);
+                                fillPixelsClassCountMap(classificationResult, w, h);
+                                determinateAndMarkPixelClass(resultImage, w, h);
+                                recognized = getCorrectlyRecognizedPixelsPercentage(resultImage,
+                                        labelImage, false);
+                                counter++;
+
+                                updatePreview(imageIcon, window1, resultImage, originalWindowTitle, w, h, counter);
+                            } else {
+                                iterations++;
                             }
                         }
                     }
@@ -149,8 +151,36 @@ public class ImageRecognizer {
             }
             simulate = false;
         }
-
         return saveResults(labelImage, resultImage, picture);
+    }
+
+    private void updatePreview(ImageIcon imageIcon, Window window1, BufferedImage resultImage,
+                               String originalWindowTitle, int w, int h, double counter) {
+        if (MARK_PART) {
+            markPart(previewImage, w, h);
+            updatePreview(imageIcon, window1, previewImage, originalWindowTitle, counter);
+        } else {
+            updatePreview(imageIcon, window1, resultImage, originalWindowTitle, counter);
+        }
+    }
+
+    private void markPart(BufferedImage tempImage, int w, int h) {
+        for (Map.Entry<Point2D, Integer> pointToRGB : markedPart.entrySet()) {
+            Point2D pixel = pointToRGB.getKey();
+            tempImage.setRGB((int) pixel.getX(), (int) pixel.getY(), pointToRGB.getValue());
+        }
+        markedPart.clear();
+
+        for (int x = w; x < w + partToRecognizeSize; x++) {
+            for (int y = h; y < h + partToRecognizeSize; y++) {
+                if (x < imageWidth && y < imageHeight) {
+                    if (x == w || x == w + partToRecognizeSize - 1 || y == h || y == h + partToRecognizeSize - 1) {
+                        markedPart.put(new Point2D.Double(x, y), tempImage.getRGB(x, y));
+                        tempImage.setRGB(x, y, Color.RED.getRGB());
+                    }
+                }
+            }
+        }
     }
 
     private void initTexturesRecognition(Picture picture, Classifier classifier) {
@@ -175,19 +205,21 @@ public class ImageRecognizer {
         return tempResultImage;
     }
 
-    private BufferedImage copyImage(BufferedImage resultImage) {
-        BufferedImage tempResultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-        for (int w = 0; w < imageWidth; w++) {
-            for (int h = 0; h < imageHeight; h++) {
-                tempResultImage.setRGB(w, h, resultImage.getRGB(w, h));
+    private BufferedImage copyImage(BufferedImage source) {
+        int width = source.getWidth();
+        int height = source.getHeight();
+        BufferedImage copy = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int w = 0; w < width; w++) {
+            for (int h = 0; h < height; h++) {
+                copy.setRGB(w, h, source.getRGB(w, h));
             }
         }
-        return tempResultImage;
+        return copy;
     }
 
-    private void updatePreview(ImageIcon imageIcon, Window window1, BufferedImage resultImage,
-                               String originalWindowTitle) {
-        imageIcon.setImage(resultImage);
+    private void updatePreview(ImageIcon imageIcon, Window window1, BufferedImage image, String originalWindowTitle,
+                               double counter) {
+        imageIcon.setImage(image);
         SwingUtilities.updateComponentTreeUI(window1);
         double progress = (counter / iterations) * 100;
         updateRecognitionWindowTitle(window1, originalWindowTitle, progress);
@@ -238,6 +270,7 @@ public class ImageRecognizer {
                         }
                     }
                     resultImage.setRGB(x, y, getRGBForClass(dominatingClassName));
+                    previewImage.setRGB(x, y, getRGBForClass(dominatingClassName));
                 }
             }
         }
