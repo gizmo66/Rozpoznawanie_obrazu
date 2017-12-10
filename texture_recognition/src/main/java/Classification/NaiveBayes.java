@@ -1,6 +1,6 @@
 package Classification;
 
-import Core.ImageRecognizer;
+import Core.TrainingData;
 import Extraction.Picture;
 
 import java.util.LinkedHashMap;
@@ -10,15 +10,15 @@ import java.util.stream.Collectors;
 
 public class NaiveBayes extends ClassifierImpl implements Classifier {
 
-    public NaiveBayes(ImageRecognizer imageRecognizer) {
-        super(imageRecognizer);
+    public NaiveBayes(TrainingData trainingData) {
+        super(trainingData);
     }
 
     @Override
     public List<ResultData> classify(LinkedList<Picture> picturesToClassify, int nearestNeighborsQuantity) {
         LinkedList<ResultData> result = new LinkedList<>();
         for (Picture picture : picturesToClassify) {
-            LinkedList<Picture> trainingPictures = imageRecognizer.trainingData.getPictures();
+            LinkedList<Picture> trainingPictures = trainingData.getPictures();
             LinkedList<Picture> neighbors = findKNearestNeighbors(trainingPictures, picture, nearestNeighborsQuantity);
             String foundClass = getMostLikelyClass(neighbors, trainingPictures.size());
             result.add(new ResultData(picture.getType(), foundClass));
@@ -28,7 +28,7 @@ public class NaiveBayes extends ClassifierImpl implements Classifier {
 
     @Override
     public ResultData classify(Picture pictureToClassify, int K, ResultData result) {
-        LinkedList<Picture> trainingPictures = imageRecognizer.trainingData.getPictures();
+        LinkedList<Picture> trainingPictures = trainingData.getPictures();
         LinkedList<Picture> neighbors = findKNearestNeighbors(trainingPictures, pictureToClassify, K);
         String foundClass = getMostLikelyClass(neighbors, trainingPictures.size());
         result.pictureType = pictureToClassify.getType();
@@ -37,7 +37,7 @@ public class NaiveBayes extends ClassifierImpl implements Classifier {
     }
 
     private String getMostLikelyClass(LinkedList<Picture> neighbors, int trainingDataSize) {
-        LinkedHashMap<String, Integer> classToQuantityMap = imageRecognizer.trainingData.getClassToQuantityMap();
+        LinkedHashMap<String, Integer> classToQuantityMap = trainingData.getClassToQuantityMap();
 
         String result = "";
         double probability = 0;

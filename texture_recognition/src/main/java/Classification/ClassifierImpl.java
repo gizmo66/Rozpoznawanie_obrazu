@@ -1,6 +1,6 @@
 package Classification;
 
-import Core.ImageRecognizer;
+import Core.TrainingData;
 import Extraction.Picture;
 
 import java.util.LinkedList;
@@ -8,10 +8,10 @@ import java.util.List;
 
 abstract class ClassifierImpl implements Classifier {
 
-    protected ImageRecognizer imageRecognizer;
+    protected TrainingData trainingData;
 
-    ClassifierImpl(ImageRecognizer imageRecognizer) {
-        this.imageRecognizer = imageRecognizer;
+    ClassifierImpl(TrainingData trainingData) {
+        this.trainingData = trainingData;
     }
 
     LinkedList<Picture> findKNearestNeighbors(LinkedList<Picture> trainingData, Picture testRecord, int K) {

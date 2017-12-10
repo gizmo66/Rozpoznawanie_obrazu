@@ -1,6 +1,6 @@
 package Classification;
 
-import Core.ImageRecognizer;
+import Core.TrainingData;
 import Extraction.Picture;
 
 import java.util.HashMap;
@@ -9,15 +9,15 @@ import java.util.Set;
 
 public class KNearestNeighbors extends ClassifierImpl implements Classifier {
 
-    public KNearestNeighbors(ImageRecognizer imageRecognizer) {
-        super(imageRecognizer);
+    public KNearestNeighbors(TrainingData trainingData) {
+        super(trainingData);
     }
 
     @Override
     public LinkedList<ResultData> classify(LinkedList<Picture> picturesToClassify, int K) {
         LinkedList<ResultData> result = new LinkedList<>();
         for (Picture picture : picturesToClassify) {
-            LinkedList<Picture> neighbors = findKNearestNeighbors(imageRecognizer.trainingData.getPictures(),
+            LinkedList<Picture> neighbors = findKNearestNeighbors(trainingData.getPictures(),
                     picture, K);
             String foundClass = classify(neighbors);
             result.add(new ResultData(picture.getType(), foundClass));
@@ -27,7 +27,7 @@ public class KNearestNeighbors extends ClassifierImpl implements Classifier {
 
     @Override
     public ResultData classify(Picture pictureToClassify, int K, ResultData result) {
-        LinkedList<Picture> neighbors = findKNearestNeighbors(imageRecognizer.trainingData.getPictures(),
+        LinkedList<Picture> neighbors = findKNearestNeighbors(trainingData.getPictures(),
                 pictureToClassify, K);
         String foundClass = classify(neighbors);
         result.pictureType = pictureToClassify.getType();
