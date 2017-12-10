@@ -32,51 +32,46 @@ public class ColorHelper {
         int g = LOW;
         int b = HALF;
 
-        // factor (increment or decrement)
-        int rF = 0;
-        int gF = 0;
-        int bF = 1;
+        int redFactor = 0;
+        int greenFactor = 0;
+        int blueFactor = 1;
 
         int count = 0;
-        // 1276 steps
         while (true) {
             localMap.put(count++, new Color(r, g, b));
             if (b == HIGH) {
-                gF = 1; // increment green
+                greenFactor = 1;
             }
             if (g == HIGH) {
-                bF = -1; // decrement blue
-                // rF = +1; // increment red
+                blueFactor = -1;
             }
             if (b == LOW) {
-                rF = +1; // increment red
+                redFactor = +1;
             }
             if (r == HIGH) {
-                gF = -1; // decrement green
+                greenFactor = -1;
             }
             if (g == LOW && b == LOW) {
-                rF = -1; // decrement red
+                redFactor = -1;
             }
             if (r < HALF && g == LOW && b == LOW) {
-                break; // finish
+                break;
             }
-            r += rF;
-            g += gF;
-            b += bF;
+            r += redFactor;
+            g += greenFactor;
+            b += blueFactor;
+
             r = rangeCheck(r);
             g = rangeCheck(g);
             b = rangeCheck(b);
         }
-        initList(localMap);
-        return localMap;
-    }
 
-    private static void initList(final HashMap<Integer, Color> localMap) {
         List<Integer> list = new ArrayList<>(localMap.keySet());
         Collections.sort(list);
-        Integer min = list.get(0);
         Integer max = list.get(list.size() - 1);
         factor = max + 1;
+
+        return localMap;
     }
 
     private static int rangeCheck(final int value) {
