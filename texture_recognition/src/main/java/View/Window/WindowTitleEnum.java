@@ -9,7 +9,8 @@ public enum WindowTitleEnum {
     RECOGNIZING_IMAGE("Recognizing image"),
     CHOOSE_IMAGE_TO_RECOGNIZE("Choose image to recognize"),
     TRAINING_DATA("Training data"),
-    FEATURES_VECTOR_EXTRACTING("Features vector extracting");
+    FEATURES_VECTOR_EXTRACTING("Features vector extracting"),
+    TEXTURES_RECOGNIZING("Recognizing textures");
 
     private String name;
 

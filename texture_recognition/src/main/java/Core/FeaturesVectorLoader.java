@@ -17,16 +17,8 @@ public class FeaturesVectorLoader {
 
     private static final String FEATURES_VECTOR_FILE_NAME = "FeaturesVector.fv";
 
-    private ImageRecognizer imageRecognizer;
-
-    public FeaturesVectorLoader(ImageRecognizer imageRecognizer) {
-        this.imageRecognizer = imageRecognizer;
-    }
-
-    public boolean loadFeaturesVector() {
-        boolean featuresVectorLoaded = readFile();
-        fillUpTrainingSets();
-        return featuresVectorLoaded;
+    public TrainingData loadFeaturesVector() {
+        return getTrainingData();
     }
 
     private void readFeaturesVector(BufferedReader br) throws IOException {
@@ -60,7 +52,9 @@ public class FeaturesVectorLoader {
         }
     }
 
-    private void fillUpTrainingSets() {
+    private TrainingData getTrainingData() {
+        readFile();
+
         LinkedList<Picture> tempTrainingList = new LinkedList<>();
         LinkedHashMap<String, Integer> classToQuantityMap = new LinkedHashMap<>();
 
@@ -81,9 +75,7 @@ public class FeaturesVectorLoader {
                 }
             }
         }
-
-        imageRecognizer.trainingData.setPictures(tempTrainingList);
-        imageRecognizer.trainingData.setClassToQuantityMap(classToQuantityMap);
+        return new TrainingData(tempTrainingList, classToQuantityMap);
     }
 
     private boolean readFile() {

@@ -1,6 +1,8 @@
 package Core;
 
 import Classification.Classifier;
+import Classification.KNearestNeighbors;
+import Classification.NaiveBayes;
 import Classification.ResultData;
 import Extraction.FeaturesExtractor;
 import Extraction.FeaturesVector;
@@ -21,6 +23,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,8 +39,6 @@ public class ImageRecognizer {
     private static final int OFFSET = 15;
 
     private LinkedList<Picture> loadPictures = new LinkedList<>();
-    public TrainingData trainingData = new TrainingData();
-    private FeaturesVectorLoader featuresVectorLoader;
     private FeaturesExtractor featuresExtractor;
     private Map<Point2D, Map<String, Integer>> classMap = new LinkedHashMap<>();
     private Classifier classifier;
@@ -45,7 +46,7 @@ public class ImageRecognizer {
     private String originalWindowTitle;
 
     private int partToRecognizeSize = 64;
-    private boolean simulate = true;
+    private boolean isSimulation = true;
     private double iterations = 0;
     private double recognized = 0;
 
@@ -57,6 +58,13 @@ public class ImageRecognizer {
     private BufferedImage resultImage;
     private BufferedImage previewImage;
     private HashMap<Point2D, Integer> markedPart = new HashMap<>();
+
+    public ImageRecognizer() {
+    }
+
+    public ImageRecognizer(Classifier classifier) {
+        this.classifier = classifier;
+    }
 
     public void loadTrainingData(File[] files, FileChoosePanel fileChoosePanel, Window window) {
         if (files != null && files.length > 0) {
@@ -112,13 +120,6 @@ public class ImageRecognizer {
         panel.add(label);
     }
 
-    public boolean loadFeaturesVector() {
-        if (featuresVectorLoader == null) {
-            featuresVectorLoader = new FeaturesVectorLoader(this);
-        }
-        return featuresVectorLoader.loadFeaturesVector();
-    }
-
     public Picture calculateFeatureInOnePicture(Picture picture) {
         if (featuresExtractor == null) {
             featuresExtractor = new FeaturesExtractor();
@@ -126,8 +127,8 @@ public class ImageRecognizer {
         return featuresExtractor.calculateFeaturesInOnePicture(picture);
     }
 
-    public BufferedImage recognizeTextures(Picture picture, Classifier classifier, ImageIcon imageIcon, Window window) {
-        initTexturesRecognition(window, picture, classifier);
+    public BufferedImage recognizeTextures(Picture picture, ImageIcon imageIcon, Window window) {
+        initTexturesRecognition(window, picture);
         recognizeTextures(imageIcon);
         return saveResults();
     }
@@ -135,16 +136,16 @@ public class ImageRecognizer {
     private void recognizeTextures(ImageIcon imageIcon) {
         ResultData classificationResult = new ResultData("", "");
         double counter = 0;
-        for (int a = 0; a < 2; a++) {
+        do {
             for (int offsetX = 0; offsetX < partToRecognizeSize - 1; offsetX += OFFSET) {
                 for (int offsetY = 0; offsetY < partToRecognizeSize - 1; offsetY += OFFSET) {
                     for (int w = offsetX; w < imageWidth - offsetX; w += partToRecognizeSize) {
                         for (int h = offsetY; h < imageHeight - offsetY; h += partToRecognizeSize) {
-                            if (!simulate) {
+                            if (!isSimulation) {
                                 classifyPart(classificationResult, w, h);
                                 fillPixelsClassCountMap(classificationResult, w, h);
                                 determinateAndMarkPixelClass(w, h);
-                                recognized = getCorrectlyRecognizedPixelsPercentage(resultImage, false);
+                                recognized = getCorrectlyRecognizedPixelsPercentage(false);
                                 updatePreview(imageIcon, w, h, ++counter);
                             } else {
                                 iterations++;
@@ -153,8 +154,8 @@ public class ImageRecognizer {
                     }
                 }
             }
-            simulate = false;
-        }
+            isSimulation = false;
+        } while (counter < iterations);
     }
 
     private void updatePreview(ImageIcon imageIcon, int w, int h, double counter) {
@@ -185,14 +186,13 @@ public class ImageRecognizer {
         }
     }
 
-    private void initTexturesRecognition(Window window, Picture picture, Classifier classifier) {
+    private void initTexturesRecognition(Window window, Picture picture) {
         BufferedImage image = (BufferedImage) picture.getImage();
         imageWidth = image.getWidth();
         imageHeight = image.getHeight();
 
         this.window = window;
         this.originalWindowTitle = window.getTitle();
-        this.classifier = classifier;
         this.labelImage = (BufferedImage) picture.getLabelImage();
         this.resultImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
         this.previewImage = copyImage(resultImage);
@@ -325,6 +325,10 @@ public class ImageRecognizer {
         return color.getRGB();
     }
 
+    private double getCorrectlyRecognizedPixelsPercentage(boolean markPixels) {
+        return getCorrectlyRecognizedPixelsPercentage(resultImage, markPixels);
+    }
+
     public double getCorrectlyRecognizedPixelsPercentage(BufferedImage imageWithRecognizedTextures, boolean markPixels) {
         double count = 0;
         double correctQuantity = 0;
@@ -345,5 +349,13 @@ public class ImageRecognizer {
             }
         }
         return (correctQuantity / count) * 100;
+    }
+
+    public List<ResultData> recognizePictures(Classifier classifier, LinkedList<Picture> pictures) {
+        LinkedList<Picture> picturesWithExtractedFeatures = new LinkedList<>();
+        for (Picture picture : pictures) {
+            picturesWithExtractedFeatures.add(calculateFeatureInOnePicture(picture));
+        }
+        return classifier.classify(picturesWithExtractedFeatures, 10);
     }
 }
