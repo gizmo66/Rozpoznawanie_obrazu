@@ -42,6 +42,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
     }
 
     private void initButtons() {
+        //TODO akolodziejek: przenieść nazwy button'ów do pól
         this.recognitionBtn = initButton("RECOGNIZE whole image with KNN");
         this.recognitionBtn1 = initButton("RECOGNIZE whole image with NaiveBayes");
         this.recognitionBtn2 = initButton("RECOGNIZE regions with KNN");
@@ -106,10 +107,10 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
     private void recognizeTexturesWithAllClassifiers(Picture picture) {
         java.util.List<Classifier> classifiers = new ArrayList<>();
-        classifiers.add(new KNearestNeighbors(getTrainingData()));
-        classifiers.add(new NaiveBayes(getTrainingData()));
 
         //TODO akolodziejek: wyszukać wszystkie implementacje z pomocą refleksji
+        classifiers.add(new KNearestNeighbors(getTrainingData()));
+        classifiers.add(new NaiveBayes(getTrainingData()));
 
         for (Classifier classifier : classifiers) {
             recognizeTexturesInPicture(picture, new ImageRecognizer(classifier));
@@ -163,18 +164,10 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
         final BufferedImage[] imageWithRecognizedTextures = new BufferedImage[1];
         final double[] correctlyRecognizedPixelsPercentage = {0};
 
-        BufferedImage labelImage = (BufferedImage) picture.getLabelImage();
         imageWithRecognizedTextures[0] = imageRecognizer.recognizeTextures(picture, imageIcon, window1);
-        int imageWidth = labelImage.getWidth();
-        int imageHeight = labelImage.getHeight();
-        BufferedImage tempImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-        for (int w = 0; w < imageWidth; w++) {
-            for (int h = 0; h < imageHeight; h++) {
-                tempImage.setRGB(w, h, imageWithRecognizedTextures[0].getRGB(w, h));
-            }
-        }
-        correctlyRecognizedPixelsPercentage[0] = imageRecognizer
-                .getCorrectlyRecognizedPixelsPercentage(tempImage, true);
+        BufferedImage tempImage = imageRecognizer.copyImage(imageWithRecognizedTextures[0]);
+        correctlyRecognizedPixelsPercentage[0] = imageRecognizer.getCorrectlyRecognizedPixelsPercentage(tempImage,
+                true);
         showWindowWithResult(picture, tempImage, correctlyRecognizedPixelsPercentage[0]);
     }
 
@@ -184,7 +177,6 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
         Window window = new Window(title);
         JPanel panel1 = new JPanel();
-
         JLabel pictureFrame2 = new JLabel(new ImageIcon(imageWithMarkedPixels));
         panel1.add(pictureFrame2);
 

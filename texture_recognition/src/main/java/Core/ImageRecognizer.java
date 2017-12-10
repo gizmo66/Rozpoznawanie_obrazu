@@ -1,8 +1,6 @@
 package Core;
 
 import Classification.Classifier;
-import Classification.KNearestNeighbors;
-import Classification.NaiveBayes;
 import Classification.ResultData;
 import Extraction.FeaturesExtractor;
 import Extraction.FeaturesVector;
@@ -37,6 +35,7 @@ public class ImageRecognizer {
 
     public static final String DOUBLE_FORMAT = "%.1f";
     private static final int OFFSET = 15;
+    private static final String UNDERSCORE = "_";
 
     private LinkedList<Picture> loadPictures = new LinkedList<>();
     private FeaturesExtractor featuresExtractor;
@@ -54,7 +53,7 @@ public class ImageRecognizer {
     private static int imageHeight;
     private Picture picture;
     private BufferedImage labelImage;
-    private static boolean MARK_PART = true;
+    private static final boolean MARK_PART = true;
     private BufferedImage resultImage;
     private BufferedImage previewImage;
     private HashMap<Point2D, Integer> markedPart = new HashMap<>();
@@ -202,18 +201,18 @@ public class ImageRecognizer {
     private BufferedImage saveResults() {
         java.util.List<String> featureIds = featuresExtractor.getFeatureIds().stream().sorted()
                 .collect(Collectors.toList());
-        String fileName = picture.getOriginalFileName() + "_" + classifier.getClass().getSimpleName();
-        String resultFileName = fileName + "_" + featureIds + "_" + String.format(DOUBLE_FORMAT, recognized) + "%";
+        String fileName = picture.getOriginalFileName() + UNDERSCORE + classifier.getClass().getSimpleName();
+        String resultFileName = fileName + UNDERSCORE + featureIds + UNDERSCORE + String.format(DOUBLE_FORMAT,
+                recognized) + "%";
         BufferedImage tempResultImage = copyImage(resultImage);
-        saveResultToFile(resultImage, "./results/raw_" + resultFileName,
-                ImageTypeEnum.BMP.getExtensions().get(0));
+        String extension = ImageTypeEnum.BMP.getExtensions().get(0);
+        saveResultToFile(resultImage, "./results/raw_" + resultFileName, extension);
         getCorrectlyRecognizedPixelsPercentage(tempResultImage, true);
-        saveResultToFile(tempResultImage, "./results/marked_" + resultFileName,
-                ImageTypeEnum.BMP.getExtensions().get(0));
+        saveResultToFile(tempResultImage, "./results/marked_" + resultFileName, extension);
         return tempResultImage;
     }
 
-    private BufferedImage copyImage(BufferedImage source) {
+    public BufferedImage copyImage(BufferedImage source) {
         int width = source.getWidth();
         int height = source.getHeight();
         BufferedImage copy = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
