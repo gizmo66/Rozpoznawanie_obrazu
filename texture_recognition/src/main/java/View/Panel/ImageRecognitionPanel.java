@@ -78,7 +78,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
     }
 
     private boolean recognizeWholeImageWithKNN(ActionEvent e) {
-        return e.getSource().equals(recognitionBtn3);
+        return e.getSource().equals(recognitionBtn);
     }
 
     private boolean recognizeTexturesWithBayes(ActionEvent e) {
