@@ -36,7 +36,7 @@ public class ImageRecognizer {
         }
     }
 
-    public void addPicturesToPanel(JPanel panel, LinkedList<Picture> pictures) {
+    private void addPicturesToPanel(JPanel panel, LinkedList<Picture> pictures) {
         double picturesQuantity = pictures.size();
 
         double originalMaxWidth = WINDOW_SIZE_X - 20;
@@ -48,7 +48,7 @@ public class ImageRecognizer {
         double maxWidthForPicture = 1.0;
 
         double maxHeight = originalMaxHeight;
-        double maxWidth = originalMaxWidth;
+        double maxWidth;
 
         while (wholeHeight < maxHeight) {
             maxWidthForPicture += 1.0;
@@ -83,16 +83,13 @@ public class ImageRecognizer {
             }
         }
 
-        LinkedList<Picture> temp = new LinkedList<>();
         for (int i = 0; i < pictures.size(); i++) {
             Picture picture = pictures.get(i);
             BufferedImage image = (BufferedImage) picture.getImage();
             double width = (double) image.getWidth();
             double scale = maxWidthForPicture / width;
             addImage(picture.getImage(), panel, scale, scale, String.valueOf(i + 1));
-            temp.add(picture);
         }
-        imageRecognitionPanel.setPictures(temp);
     }
 
     private ImageRecognitionPanel initWindow(Window window) {

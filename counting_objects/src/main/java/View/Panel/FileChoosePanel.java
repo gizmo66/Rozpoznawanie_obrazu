@@ -14,7 +14,7 @@ public class FileChoosePanel extends JPanel implements ActionListener {
     JFileChooser fileChooser;
     private View.Window.Window window;
 
-    public FileChoosePanel(View.Window.Window window) {
+    FileChoosePanel(View.Window.Window window) {
         this.window = window;
 
         log = new JTextArea(5, 20);

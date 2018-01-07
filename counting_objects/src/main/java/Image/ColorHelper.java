@@ -17,7 +17,7 @@ public class ColorHelper {
         return numberToColorPercentage(value / 100);
     }
 
-    public static Color numberToColorPercentage(final double value) {
+    private static Color numberToColorPercentage(final double value) {
         Double d = value * factor;
         int index = d.intValue();
         if (index == factor) {
@@ -83,11 +83,11 @@ public class ColorHelper {
         return value;
     }
 
-    public static boolean isSimilar(Color color1, Color color2, double maxDistance) {
+    static boolean isSimilar(Color color1, Color color2, double maxDistance) {
         return getDistance(color1, color2) < maxDistance;
     }
 
-    public static double getDistance(Color color1, Color color2) {
+    static double getDistance(Color color1, Color color2) {
         int r1 = color1.getRed();
         int g1 = color1.getGreen();
         int b1 = color1.getBlue();
@@ -98,4 +98,6 @@ public class ColorHelper {
 
         return (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
     }
+
+
 }

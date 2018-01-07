@@ -10,19 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 public class ImageRecognitionPanel extends JPanel implements ActionListener {
 
-    private JButton countBtn;
     private View.Window.Window window;
-    private LinkedList<Picture> pictures;
     private ImageRecognizer imageRecognizer;
-
-    public void setPictures(LinkedList<Picture> pictures) {
-        this.pictures = pictures;
-    }
 
     public ImageRecognitionPanel(View.Window.Window window, ImageRecognizer imageRecognizer) {
         this.window = window;
@@ -63,7 +56,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
             JPanel panel = new JPanel();
             for (Map.Entry<String, Image> descToImage : pictureToTransformations.getValue().entrySet()) {
                 BufferedImage image = (BufferedImage) descToImage.getValue();
-                double scale = 300.0 / (double)image.getWidth();
+                double scale = 300.0 / (double) image.getWidth();
                 imageRecognizer.addImage(descToImage.getValue(), panel, scale, scale, descToImage.getKey());
                 window.add(panel);
             }
