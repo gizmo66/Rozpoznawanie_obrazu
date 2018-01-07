@@ -130,14 +130,19 @@ public class ImageRecognizer {
         ImageUtils.save(imageForSaving, fileName, extension);
     }
 
-    public LinkedHashMap<Picture, LinkedHashMap<Image, String>> countObjectsInPictures() {
-        LinkedHashMap<Picture, LinkedHashMap<Image, String>> result = new LinkedHashMap<>();
+    public LinkedHashMap<Picture, LinkedHashMap<String, Image>> countObjectsInPictures() {
+        LinkedHashMap<Picture, LinkedHashMap<String, Image>> result = new LinkedHashMap<>();
         for (Picture picture : loadedPictures) {
             Image image = picture.getImage();
-            LinkedHashMap<Image, String> imageToDescMap = new LinkedHashMap<>();
-            Image imageNoBackground = ImageUtils.markBadRegions(image);
-            imageToDescMap.put(imageNoBackground, "no background");
-            result.put(picture, imageToDescMap);
+            LinkedHashMap<String, Image> descToImageMap = new LinkedHashMap<>();
+
+            Image imageNoBackground = ImageUtils.removeBackground(image);
+            descToImageMap.put("no background", imageNoBackground);
+
+            Image imageMarkedRegions = ImageUtils.markRegions(imageNoBackground);
+            descToImageMap.put("marked regions", imageMarkedRegions);
+
+            result.put(picture, descToImageMap);
         }
         return result;
     }

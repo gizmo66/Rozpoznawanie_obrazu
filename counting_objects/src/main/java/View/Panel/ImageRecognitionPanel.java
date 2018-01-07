@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -48,19 +49,22 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        LinkedHashMap<Picture, LinkedHashMap<java.awt.Image, String>> pictureToTransformationMap = imageRecognizer
+        LinkedHashMap<Picture, LinkedHashMap<String, java.awt.Image>> pictureToTransformationMap = imageRecognizer
                 .countObjectsInPictures();
 
-        for (Map.Entry<Picture, LinkedHashMap<Image, String>> pictureToTransformations : pictureToTransformationMap.entrySet()) {
+        for (Map.Entry<Picture, LinkedHashMap<String, Image>> pictureToTransformations : pictureToTransformationMap
+                .entrySet()) {
 
             Window window = new Window("");
             window.setLocation(30, 30);
             window.setSize(1300, 700);
             window.setVisible(true);
 
-            for (Map.Entry<Image, String> imageToString : pictureToTransformations.getValue().entrySet()) {
-                JPanel panel = new JPanel();
-                imageRecognizer.addImage(imageToString.getKey(), panel, 0.5, 0.5, imageToString.getValue());
+            JPanel panel = new JPanel();
+            for (Map.Entry<String, Image> descToImage : pictureToTransformations.getValue().entrySet()) {
+                BufferedImage image = (BufferedImage) descToImage.getValue();
+                double scale = 300.0 / (double)image.getWidth();
+                imageRecognizer.addImage(descToImage.getValue(), panel, scale, scale, descToImage.getKey());
                 window.add(panel);
             }
         }
