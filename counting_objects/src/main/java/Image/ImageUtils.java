@@ -100,7 +100,8 @@ public class ImageUtils {
         int height = ((BufferedImage) result).getHeight();
         int width = ((BufferedImage) result).getWidth();
 
-        markContours((BufferedImage) result, height, width, true, 50000, Color.BLACK.getRGB());
+        markContours((BufferedImage) result, height, width, true, 50000, Color.BLACK.getRGB(),
+                200, 500);
 
         IMAGE = result;
         IMAGE_WIDTH = width;
@@ -108,6 +109,18 @@ public class ImageUtils {
 
         COLORS = new int[width][height];
 
+        markBackground((BufferedImage) temp, height, width);
+
+        markContours((BufferedImage) temp, height, width, true, 50000, Color.red.getRGB(),
+                500, 10000);
+
+        COLORS = null;
+        IMAGE = null;
+
+        return temp;
+    }
+
+    private static void markBackground(BufferedImage temp, int height, int width) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 COLORS[x][y] = ((BufferedImage) IMAGE).getRGB(x, y);
@@ -120,8 +133,8 @@ public class ImageUtils {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (COLORS[x][y] == Color.blue.getRGB()) {
-                    backgroundColors.add(((BufferedImage) temp).getRGB(x, y));
-                    ((BufferedImage) temp).setRGB(x, y, COLORS[x][y]);
+                    backgroundColors.add(temp.getRGB(x, y));
+                    temp.setRGB(x, y, COLORS[x][y]);
                 }
             }
         }
@@ -147,7 +160,7 @@ public class ImageUtils {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int color = ((BufferedImage) temp).getRGB(x, y);
+                int color = temp.getRGB(x, y);
                 if (ColorHelper.getDistance(color, averageBackgroundColor.getRGB()) < 300) {
                     floodFill(x, y, color, Color.blue.getRGB());
                 }
@@ -157,30 +170,23 @@ public class ImageUtils {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (COLORS[x][y] == Color.blue.getRGB()) {
-                    ((BufferedImage) temp).setRGB(x, y, COLORS[x][y]);
+                    temp.setRGB(x, y, COLORS[x][y]);
                 }
             }
         }
-
-        markContours((BufferedImage) temp, height, width, true, 50000, Color.red.getRGB());
-
-        COLORS = null;
-        IMAGE = null;
-
-        return temp;
     }
 
     private static void markContours(BufferedImage result, int height, int width, boolean markExtraNeighbors, int
-            distance, int color) {
+            distance, int color, int lDistance, int dDistance) {
         int d;
         for (int y = 1; y < height - 1; y++) {
             for (int x = 1; x < width - 1; x++) {
                 int currentColor = result.getRGB(x, y);
 
                 if (ColorHelper.isSimilar(currentColor, white, distance)) {
-                    d = 500;
+                    d = lDistance;
                 } else {
-                    d = 10000;
+                    d = dDistance;
                 }
 
                 int x1 = x - 1;
