@@ -1,5 +1,6 @@
 package Image;
 
+import Core.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -26,6 +27,14 @@ import static java.util.stream.Collectors.toMap;
 public class ImageUtils {
 
     private static final String LIB_NAME = "opencv_java320";
+    private static final Color LIGHT_COLOR = Color.yellow;
+    private static final Color DARK_COLOR = new Color(60, 30, 20);
+    private static final int[][] COLORS = new int[4000][4000];
+    private static Image IMAGE;
+    private static Image TEMP;
+    private static int IMAGE_WIDTH;
+    private static int IMAGE_HEIGHT;
+    private static int white = Color.white.getRGB();
 
     public static Image fileToImage(File file) {
         String opencvpath = "C:\\OpenCV\\opencv\\build\\java\\x64\\";
@@ -89,29 +98,220 @@ public class ImageUtils {
         return mat;
     }
 
-    public static Image removeBackground(Image image) {
+    public static Image f(Image image) {
+        Mat src = bufferedImageToMat((BufferedImage) image);
+        Image result = toBufferedImage(src);
+        Image temp = toBufferedImage(src);
+        int height = ((BufferedImage) result).getHeight();
+        int width = ((BufferedImage) result).getWidth();
+
+        int d;
+        List<Pair<Integer>> buffer = new ArrayList<>();
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                int currentColor = ((BufferedImage) result).getRGB(x, y);
+
+                if (ColorHelper.isSimilar(currentColor, white, 50000)) {
+                    d = 200;
+                } else {
+                    d = 500;
+                }
+
+                int x1 = x - 1;
+                int y1 = y + 1;
+
+                int x2 = x;
+                int y2 = y + 1;
+
+                int x3 = x + 1;
+                int y3 = y + 1;
+
+                int x4 = x + 1;
+                int y4 = y;
+
+                int x5 = x + 1;
+                int y5 = y - 1;
+
+                int x6 = x;
+                int y6 = y - 1;
+
+                int x7 = x - 1;
+                int y7 = y - 1;
+
+                int x8 = x - 1;
+                int y8 = y;
+
+                int n1Color = ((BufferedImage) result).getRGB(x1, y1);
+                int n2Color = ((BufferedImage) result).getRGB(x2, y2);
+                int n3Color = ((BufferedImage) result).getRGB(x3, y3);
+                int n4Color = ((BufferedImage) result).getRGB(x4, y4);
+                int n5Color = ((BufferedImage) result).getRGB(x5, y5);
+                int n6Color = ((BufferedImage) result).getRGB(x6, y6);
+                int n7Color = ((BufferedImage) result).getRGB(x7, y7);
+                int n8Color = ((BufferedImage) result).getRGB(x8, y8);
+
+                if (ColorHelper.getDistance(n1Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x1, y1));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x2, y2));
+                    buffer.add(new Pair<>(x8, y8));
+                }
+                if (ColorHelper.getDistance(n2Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x2, y2));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x1, y1));
+                    buffer.add(new Pair<>(x3, y3));
+                    buffer.add(new Pair<>(x4, y4));
+                    buffer.add(new Pair<>(x8, y8));
+                }
+                if (ColorHelper.getDistance(n3Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x3, y3));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x2, y2));
+                    buffer.add(new Pair<>(x4, y4));
+                }
+                if (ColorHelper.getDistance(n4Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x4, y4));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x2, y2));
+                    buffer.add(new Pair<>(x3, y3));
+                    buffer.add(new Pair<>(x5, y5));
+                    buffer.add(new Pair<>(x6, y6));
+                }
+                if (ColorHelper.getDistance(n5Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x5, y5));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x4, y4));
+                    buffer.add(new Pair<>(x6, y6));
+                }
+                if (ColorHelper.getDistance(n6Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x6, y6));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x4, y4));
+                    buffer.add(new Pair<>(x5, y5));
+                    buffer.add(new Pair<>(x7, y7));
+                    buffer.add(new Pair<>(x8, y8));
+                }
+                if (ColorHelper.getDistance(n7Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x7, y7));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x6, y6));
+                    buffer.add(new Pair<>(x8, y8));
+                }
+                if (ColorHelper.getDistance(n8Color, currentColor) > d) {
+                    buffer.add(new Pair<>(x8, y8));
+                    buffer.add(new Pair<>(x, y));
+
+                    buffer.add(new Pair<>(x6, y6));
+                    buffer.add(new Pair<>(x7, y7));
+                    buffer.add(new Pair<>(x1, y1));
+                    buffer.add(new Pair<>(x2, y2));
+                }
+            }
+        }
+
+        for (Pair pair : buffer) {
+            ((BufferedImage) result).setRGB((Integer) pair.getP1(), (Integer) pair.getP2(), Color.BLACK.getRGB());
+        }
+
+        /*for (int i = 0; i < 5; i ++) {
+            for (int h = 0; h < height; h++) {
+                Color previousColor = new Color(((BufferedImage) result).getRGB(0, h));
+                for (int w = 1; w < width - 2; w++) {
+                    Color currentColor = new Color(((BufferedImage) result).getRGB(w, h));
+                    if (ColorHelper.getDistance(previousColor, currentColor) > 300 || currentColor.getRGB() == Color
+                            .RED.getRGB() || ((BufferedImage) result).getRGB(w + 1, h) == Color.red.getRGB()) {
+                        ((BufferedImage) result).setRGB(w - 1, h, Color.RED.getRGB());
+                        ((BufferedImage) result).setRGB(w, h, Color.RED.getRGB());
+                        ((BufferedImage) result).setRGB(w + 1, h, Color.RED.getRGB());
+                        w += 3;
+                    }
+                    previousColor = new Color(((BufferedImage) result).getRGB(w - 1, h));
+                }
+            }
+        }*/
+
+        /*(for (int i = 0; i < 5; i ++) {
+            for (int h = 0; h < height; h++) {
+
+            }
+        }*/
+
+        IMAGE = result;
+        IMAGE_WIDTH = width;
+        IMAGE_HEIGHT = height;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                COLORS[x][y] = ((BufferedImage) IMAGE).getRGB(x, y);
+            }
+        }
+
+        Color selectedColor = new Color(((BufferedImage) IMAGE).getRGB(5, 20));
+        floodFill(0, 0, selectedColor.getRGB(), Color.blue.getRGB());
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (COLORS[x][y] == Color.blue.getRGB()) {
+                    ((BufferedImage) temp).setRGB(x, y, COLORS[x][y]);
+                }
+            }
+        }
+
+        return temp;
+    }
+
+    private static void floodFill(int x, int y, int selectedColor, int newColor) {
+        if (x < 0 || x > IMAGE_WIDTH - 1 || y < 0 || y > IMAGE_HEIGHT - 1) return;
+
+        if (ColorHelper.getDistance(COLORS[x][y], selectedColor) > 15000) {
+            COLORS[x][y] = newColor;
+            return;
+        }
+
+        COLORS[x][y] = newColor;
+        floodFill(x, y - 1, selectedColor, newColor);
+        floodFill(x + 1, y, selectedColor, newColor);
+        floodFill(x, y + 1, selectedColor, newColor);
+        floodFill(x - 1, y, selectedColor, newColor);
+    }
+
+    public static Image g(Image image) {
         Mat src = bufferedImageToMat((BufferedImage) image);
         Image result = toBufferedImage(src);
         int height = ((BufferedImage) result).getHeight();
         int width = ((BufferedImage) result).getWidth();
-        for (int y = 0; y < height - 5; y += 5) {
-            for (int x = 0; x < width - 5; x += 5) {
+
+        int a = 2;
+        int b = 3;
+        if (width < 1000) {
+            a = 5;
+            b = 7;
+        }
+
+        for (int y = 0; y < height - a; y += a) {
+            for (int x = 0; x < width - a; x += a) {
                 int count = 0;
-                for (int h = y; h < y + 5; h++) {
-                    for (int w = x; w < x + 5; w++) {
-                        Color color1 = new Color(((BufferedImage) result).getRGB(w, h));
-                        if (ColorHelper.isSimilar(color1, Color.white, 20000)
-                                || ((BufferedImage) result).getRGB(w, h) == Color.BLACK.getRGB()) {
+                for (int h = y; h < y + a; h++) {
+                    for (int w = x; w < x + a; w++) {
+                        if (((BufferedImage) result).getRGB(w, h) == Color.RED.getRGB()) {
                             count++;
                         }
                     }
                 }
 
-                if (count > 21) {
-                    int hLeftLimit = y - 2 < 0 ? 0 : y - 2;
-                    int hRightLimit = y + 7 > height ? height : y + 7;
-                    int wLeftLimit = x - 2 < 0 ? 0 : x - 2;
-                    int wRightLimit = x + 7 > width ? width : x + 7;
+                if (count < 0.05 * (double) a * (double) a) {
+                    int hLeftLimit = y - a < 0 ? 0 : y - a;
+                    int hRightLimit = y + b > height ? height : y + b;
+                    int wLeftLimit = x - a < 0 ? 0 : x - a;
+                    int wRightLimit = x + b > width ? width : x + b;
 
                     for (int h = hLeftLimit; h < hRightLimit; h++) {
                         for (int w = wLeftLimit; w < wRightLimit; w++) {
@@ -124,7 +324,7 @@ public class ImageUtils {
         return result;
     }
 
-    public static Image markRegions(Image image) {
+    /*public static Image markRegions(Image image) {
         Mat src = bufferedImageToMat((BufferedImage) image);
         Image result = toBufferedImage(src);
 
@@ -135,7 +335,7 @@ public class ImageUtils {
         int width = ((BufferedImage) result).getWidth();
         for (int h = 0; h < height; h++) {
             for (int w = 0; w < width; w++) {
-                Color currentColor = new Color(((BufferedImage) result).getRGB(w, h));
+                int currentColor =((BufferedImage) result).getRGB(w, h));
                 if (currentColor.getRGB() != Color.BLACK.getRGB()) {
                     if (CollectionUtils.isNotEmpty(colorList)) {
                         boolean similarFound = false;
@@ -215,7 +415,6 @@ public class ImageUtils {
             darkColor = temp;
         }
 
-        Color brown = new Color(60, 30, 20);
         for (int h = 0; h < height; h++) {
             for (int w = 0; w < width; w++) {
                 Color currentColor = new Color(((BufferedImage) result).getRGB(w, h));
@@ -223,16 +422,27 @@ public class ImageUtils {
                     boolean isLight = ColorHelper.getDistance(currentColor, lightColor)
                             < ColorHelper.getDistance(currentColor, darkColor);
                     if (isLight) {
-                        ((BufferedImage) result).setRGB(w, h, Color.yellow.getRGB());
+                        ((BufferedImage) result).setRGB(w, h, LIGHT_COLOR.getRGB());
                     } else {
-                        ((BufferedImage) result).setRGB(w, h, brown.getRGB());
+                        ((BufferedImage) result).setRGB(w, h, DARK_COLOR.getRGB());
                     }
                 }
             }
         }
-
         return result;
+    }*/
+
+    public static BufferedImage toBufferImageFrom2DArray(int[][] array, int width, int height) {
+        BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (array[i][j] == 1)
+                    bimage.setRGB(j, i, Color.BLACK.getRGB());
+                else
+                    bimage.setRGB(j, i, Color.WHITE.getRGB());
+            }
+        }
+
+        return bimage;
     }
-
-
 }

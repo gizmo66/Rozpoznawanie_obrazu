@@ -2,6 +2,7 @@ package Core;
 
 import File.ImageFileLoader;
 import Image.ImageUtils;
+import Image.ThinnerImage;
 import View.Panel.FileChoosePanel;
 import View.Panel.ImageRecognitionPanel;
 import View.Window.Window;
@@ -133,11 +134,23 @@ public class ImageRecognizer {
             Image image = picture.getImage();
             LinkedHashMap<String, Image> descToImageMap = new LinkedHashMap<>();
 
-            Image imageNoBackground = ImageUtils.removeBackground(image);
-            descToImageMap.put("no background", imageNoBackground);
+            //descToImageMap.put("raw image", image);
 
-            Image imageMarkedRegions = ImageUtils.markRegions(imageNoBackground);
-            descToImageMap.put("marked regions", imageMarkedRegions);
+            Image fImage = ImageUtils.f(image);
+            descToImageMap.put("f", fImage);
+
+            /*Image gImage = ImageUtils.g(fImage);
+            descToImageMap.put("g", gImage);*/
+
+            /*Image hImage = ImageUtils.h(gImage);
+            descToImageMap.put("h", hImage);*/
+
+            /*(ThinnerImage ti = new ThinnerImage();
+            Image iImage = ti.Start(hImage);
+            descToImageMap.put("i", iImage);*/
+
+            /*Image imageMarkedRegions = ImageUtils.markRegions(imageNoBackground);
+            descToImageMap.put("marked regions", imageMarkedRegions);*/
 
             result.put(picture, descToImageMap);
         }

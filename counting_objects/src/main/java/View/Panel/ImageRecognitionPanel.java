@@ -56,7 +56,7 @@ public class ImageRecognitionPanel extends JPanel implements ActionListener {
             JPanel panel = new JPanel();
             for (Map.Entry<String, Image> descToImage : pictureToTransformations.getValue().entrySet()) {
                 BufferedImage image = (BufferedImage) descToImage.getValue();
-                double scale = 300.0 / (double) image.getWidth();
+                double scale = 730.0 / (double) image.getWidth();
                 imageRecognizer.addImage(descToImage.getValue(), panel, scale, scale, descToImage.getKey());
                 window.add(panel);
             }
