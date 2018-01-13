@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class ImageUtils {
@@ -93,7 +94,7 @@ public class ImageUtils {
         return mat;
     }
 
-    public static Image f(Image image) {
+    public static Image f(Image image, AtomicInteger lightQuantity, AtomicInteger darkQuantity) {
         Mat src = bufferedImageToMat((BufferedImage) image);
         Image result = toBufferedImage(src);
         Image temp = toBufferedImage(src);
@@ -117,7 +118,127 @@ public class ImageUtils {
         COLORS = null;
         IMAGE = null;
 
+        countObjects(temp, lightQuantity, darkQuantity);
+
         return temp;
+    }
+
+    private static void countObjects(Image image, AtomicInteger lightQuantity, AtomicInteger darkQuantity) {
+        List<Integer> lightColors = new ArrayList<>();
+        List<Integer> darkColors = new ArrayList<>();
+        int height = ((BufferedImage) image).getHeight();
+        int width = ((BufferedImage) image).getWidth();
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
+                int currentColor = ((BufferedImage) image).getRGB(w, h);
+                if (currentColor != Color.black.getRGB() && currentColor != Color.blue.getRGB() &&
+                        currentColor != Color.red.getRGB()) {
+                    if (ColorHelper.getDistance(currentColor, Color.white.getRGB()) > ColorHelper.getDistance(currentColor, Color
+                            .black.getRGB())) {
+                        lightColors.add(currentColor);
+                    } else {
+                        darkColors.add(currentColor);
+                    }
+                }
+            }
+        }
+
+        int lR = 0;
+        int lG = 0;
+        int lB = 0;
+        for (int lColor : lightColors) {
+            int r = (lColor >> 16) & 0xFF;
+            int g = (lColor >> 8) & 0xFF;
+            int b = (lColor) & 0xFF;
+            lR += r;
+            lG += g;
+            lB += b;
+        }
+        Color lightColor = new Color(lR / lightColors.size(), lG / lightColors.size(), lB / lightColors.size());
+
+        int dR = 0;
+        int dG = 0;
+        int dB = 0;
+        for (int dColor : darkColors) {
+            int r = (dColor >> 16) & 0xFF;
+            int g = (dColor >> 8) & 0xFF;
+            int b = (dColor) & 0xFF;
+            dR += r;
+            dG += g;
+            dB += b;
+        }
+        Color darkColor = new Color(dR / darkColors.size(), dG / darkColors.size(), dB / darkColors.size());
+
+        if (ColorHelper.getDistance(lightColor, Color.white) > ColorHelper.getDistance(darkColor, Color.white)) {
+            Color temp = lightColor;
+            lightColor = darkColor;
+            darkColor = temp;
+        }
+
+        //TODO
+        //optymalizacja, zeby mozna było się doczekać całego obrazka
+        //poprawić liczenie i sprawdzić dlaczego tyle razy dodaje się count a nie powinien
+
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
+                int currentColor = ((BufferedImage) image).getRGB(w, h);
+                if (currentColor != Color.black.getRGB() && currentColor != Color.blue.getRGB() &&
+                        currentColor != Color.red.getRGB() && currentColor != LIGHT_COLOR.getRGB()
+                        && currentColor != DARK_COLOR.getRGB() && currentColor != Color.green.getRGB()) {
+
+                    COLORS = new int[width][height];
+                    floodFill(w, h, ((BufferedImage) image).getRGB(w, h), Color.green.getRGB(), 200);
+
+                    List<Integer> colorsFromRegion = new ArrayList<>();
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            if (COLORS[x][y] == Color.green.getRGB()) {
+                                colorsFromRegion.add(((BufferedImage) image).getRGB(x, y));
+                            }
+                        }
+                    }
+
+                    int R = 0;
+                    int G = 0;
+                    int B = 0;
+                    for (int c : colorsFromRegion) {
+                        int r = (c >> 16) & 0xFF;
+                        int g = (c >> 8) & 0xFF;
+                        int b = (c) & 0xFF;
+                        R += r;
+                        G += g;
+                        B += b;
+                    }
+                    Color colorFromRegion = new Color(R / colorsFromRegion.size(), G / colorsFromRegion.size(),
+                            B / colorsFromRegion.size());
+
+                    boolean isDark = true;
+                    if (ColorHelper.getDistance(colorFromRegion.getRGB(), lightColor.getRGB())
+                            < ColorHelper.getDistance(colorFromRegion.getRGB(), darkColor.getRGB())) {
+                        isDark = false;
+                    }
+
+                    Color ldColor = DARK_COLOR;
+                    if (!isDark) {
+                        ldColor = LIGHT_COLOR;
+                        lightQuantity.incrementAndGet();
+                    } else {
+                        darkQuantity.incrementAndGet();
+                    }
+
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            if (COLORS[x][y] == Color.green.getRGB()) {
+                                ((BufferedImage) image).setRGB(x, y, ldColor.getRGB());
+                            }
+                        }
+                    }
+
+                    COLORS = null;
+
+                }
+            }
+        }
     }
 
     private static void markBackground(BufferedImage temp, int height, int width) {
@@ -127,7 +248,7 @@ public class ImageUtils {
             }
         }
 
-        floodFill(10, 20, ((BufferedImage) IMAGE).getRGB(10, 20), Color.blue.getRGB());
+        floodFill(10, 20, ((BufferedImage) IMAGE).getRGB(10, 20), Color.blue.getRGB(), 15000);
 
         List<Integer> backgroundColors = new ArrayList<>();
         for (int y = 0; y < height; y++) {
@@ -162,7 +283,7 @@ public class ImageUtils {
             for (int x = 0; x < width; x++) {
                 int color = temp.getRGB(x, y);
                 if (ColorHelper.getDistance(color, averageBackgroundColor.getRGB()) < 300) {
-                    floodFill(x, y, color, Color.blue.getRGB());
+                    floodFill(x, y, color, Color.blue.getRGB(), 15000);
                 }
             }
         }
@@ -307,169 +428,20 @@ public class ImageUtils {
         buffer.clear();
     }
 
-    private static void floodFill(int x, int y, int selectedColor, int newColor) {
+    private static void floodFill(int x, int y, int selectedColor, int newColor, int maxDistance) {
         if (x < 0 || x > IMAGE_WIDTH - 1 || y < 0 || y > IMAGE_HEIGHT - 1) return;
 
-        if (ColorHelper.getDistance(COLORS[x][y], selectedColor) > 15000) {
+        if (ColorHelper.getDistance(COLORS[x][y], selectedColor) > maxDistance) {
             COLORS[x][y] = newColor;
             return;
         }
 
         COLORS[x][y] = newColor;
-        floodFill(x, y - 1, selectedColor, newColor);
-        floodFill(x + 1, y, selectedColor, newColor);
-        floodFill(x, y + 1, selectedColor, newColor);
-        floodFill(x - 1, y, selectedColor, newColor);
+        floodFill(x, y - 1, selectedColor, newColor, maxDistance);
+        floodFill(x + 1, y, selectedColor, newColor, maxDistance);
+        floodFill(x, y + 1, selectedColor, newColor, maxDistance);
+        floodFill(x - 1, y, selectedColor, newColor, maxDistance);
     }
-
-    public static Image g(Image image) {
-        Mat src = bufferedImageToMat((BufferedImage) image);
-        Image result = toBufferedImage(src);
-        int height = ((BufferedImage) result).getHeight();
-        int width = ((BufferedImage) result).getWidth();
-
-        int a = 2;
-        int b = 3;
-        if (width < 1000) {
-            a = 5;
-            b = 7;
-        }
-
-        for (int y = 0; y < height - a; y += a) {
-            for (int x = 0; x < width - a; x += a) {
-                int count = 0;
-                for (int h = y; h < y + a; h++) {
-                    for (int w = x; w < x + a; w++) {
-                        if (((BufferedImage) result).getRGB(w, h) == Color.RED.getRGB()) {
-                            count++;
-                        }
-                    }
-                }
-
-                if (count < 0.05 * (double) a * (double) a) {
-                    int hLeftLimit = y - a < 0 ? 0 : y - a;
-                    int hRightLimit = y + b > height ? height : y + b;
-                    int wLeftLimit = x - a < 0 ? 0 : x - a;
-                    int wRightLimit = x + b > width ? width : x + b;
-
-                    for (int h = hLeftLimit; h < hRightLimit; h++) {
-                        for (int w = wLeftLimit; w < wRightLimit; w++) {
-                            ((BufferedImage) result).setRGB(w, h, Color.BLACK.getRGB());
-                        }
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    /*public static Image markRegions(Image image) {
-        Mat src = bufferedImageToMat((BufferedImage) image);
-        Image result = toBufferedImage(src);
-
-        List<Color> colorList = new ArrayList<>();
-        Map<Color, Integer> colorsCountMap = new HashMap<>();
-        HashMap<Color, List<Color>> colorsMap = new HashMap<>();
-        int height = ((BufferedImage) result).getHeight();
-        int width = ((BufferedImage) result).getWidth();
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
-                int currentColor =((BufferedImage) result).getRGB(w, h));
-                if (currentColor.getRGB() != Color.BLACK.getRGB()) {
-                    if (CollectionUtils.isNotEmpty(colorList)) {
-                        boolean similarFound = false;
-                        for (Color color : colorList) {
-                            if (ColorHelper.isSimilar(currentColor, color, 15000)) {
-                                colorsCountMap.replace(color, colorsCountMap.get(color) + 1);
-                                if (MapUtils.isNotEmpty(colorsMap)) {
-                                    if (colorsMap.get(color) != null) {
-                                        colorsMap.get(color).add(currentColor);
-                                    } else {
-                                        List<Color> values = new ArrayList<>();
-                                        values.add(currentColor);
-                                        colorsMap.put(color, values);
-                                    }
-                                } else {
-                                    List<Color> values = new ArrayList<>();
-                                    values.add(currentColor);
-                                    colorsMap.put(color, values);
-                                }
-                                similarFound = true;
-                            }
-                        }
-                        if (!similarFound) {
-                            colorList.add(currentColor);
-                            colorsCountMap.put(currentColor, 1);
-                        }
-                    } else {
-                        colorList.add(currentColor);
-                        colorsCountMap.put(currentColor, 1);
-                    }
-                }
-            }
-        }
-
-        colorsMap = colorsMap.entrySet().stream()
-                .sorted(comparingByValue(comparingInt(value -> -value.size())))
-                .collect(toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (a, b) -> {
-                            throw new AssertionError();
-                        },
-                        LinkedHashMap::new
-                ));
-
-        int lR = 0;
-        int lG = 0;
-        int lB = 0;
-        List<Color> lightColors = colorsMap.remove(colorsMap.entrySet().iterator().next().getKey());
-        for (Color lColor : lightColors) {
-            int r = lColor.getRed();
-            int g = lColor.getGreen();
-            int b = lColor.getBlue();
-            lR += r;
-            lG += g;
-            lB += b;
-        }
-        Color lightColor = new Color(lR / lightColors.size(), lG / lightColors.size(), lB / lightColors.size());
-
-        int dR = 0;
-        int dG = 0;
-        int dB = 0;
-        List<Color> darkColors = colorsMap.remove(colorsMap.entrySet().iterator().next().getKey());
-        for (Color dColor : darkColors) {
-            int r = dColor.getRed();
-            int g = dColor.getGreen();
-            int b = dColor.getBlue();
-            dR += r;
-            dG += g;
-            dB += b;
-        }
-        Color darkColor = new Color(dR / darkColors.size(), dG / darkColors.size(), dB / darkColors.size());
-
-        if (ColorHelper.getDistance(lightColor, Color.white) > ColorHelper.getDistance(darkColor, Color.white)) {
-            Color temp = lightColor;
-            lightColor = darkColor;
-            darkColor = temp;
-        }
-
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
-                Color currentColor = new Color(((BufferedImage) result).getRGB(w, h));
-                if (((BufferedImage) result).getRGB(w, h) != Color.BLACK.getRGB()) {
-                    boolean isLight = ColorHelper.getDistance(currentColor, lightColor)
-                            < ColorHelper.getDistance(currentColor, darkColor);
-                    if (isLight) {
-                        ((BufferedImage) result).setRGB(w, h, LIGHT_COLOR.getRGB());
-                    } else {
-                        ((BufferedImage) result).setRGB(w, h, DARK_COLOR.getRGB());
-                    }
-                }
-            }
-        }
-        return result;
-    }*/
 
     public static BufferedImage toBufferImageFrom2DArray(int[][] array, int width, int height) {
         BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

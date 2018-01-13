@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class ImageRecognizer {
@@ -136,8 +137,10 @@ public class ImageRecognizer {
 
             //descToImageMap.put("raw image", image);
 
-            Image fImage = ImageUtils.f(image);
-            descToImageMap.put("f", fImage);
+            AtomicInteger lightQuantity = new AtomicInteger(0);
+            AtomicInteger darkQuantity = new AtomicInteger(0);
+            Image fImage = ImageUtils.f(image, lightQuantity, darkQuantity);
+            descToImageMap.put("jasne: " + lightQuantity + " ; ciemne: " + darkQuantity, fImage);
 
             /*Image gImage = ImageUtils.g(fImage);
             descToImageMap.put("g", gImage);*/

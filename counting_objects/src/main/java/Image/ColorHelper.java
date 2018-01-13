@@ -98,4 +98,21 @@ public class ColorHelper {
 
         return (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
     }
+
+    static boolean isSimilar(Color color1, Color color2, double maxDistance) {
+        return getDistance(color1, color2) < maxDistance;
+    }
+
+    static double getDistance(Color color1, Color color2) {
+        int r1 = color1.getRed();
+        int g1 = color1.getGreen();
+        int b1 = color1.getBlue();
+
+        int r2 = color2.getRed();
+        int g2 = color2.getGreen();
+        int b2 = color2.getBlue();
+
+        return (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
+    }
+
 }
