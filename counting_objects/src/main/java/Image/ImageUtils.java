@@ -23,7 +23,7 @@ public class ImageUtils {
 
     private static final String LIB_NAME = "opencv_java320";
     private static final Color LIGHT_COLOR = Color.yellow;
-    private static final Color DARK_COLOR = new Color(60, 30, 20);
+    private static final Color DARK_COLOR = Color.magenta;
     private static int[][] COLORS;
     private static Image IMAGE;
     private static Image TEMP;
@@ -126,13 +126,16 @@ public class ImageUtils {
     private static void countObjects(Image image, AtomicInteger lightQuantity, AtomicInteger darkQuantity) {
         List<Integer> lightColors = new ArrayList<>();
         List<Integer> darkColors = new ArrayList<>();
+        int black = Color.black.getRGB();
+        int blue = Color.blue.getRGB();
+        int red = Color.red.getRGB();
+        int white = Color.white.getRGB();
+        int green = Color.green.getRGB();
         for (int h = 0; h < IMAGE_HEIGHT; h++) {
             for (int w = 0; w < IMAGE_WIDTH; w++) {
                 int currentColor = ((BufferedImage) image).getRGB(w, h);
-                if (currentColor != Color.black.getRGB() && currentColor != Color.blue.getRGB() &&
-                        currentColor != Color.red.getRGB()) {
-                    if (ColorHelper.getDistance(currentColor, Color.white.getRGB()) > ColorHelper.getDistance(currentColor, Color
-                            .black.getRGB())) {
+                if (currentColor != black && currentColor != blue && currentColor != red) {
+                    if (ColorHelper.getDistance(currentColor, white) > ColorHelper.getDistance(currentColor, black)) {
                         lightColors.add(currentColor);
                     } else {
                         darkColors.add(currentColor);
@@ -179,18 +182,17 @@ public class ImageUtils {
         for (int h = 0; h < IMAGE_HEIGHT; h++) {
             for (int w = 0; w < IMAGE_WIDTH; w++) {
                 currentColor = ((BufferedImage) image).getRGB(w, h);
-                if (currentColor != Color.black.getRGB() && currentColor != Color.blue.getRGB() &&
-                        currentColor != Color.red.getRGB() && currentColor != LIGHT_COLOR.getRGB()
-                        && currentColor != DARK_COLOR.getRGB() && currentColor != Color.green.getRGB()) {
+                if (currentColor != black && currentColor != blue && currentColor != red
+                        && currentColor != LIGHT_COLOR.getRGB()
+                        && currentColor != DARK_COLOR.getRGB() && currentColor != green) {
 
                     COLORS = new int[IMAGE_WIDTH][IMAGE_HEIGHT];
-                    floodFill(w, h, currentColor, Color.green.getRGB(),
-                            5000, false);
+                    floodFill(w, h, currentColor, green, 5000, false);
 
                     colorsFromRegion.clear();
                     for (int y = 0; y < IMAGE_HEIGHT; y++) {
                         for (int x = 0; x < IMAGE_WIDTH; x++) {
-                            if (COLORS[x][y] == Color.green.getRGB()) {
+                            if (COLORS[x][y] == green) {
                                 colorsFromRegion.add(((BufferedImage) image).getRGB(x, y));
                             }
                         }
@@ -208,11 +210,13 @@ public class ImageUtils {
                         B += b;
                     }
 
-                    if (colorsFromRegion.size() > 0) {
-                        colorFromRegion = new Color(R / colorsFromRegion.size(), G / colorsFromRegion.size(),
-                                B / colorsFromRegion.size());
+                    int colorsFromRegionSize = colorsFromRegion.size();
+                    if (colorsFromRegionSize > 0) {
+                        colorFromRegion = new Color(R / colorsFromRegionSize, G / colorsFromRegionSize,
+                                B / colorsFromRegionSize);
 
-                        isDark = ColorHelper.getDistance(colorFromRegion.getRGB(), lightColor.getRGB()) > ColorHelper.getDistance(colorFromRegion.getRGB(), darkColor.getRGB());
+                        isDark = ColorHelper.getDistance(colorFromRegion.getRGB(), lightColor.getRGB())
+                                > ColorHelper.getDistance(colorFromRegion.getRGB(), darkColor.getRGB());
 
                         ldColor = DARK_COLOR;
                         if (!isDark) {
@@ -224,15 +228,12 @@ public class ImageUtils {
 
                         for (int y = 0; y < IMAGE_HEIGHT; y++) {
                             for (int x = 0; x < IMAGE_WIDTH; x++) {
-                                if (COLORS[x][y] == Color.green.getRGB()) {
+                                if (COLORS[x][y] == green) {
                                     ((BufferedImage) image).setRGB(x, y, ldColor.getRGB());
                                 }
                             }
                         }
                     }
-
-                    //save(image, String.valueOf(w) + "," + String.valueOf(h), "bmp");
-
                 }
             }
         }
@@ -302,8 +303,8 @@ public class ImageUtils {
             distance, int color, int lDistance, int dDistance) {
 
         int d, currentColor;
-        int x1, y1, y2, x3, y3, x4, x5, y5, y6, x7, y7, x8;
         int n1Color, n2Color, n3Color, n4Color, n5Color, n6Color, n7Color, n8Color;
+        int xSub1, xAdd1, ySub1, yAdd1;
 
         for (int y = 1; y < IMAGE_HEIGHT - 1; y++) {
             for (int x = 1; x < IMAGE_WIDTH - 1; x++) {
@@ -315,113 +316,98 @@ public class ImageUtils {
                     d = dDistance;
                 }
 
-                x1 = x - 1;
-                y1 = y + 1;
+                xSub1 = x - 1;
+                xAdd1 = x + 1;
+                ySub1 = y - 1;
+                yAdd1 = y + 1;
 
-                y2 = y + 1;
-
-                x3 = x + 1;
-                y3 = y + 1;
-
-                x4 = x + 1;
-
-                x5 = x + 1;
-                y5 = y - 1;
-
-                y6 = y - 1;
-
-                x7 = x - 1;
-                y7 = y - 1;
-
-                x8 = x - 1;
-
-                n1Color = result.getRGB(x1, y1);
-                n2Color = result.getRGB(x, y2);
-                n3Color = result.getRGB(x3, y3);
-                n4Color = result.getRGB(x4, y);
-                n5Color = result.getRGB(x5, y5);
-                n6Color = result.getRGB(x, y6);
-                n7Color = result.getRGB(x7, y7);
-                n8Color = result.getRGB(x8, y);
+                n1Color = result.getRGB(xSub1, yAdd1);
+                n2Color = result.getRGB(x, yAdd1);
+                n3Color = result.getRGB(xAdd1, yAdd1);
+                n4Color = result.getRGB(xAdd1, y);
+                n5Color = result.getRGB(xAdd1, ySub1);
+                n6Color = result.getRGB(x, ySub1);
+                n7Color = result.getRGB(xSub1, ySub1);
+                n8Color = result.getRGB(xSub1, y);
 
                 if (ColorHelper.getDistance(n1Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x1, y1));
+                    buffer.add(new Pair<>(xSub1, yAdd1));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x, y2));
-                        buffer.add(new Pair<>(x8, y));
+                        buffer.add(new Pair<>(x, yAdd1));
+                        buffer.add(new Pair<>(xSub1, y));
                     }
                 }
                 if (ColorHelper.getDistance(n2Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x, y2));
+                    buffer.add(new Pair<>(x, yAdd1));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x1, y1));
-                        buffer.add(new Pair<>(x3, y3));
-                        buffer.add(new Pair<>(x4, y));
-                        buffer.add(new Pair<>(x8, y));
+                        buffer.add(new Pair<>(xSub1, yAdd1));
+                        buffer.add(new Pair<>(xAdd1, yAdd1));
+                        buffer.add(new Pair<>(xAdd1, y));
+                        buffer.add(new Pair<>(xSub1, y));
                     }
                 }
                 if (ColorHelper.getDistance(n3Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x3, y3));
+                    buffer.add(new Pair<>(xAdd1, yAdd1));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x, y2));
-                        buffer.add(new Pair<>(x4, y));
+                        buffer.add(new Pair<>(x, yAdd1));
+                        buffer.add(new Pair<>(xAdd1, y));
                     }
                 }
                 if (ColorHelper.getDistance(n4Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x4, y));
+                    buffer.add(new Pair<>(xAdd1, y));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x, y2));
-                        buffer.add(new Pair<>(x3, y3));
-                        buffer.add(new Pair<>(x5, y5));
-                        buffer.add(new Pair<>(x, y6));
+                        buffer.add(new Pair<>(x, yAdd1));
+                        buffer.add(new Pair<>(xAdd1, yAdd1));
+                        buffer.add(new Pair<>(xAdd1, ySub1));
+                        buffer.add(new Pair<>(x, ySub1));
                     }
                 }
                 if (ColorHelper.getDistance(n5Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x5, y5));
+                    buffer.add(new Pair<>(xAdd1, ySub1));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x4, y));
-                        buffer.add(new Pair<>(x, y6));
+                        buffer.add(new Pair<>(xAdd1, y));
+                        buffer.add(new Pair<>(x, ySub1));
                     }
                 }
                 if (ColorHelper.getDistance(n6Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x, y6));
+                    buffer.add(new Pair<>(x, ySub1));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x4, y));
-                        buffer.add(new Pair<>(x5, y5));
-                        buffer.add(new Pair<>(x7, y7));
-                        buffer.add(new Pair<>(x8, y));
+                        buffer.add(new Pair<>(xAdd1, y));
+                        buffer.add(new Pair<>(xAdd1, ySub1));
+                        buffer.add(new Pair<>(xSub1, ySub1));
+                        buffer.add(new Pair<>(xSub1, y));
                     }
                 }
                 if (ColorHelper.getDistance(n7Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x7, y7));
+                    buffer.add(new Pair<>(xSub1, ySub1));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x, y6));
-                        buffer.add(new Pair<>(x8, y));
+                        buffer.add(new Pair<>(x, ySub1));
+                        buffer.add(new Pair<>(xSub1, y));
                     }
                 }
                 if (ColorHelper.getDistance(n8Color, currentColor) > d) {
-                    buffer.add(new Pair<>(x8, y));
+                    buffer.add(new Pair<>(xSub1, y));
                     buffer.add(new Pair<>(x, y));
 
                     if (markExtraNeighbors) {
-                        buffer.add(new Pair<>(x, y6));
-                        buffer.add(new Pair<>(x7, y7));
-                        buffer.add(new Pair<>(x1, y1));
-                        buffer.add(new Pair<>(x, y2));
+                        buffer.add(new Pair<>(x, ySub1));
+                        buffer.add(new Pair<>(xSub1, ySub1));
+                        buffer.add(new Pair<>(xSub1, yAdd1));
+                        buffer.add(new Pair<>(x, yAdd1));
                     }
                 }
             }
@@ -452,15 +438,19 @@ public class ImageUtils {
 
     public static BufferedImage toBufferImageFrom2DArray(int[][] array, int width, int height) {
         BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        int black = Color.BLACK.getRGB();
+        int white = Color.WHITE.getRGB();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (array[i][j] == 1)
-                    bimage.setRGB(j, i, Color.BLACK.getRGB());
+                    bimage.setRGB(j, i, black);
                 else
-                    bimage.setRGB(j, i, Color.WHITE.getRGB());
+                    bimage.setRGB(j, i, white);
             }
         }
 
         return bimage;
     }
+
+
 }
