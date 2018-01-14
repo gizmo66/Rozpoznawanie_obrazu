@@ -4,13 +4,10 @@ import Core.Pair;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static Image.ImageUtils.bufferedImageToMat;
-import static Image.ImageUtils.toBufferedImage;
+import static Image.ImageUtils.*;
 
 public class ObjectsCounter {
 
@@ -27,6 +24,9 @@ public class ObjectsCounter {
     private static int blue = Color.blue.getRGB();
     private static int red = Color.red.getRGB();
     private static int white = Color.white.getRGB();
+
+    private static Map<Pair<Integer>, BufferedImage> REGIONS = new HashMap<>();
+    private static final int REGION_ID_TEXT_SIZE = 14;
 
     public static ObjectsCount countObjects(BufferedImage image, String originalFileName) {
 
@@ -57,7 +57,7 @@ public class ObjectsCounter {
         if (originalFileName.contains("grapes")) {
             contours = getContours(true, 50000, 500, 10000);
         } else {
-            contours = getContours(true, 50000, 500, 10000);
+            contours = getContours(true, 50000, 3000, 7000);
         }
 
         for (Pair<Integer> pixel : contours) {
@@ -78,6 +78,24 @@ public class ObjectsCounter {
             }
         }
 
+        int X, Y;
+        for (Map.Entry<Pair<Integer>, BufferedImage> region : REGIONS.entrySet()) {
+            BufferedImage textImage = region.getValue();
+            Pair<Integer> pixel = region.getKey();
+            int width = textImage.getWidth();
+            int height = textImage.getHeight();
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    X = pixel.x + x;
+                    Y = pixel.y + y;
+                    if (X < IMAGE_WIDTH && Y < IMAGE_HEIGHT) {
+                        image.setRGB(pixel.x + x, pixel.y + y, textImage.getRGB(x, y));
+                    }
+                }
+            }
+        }
+
+        save(image, originalFileName + "_result", "bmp");
         return result;
     }
 
@@ -116,7 +134,7 @@ public class ObjectsCounter {
             }
         }
 
-        int R, G, B, r, g, b, count, regionSize;
+        int R, G, B, r, g, b, count, minRegionSize = IMAGE_WIDTH;
         int darkQuantity = 0;
         int lightQuantity = 0;
         boolean isDark;
@@ -124,6 +142,7 @@ public class ObjectsCounter {
         int[] colorsFromRegion;
         int[][] USED_PIXELS = new int[IMAGE_WIDTH][IMAGE_HEIGHT];
         int ldColor;
+
         for (Pair<Integer> pixel : objectsPixels) {
 
             currentColor = IMAGE_MARKED_BACKGROUND_AND_CONTOURS.getRGB(pixel.x, pixel.y);
@@ -145,13 +164,7 @@ public class ObjectsCounter {
                     }
                 }
 
-                if (originalFileName.contains("grapes")) {
-                    regionSize = 1000;
-                } else {
-                    regionSize = 5000;
-                }
-
-                if (count > regionSize) {
+                if (count > minRegionSize) {
 
                     R = 0;
                     G = 0;
@@ -187,6 +200,33 @@ public class ObjectsCounter {
                             }
                         }
                     }
+
+                    int middleX = 0, middleY = 0, minX = IMAGE_WIDTH, minY = IMAGE_HEIGHT, maxX = 0, maxY = 0;
+                    for (y = 0; y < IMAGE_HEIGHT; y++) {
+                        for (x = 0; x < IMAGE_WIDTH; x++) {
+                            if (TARGET_PIXELS[x][y] == -1) {
+                                if (x < minX) {
+                                    minX = x;
+                                }
+                                if (x > maxX) {
+                                    maxX = x;
+                                }
+                                if (y < minY) {
+                                    minY = y;
+                                }
+                                if (y > maxY) {
+                                    maxY = y;
+                                }
+                            }
+                        }
+                    }
+
+                    middleX = (minX + maxX) / 2;
+                    middleY = (minY + maxY) / 2;
+
+                    String regionId = isDark ? "d." + String.valueOf(darkQuantity) : "l." + String.valueOf
+                            (lightQuantity);
+                    REGIONS.put(new Pair<>(middleX, middleY), ImageUtils.textToImage(regionId, REGION_ID_TEXT_SIZE));
                 }
             }
         }
@@ -448,7 +488,8 @@ public class ObjectsCounter {
             return;
         }
 
-        if (TARGET_PIXELS[x][y] == -1 || ColorHelper.getDistance(SOURCE_PIXELS[x][y], selectedColor) > maxDistance) {
+        if (SOURCE_PIXELS[x][y] == red || TARGET_PIXELS[x][y] == -1 || ColorHelper.getDistance(SOURCE_PIXELS[x][y],
+                selectedColor) > maxDistance) {
             if (markBorders) {
                 TARGET_PIXELS[x][y] = -1;
             }
