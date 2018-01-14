@@ -2,7 +2,8 @@ package Core;
 
 import File.ImageFileLoader;
 import Image.ImageUtils;
-import Image.ThinnerImage;
+import Image.ObjectsCount;
+import Image.ObjectsCounter;
 import View.Panel.FileChoosePanel;
 import View.Panel.ImageRecognitionPanel;
 import View.Window.Window;
@@ -15,7 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class ImageRecognizer {
@@ -125,35 +125,14 @@ public class ImageRecognizer {
         panel.add(label);
     }
 
-    private void saveResultToFile(BufferedImage imageForSaving, String fileName, String extension) {
-        ImageUtils.save(imageForSaving, fileName, extension);
-    }
-
     public LinkedHashMap<Picture, LinkedHashMap<String, Image>> countObjectsInPictures() {
         LinkedHashMap<Picture, LinkedHashMap<String, Image>> result = new LinkedHashMap<>();
         for (Picture picture : loadedPictures) {
             Image image = picture.getImage();
             LinkedHashMap<String, Image> descToImageMap = new LinkedHashMap<>();
-
-            //descToImageMap.put("raw image", image);
-
-            AtomicInteger lightQuantity = new AtomicInteger(0);
-            AtomicInteger darkQuantity = new AtomicInteger(0);
-            Image fImage = ImageUtils.f(image, lightQuantity, darkQuantity);
-            descToImageMap.put("jasne: " + lightQuantity + " ; ciemne: " + darkQuantity, fImage);
-
-            /*Image gImage = ImageUtils.g(fImage);
-            descToImageMap.put("g", gImage);*/
-
-            /*Image hImage = ImageUtils.h(gImage);
-            descToImageMap.put("h", hImage);*/
-
-            /*(ThinnerImage ti = new ThinnerImage();
-            Image iImage = ti.Start(hImage);
-            descToImageMap.put("i", iImage);*/
-
-            /*Image imageMarkedRegions = ImageUtils.markRegions(imageNoBackground);
-            descToImageMap.put("marked regions", imageMarkedRegions);*/
+            ObjectsCount objectsCount = ObjectsCounter.countObjects((BufferedImage) image, picture.getOriginalFileName());
+            descToImageMap.put("jasne: " + objectsCount.getLightObjectsCount() + " ; ciemne: "
+                    + objectsCount.getDarkObjectsCount(), image);
 
             result.put(picture, descToImageMap);
         }

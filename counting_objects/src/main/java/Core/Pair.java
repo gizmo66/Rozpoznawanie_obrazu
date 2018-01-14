@@ -1,14 +1,14 @@
 package Core;
 
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 
-@Getter
+@EqualsAndHashCode()
 public class Pair<T> {
 
-    private T p1, p2;
+    public T x, y;
 
-    public Pair(T p1, T p2) {
-        this.p1 = p1;
-        this.p2 = p2;
+    public Pair(T x, T y) {
+        this.x = x;
+        this.y = y;
     }
 }
