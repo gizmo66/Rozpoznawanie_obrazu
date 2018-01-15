@@ -10,6 +10,13 @@ public class ColorHelper {
     private final static int HIGH = 255;
     private final static int HALF = (HIGH + 1) / 2;
 
+    private static int r1;
+    private static int g1;
+    private static int b1;
+    private static int r2;
+    private static int g2;
+    private static int b2;
+
     private final static Map<Integer, Color> map = initNumberToColorMap();
     private static int factor;
 
@@ -88,29 +95,13 @@ public class ColorHelper {
     }
 
     public static int getDistance(int color1, int color2) {
-        int r1 = (color1 >> 16) & 0xFF;
-        int g1 = (color1 >> 8) & 0xFF;
-        int b1 = (color1) & 0xFF;
+        r1 = (color1 >> 16) & 0xFF;
+        g1 = (color1 >> 8) & 0xFF;
+        b1 = (color1) & 0xFF;
 
-        int r2 = (color2 >> 16) & 0xFF;
-        int g2 = (color2 >> 8) & 0xFF;
-        int b2 = (color2) & 0xFF;
-
-        return (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
-    }
-
-    static boolean isSimilar(Color color1, Color color2, double maxDistance) {
-        return getDistance(color1, color2) < maxDistance;
-    }
-
-    static double getDistance(Color color1, Color color2) {
-        int r1 = color1.getRed();
-        int g1 = color1.getGreen();
-        int b1 = color1.getBlue();
-
-        int r2 = color2.getRed();
-        int g2 = color2.getGreen();
-        int b2 = color2.getBlue();
+        r2 = (color2 >> 16) & 0xFF;
+        g2 = (color2 >> 8) & 0xFF;
+        b2 = (color2) & 0xFF;
 
         return (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
     }
