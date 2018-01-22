@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,9 +12,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -143,5 +142,20 @@ public class ImageUtils {
         return bimage;
     }
 
+    public static BufferedImage findCircles(BufferedImage image) {
+        Mat gray = new Mat();
+        bufferedImageToMat(image).copyTo(gray);
+
+        // convert to grayscale
+        Imgproc.cvtColor(gray, gray, Imgproc.COLOR_BGR2GRAY);
+
+        // do hough circles
+        Mat circles = new Mat();
+        int minRadius = 10;
+        int maxRadius = 18;
+        Imgproc.HoughCircles(gray, circles, Imgproc.CV_HOUGH_GRADIENT, 1, minRadius, 120, 10, minRadius, maxRadius);
+
+        return toBufferedImage(circles);
+    }
 
 }

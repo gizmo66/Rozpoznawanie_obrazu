@@ -1,6 +1,7 @@
 package Image;
 
 import Core.Pair;
+import Image.utils.GaussianFilter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,42 +36,53 @@ public class ObjectsCounter {
 
     private static Map<Pair<Integer>, BufferedImage> REGIONS = new HashMap<>();
     private static final int REGION_ID_TEXT_SIZE = 14;
-
-    private static boolean isImageWithGrapes;
+    private static Settings SETTINGS;
 
     public static ObjectsCount countObjects(BufferedImage baseImage, String originalFileName) {
+
+        SETTINGS = Settings.getSettings(originalFileName);
+
+        if (SETTINGS.isUseGaussianFilter()) {
+            GaussianFilter gaussianFilter = new GaussianFilter(6);
+            gaussianFilter.filter(baseImage, baseImage);
+        }
 
         IMAGE_WIDTH = baseImage.getWidth();
         IMAGE_HEIGHT = baseImage.getHeight();
         IMAGE_SIZE = IMAGE_WIDTH * IMAGE_HEIGHT;
 
         BufferedImage imageWithContours = toBufferedImage(bufferedImageToMat(baseImage));
-        BufferedImage tempContours;
-        isImageWithGrapes = originalFileName.contains("grapes");
-        if (isImageWithGrapes) {
-            tempContours = getContours(baseImage, true, 50000, 200, 500);
-        } else {
-            tempContours = getContours(baseImage, true, 50000, 200, 500);
-        }
 
-        for (int y = 0; y < IMAGE_HEIGHT; y++) {
-            for (int x = 0; x < IMAGE_WIDTH; x++) {
-                if (tempContours.getRGB(x, y) == CONTOURS_COLOR) {
+        BufferedImage tempContours = getContours(baseImage);
+        save(tempContours, originalFileName + "_A_tempContours", "bmp");
+
+        for (int y = 2; y < IMAGE_HEIGHT - 2; y++) {
+            for (int x = 2; x < IMAGE_WIDTH - 2; x++) {
+                if (tempContours.getRGB(x, y) == white) {
                     imageWithContours.setRGB(x, y, CONTOURS_COLOR);
+                    tempContours.setRGB(x, y, CONTOURS_COLOR);
                 }
             }
         }
 
+        save(imageWithContours, originalFileName + "_A1_imageWithContours", "bmp");
         BufferedImage background = getBackground(imageWithContours);
-        //save(background, originalFileName + "_background", "bmp");
 
-        BufferedImage contours;
-        if (isImageWithGrapes) {
-            contours = getContours(baseImage, true, 50000, 500, 10000);
-        } else {
-            contours = getContours(baseImage, true, 15000, 500, 7000);
+        BufferedImage tempBackground = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+
+        for (int y = 0; y < IMAGE_HEIGHT; y++) {
+            for (int x = 0; x < IMAGE_WIDTH; x++) {
+                tempBackground.setRGB(x, y, background.getRGB(x, y));
+            }
         }
-        //save(contours, originalFileName + "_contours", "bmp");
+
+        erosion(tempBackground, background);
+
+        save(tempBackground, originalFileName + "_B0_tempBackground", "bmp");
+        save(background, originalFileName + "_B_background", "bmp");
+
+        BufferedImage contours = getContours(background);
+        save(contours, originalFileName + "_C_contours", "bmp");
 
         BufferedImage objects = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
         BufferedImage imageWithMarkedBackgroundAndContours = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
@@ -104,12 +116,138 @@ public class ObjectsCounter {
                 SOURCE_PIXELS[x][y] = imageWithMarkedBackgroundAndContours.getRGB(x, y);
             }
         }
-        //save(objects, originalFileName + "_objects", "bmp");
-        //save(imageWithMarkedBackgroundAndContours, originalFileName + "_imageWithMarkedBackgroundAndContours",
-        //        "bmp");
+        save(objects, originalFileName + "_D_objects", "bmp");
+        save(imageWithMarkedBackgroundAndContours, originalFileName + "_E_imageWithMarkedBackgroundAndContours",
+                "bmp");
 
         return countLightAndDarkObjects(baseImage, objects, imageWithMarkedBackgroundAndContours,
                 originalFileName);
+    }
+
+    private static void erosion(BufferedImage tempBackground, BufferedImage background) {
+        int count;
+        int xSub1, xAdd1, ySub1, yAdd1;
+        int n1Color, n2Color, n3Color, n4Color, n5Color, n6Color, n7Color, n8Color, n9Color, n10Color, n11Color,
+                n12Color;
+        int n1ColorB, n2ColorB, n3ColorB, n4ColorB, n5ColorB, n6ColorB, n7ColorB, n8ColorB;
+        int iterations = SETTINGS.getErosionIterations();
+        for (int i = 0; i < iterations; i++) {
+            for (int y = 2; y < IMAGE_HEIGHT - 2; y++) {
+                for (int x = 2; x < IMAGE_WIDTH - 2; x++) {
+
+                    count = 0;
+
+                    xSub1 = x - 1;
+                    xAdd1 = x + 1;
+                    ySub1 = y - 1;
+                    yAdd1 = y + 1;
+
+                    n1Color = background.getRGB(xSub1, yAdd1);
+                    n2Color = background.getRGB(x, yAdd1);
+                    n3Color = background.getRGB(xAdd1, yAdd1);
+                    n4Color = background.getRGB(xAdd1, y);
+                    n5Color = background.getRGB(xAdd1, ySub1);
+                    n6Color = background.getRGB(x, ySub1);
+                    n7Color = background.getRGB(xSub1, ySub1);
+                    n8Color = background.getRGB(xSub1, y);
+
+                    n9Color = background.getRGB(x, y + 2);
+                    n10Color = background.getRGB(x, y - 2);
+                    n11Color = background.getRGB(x + 2, y);
+                    n12Color = background.getRGB(x - 2, y);
+
+                    n1ColorB = background.getRGB(x - 1, y + 2);
+                    n2ColorB = background.getRGB(x + 1, y + 2);
+                    n3ColorB = background.getRGB(x + 2, y + 1);
+                    n4ColorB = background.getRGB(x + 2, y - 1);
+                    n5ColorB = background.getRGB(x - 1, y - 2);
+                    n6ColorB = background.getRGB(x + 1, y - 2);
+                    n7ColorB = background.getRGB(x - 2, y + 1);
+                    n8ColorB = background.getRGB(x - 2, y - 1);
+
+                    if (n1Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n2Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n3Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n4Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n5Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n6Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n7Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n8Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n9Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n10Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n11Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n12Color == BACKGROUND_COLOR) {
+                        count++;
+                    }
+
+                    if (n1ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n2ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n3ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n4ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n5ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n6ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n7ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+                    if (n8ColorB == BACKGROUND_COLOR) {
+                        count++;
+                    }
+
+                    if (background.getRGB(x, y) == black) {
+                        if (count > 0 && count < 20) {
+                            tempBackground.setRGB(x, y, BACKGROUND_COLOR);
+                        } else {
+                            tempBackground.setRGB(x, y, Color.yellow.getRGB());
+                        }
+                    }
+                }
+            }
+            for (int y = 1; y < IMAGE_HEIGHT - 1; y++) {
+                for (int x = 1; x < IMAGE_WIDTH - 1; x++) {
+                    if (tempBackground.getRGB(x, y) == BACKGROUND_COLOR) {
+                        if (i == 0) {
+                            tempBackground.setRGB(x, y, CONTOURS_COLOR);
+                        }
+                        background.setRGB(x, y, BACKGROUND_COLOR);
+                    }
+                }
+            }
+            //save(baseImage, i + "_B0_baseImage", "bmp");
+        }
     }
 
     private static ObjectsCount countLightAndDarkObjects(BufferedImage baseImage, BufferedImage objects,
@@ -121,7 +259,6 @@ public class ObjectsCounter {
         int darkColor = lightDarkColorsPair.y;
 
         int x, y, regionPixelsCount, tempColor, currentColor, ldColor, darkQuantity = 0, lightQuantity = 0;
-        int minRegionSize = isImageWithGrapes ? 700 : 500;
         boolean isDark;
         int[] colorsFromRegion;
 
@@ -147,7 +284,7 @@ public class ObjectsCounter {
                     }
                 }
 
-                if (regionPixelsCount > minRegionSize) {
+                if (regionPixelsCount > SETTINGS.getMinRegionSize()) {
 
                     isDark = isRegionDark(lightColor, darkColor, regionPixelsCount, colorsFromRegion);
                     if (isDark) {
@@ -168,9 +305,9 @@ public class ObjectsCounter {
         }
 
         markRegionsIds(baseImage);
-        save(baseImage, originalFileName + "_result", "bmp");
+        save(baseImage, originalFileName + "_F_result", "bmp");
 
-        return new ObjectsCount(lightQuantity, darkQuantity);
+        return new ObjectsCount(lightQuantity, darkQuantity, SETTINGS.getLightQuantity(), SETTINGS.getDarkQuantity());
     }
 
     private static Pair<Integer> markRegionAndGetItMiddle(BufferedImage baseImage, int ldColor) {
@@ -203,7 +340,7 @@ public class ObjectsCounter {
 
     private static void fillRegion(int currentColor, int[] object) {
         TARGET_PIXELS = new int[IMAGE_WIDTH][IMAGE_HEIGHT];
-        floodFill(object[0], object[1], currentColor, 20000, false);
+        floodFill(object[0], object[1], currentColor, SETTINGS.getMaxDistance(), false);
     }
 
     private static String getRegionId(int darkQuantity, int lightQuantity, boolean isDark) {
@@ -270,13 +407,9 @@ public class ObjectsCounter {
                     distanceToBlack = ColorHelper.getDistance(currentColor, black);
                     distanceToWhite = ColorHelper.getDistance(currentColor, white);
                     if (distanceToWhite < distanceToBlack) {
-                        if (distanceToWhite < 60000) {
-                            lightColors.add(currentColor);
-                        }
+                        lightColors.add(currentColor);
                     } else {
-                        if (distanceToBlack < 7000) {
-                            darkColors.add(currentColor);
-                        }
+                        darkColors.add(currentColor);
                     }
                 }
             }
@@ -294,118 +427,64 @@ public class ObjectsCounter {
         return new Pair<>(lightColor, darkColor);
     }
 
-    private static BufferedImage getContours(BufferedImage baseImage, boolean markExtraNeighbors, int distance,
-                                             int lDistance, int dDistance) {
+    private static BufferedImage getContours(BufferedImage baseImage) {
 
-        int d, currentColor;
-        int n1Color, n2Color, n3Color, n4Color, n5Color, n6Color, n7Color, n8Color;
-        int xSub1, xAdd1, ySub1, yAdd1;
+        int[][] sobelTemplate;
+        int[][] sobelMatrixX = {{-1, 0, 1}, {-1, 0, 1}, {-1, 0, 1}};
+        int[][] sobelMatrixY = {{-1, -1, -1}, {0, 0, 0}, {1, 1, 1}};
 
+        int currentColor, r, g, b, avg;
         BufferedImage contours = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        sobelTemplate = new int[IMAGE_WIDTH][IMAGE_HEIGHT];
+
+        for (int y = 0; y < IMAGE_HEIGHT; y++) {
+            for (int x = 0; x < IMAGE_WIDTH; x++) {
+                currentColor = baseImage.getRGB(x, y);
+                r = (currentColor >> 16) & 0xFF;
+                g = (currentColor >> 8) & 0xFF;
+                b = (currentColor) & 0xFF;
+
+                avg = (r + g + b) / 3;
+
+                sobelTemplate[x][y] = avg;
+                currentColor = (avg << 24) | (avg << 16) | (avg << 8) | avg;
+                contours.setRGB(x, y, currentColor);
+            }
+        }
+
+        int px, py, pixel, rgb;
         for (int y = 1; y < IMAGE_HEIGHT - 1; y++) {
             for (int x = 1; x < IMAGE_WIDTH - 1; x++) {
-                currentColor = baseImage.getRGB(x, y);
 
-                if (ColorHelper.isSimilar(currentColor, white, distance)) {
-                    d = lDistance;
+                px = (sobelMatrixX[0][0] * sobelTemplate[x - 1][y - 1]) + (sobelMatrixX[0][1] * sobelTemplate[x][y - 1]) +
+                        (sobelMatrixX[0][2] * sobelTemplate[x + 1][y - 1]) + (sobelMatrixX[1][0] * sobelTemplate[x - 1][y]) +
+                        (sobelMatrixX[1][1] * sobelTemplate[x][y]) + (sobelMatrixX[1][2] * sobelTemplate[x + 1][y]) +
+                        (sobelMatrixX[2][0] * sobelTemplate[x - 1][y + 1]) + (sobelMatrixX[2][1] * sobelTemplate[x][y + 1]) +
+                        (sobelMatrixX[2][2] * sobelTemplate[x + 1][y + 1]);
+
+                py = (sobelMatrixY[0][0] * sobelTemplate[x - 1][y - 1]) + (sobelMatrixY[0][1] * sobelTemplate[x][y - 1]) +
+                        (sobelMatrixY[0][2] * sobelTemplate[x + 1][y - 1]) + (sobelMatrixY[1][0] * sobelTemplate[x - 1][y]) +
+                        (sobelMatrixY[1][1] * sobelTemplate[x][y]) + (sobelMatrixY[1][2] * sobelTemplate[x + 1][y]) +
+                        (sobelMatrixY[2][0] * sobelTemplate[x - 1][y + 1]) + (sobelMatrixY[2][1] * sobelTemplate[x][y + 1]) +
+                        (sobelMatrixY[2][2] * sobelTemplate[x + 1][y + 1]);
+
+                pixel = (int) Math.sqrt((px * px) + (py * py));
+
+                if (pixel > 255) {
+                    pixel = 255;
+                } else if (pixel < 0) {
+                    pixel = 0;
+                }
+
+                rgb = (pixel << 8) | (pixel << 16) | (pixel << 8) | pixel;
+
+                if (ColorHelper.getDistance(rgb, white) < 110000) {
+                    rgb = white;
                 } else {
-                    d = dDistance;
+                    rgb = black;
                 }
 
-                xSub1 = x - 1;
-                xAdd1 = x + 1;
-                ySub1 = y - 1;
-                yAdd1 = y + 1;
-
-                n1Color = baseImage.getRGB(xSub1, yAdd1);
-                n2Color = baseImage.getRGB(x, yAdd1);
-                n3Color = baseImage.getRGB(xAdd1, yAdd1);
-                n4Color = baseImage.getRGB(xAdd1, y);
-                n5Color = baseImage.getRGB(xAdd1, ySub1);
-                n6Color = baseImage.getRGB(x, ySub1);
-                n7Color = baseImage.getRGB(xSub1, ySub1);
-                n8Color = baseImage.getRGB(xSub1, y);
-
-                if (ColorHelper.getDistance(n1Color, currentColor) > d) {
-                    contours.setRGB(xSub1, yAdd1, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(x, yAdd1, CONTOURS_COLOR);
-                        contours.setRGB(xSub1, y, CONTOURS_COLOR);
-                    }
-                }
-                if (ColorHelper.getDistance(n2Color, currentColor) > d) {
-                    contours.setRGB(x, yAdd1, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(xSub1, yAdd1, CONTOURS_COLOR);
-                        contours.setRGB(xAdd1, yAdd1, CONTOURS_COLOR);
-                        contours.setRGB(xAdd1, y, CONTOURS_COLOR);
-                        contours.setRGB(xSub1, y, CONTOURS_COLOR);
-                    }
-                }
-                if (ColorHelper.getDistance(n3Color, currentColor) > d) {
-                    contours.setRGB(xAdd1, yAdd1, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(x, yAdd1, CONTOURS_COLOR);
-                        contours.setRGB(xAdd1, y, CONTOURS_COLOR);
-                    }
-                }
-                if (ColorHelper.getDistance(n4Color, currentColor) > d) {
-                    contours.setRGB(xAdd1, y, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(x, yAdd1, CONTOURS_COLOR);
-                        contours.setRGB(xAdd1, yAdd1, CONTOURS_COLOR);
-                        contours.setRGB(xAdd1, ySub1, CONTOURS_COLOR);
-                        contours.setRGB(x, ySub1, CONTOURS_COLOR);
-                    }
-                }
-                if (ColorHelper.getDistance(n5Color, currentColor) > d) {
-                    contours.setRGB(xAdd1, ySub1, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(xAdd1, y, CONTOURS_COLOR);
-                        contours.setRGB(x, ySub1, CONTOURS_COLOR);
-                    }
-                }
-                if (ColorHelper.getDistance(n6Color, currentColor) > d) {
-                    contours.setRGB(x, ySub1, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(xAdd1, y, CONTOURS_COLOR);
-                        contours.setRGB(xAdd1, ySub1, CONTOURS_COLOR);
-                        contours.setRGB(xSub1, ySub1, CONTOURS_COLOR);
-                        contours.setRGB(xSub1, y, CONTOURS_COLOR);
-                    }
-                }
-                if (ColorHelper.getDistance(n7Color, currentColor) > d) {
-                    contours.setRGB(xSub1, ySub1, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(x, ySub1, CONTOURS_COLOR);
-                        contours.setRGB(xSub1, y, CONTOURS_COLOR);
-                    }
-                }
-                if (ColorHelper.getDistance(n8Color, currentColor) > d) {
-                    contours.setRGB(xSub1, y, CONTOURS_COLOR);
-                    contours.setRGB(x, y, CONTOURS_COLOR);
-
-                    if (markExtraNeighbors) {
-                        contours.setRGB(x, ySub1, CONTOURS_COLOR);
-                        contours.setRGB(xSub1, ySub1, CONTOURS_COLOR);
-                        contours.setRGB(xSub1, yAdd1, CONTOURS_COLOR);
-                        contours.setRGB(x, yAdd1, CONTOURS_COLOR);
-                    }
-                }
+                contours.setRGB(x, y, rgb);
             }
         }
         return contours;

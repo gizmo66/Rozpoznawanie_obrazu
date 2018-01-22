@@ -131,8 +131,8 @@ public class ImageRecognizer {
             Image image = picture.getImage();
             LinkedHashMap<String, Image> descToImageMap = new LinkedHashMap<>();
             ObjectsCount objectsCount = ObjectsCounter.countObjects((BufferedImage) image, picture.getOriginalFileName());
-            descToImageMap.put("jasne: " + objectsCount.getLightObjectsCount() + " ; ciemne: "
-                    + objectsCount.getDarkObjectsCount(), image);
+            descToImageMap.put("jasne: " + objectsCount.getLightObjectsCount() + " (" + objectsCount.getExpectedLightCount() + ") ; ciemne: "
+                    + objectsCount.getDarkObjectsCount() + "(" + objectsCount.getExpectedDarkCount() + ")", image);
 
             result.put(picture, descToImageMap);
         }
